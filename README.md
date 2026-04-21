@@ -85,20 +85,45 @@ flowchart TD
 整個 pipeline 的文件與程式碼有嚴格的上下游關係。**上游存在 = 下游必須全部覆蓋**，缺漏由 `/devsop-align-check` 掃出、`/devsop-align-fix` 自動補齊。
 
 ```
-BRD（最上游，產品設計文件）
- └─► PRD（User Story + Acceptance Criteria）
-      └─► EDD（Engineering Design Document，技術設計）
-           ├─► ARCH.md（架構設計：元件拆解、分層、Mermaid 圖）
-           ├─► API.md（所有 Endpoint 定義：Method、Path、Schema、Error Code）
-           └─► SCHEMA.md（資料模型：ER 圖 + CREATE TABLE SQL）
-                └─► features/（BDD Gherkin Scenario：正常路徑 + 錯誤路徑 + 邊界）
-                     └─► step definitions（呼叫真實業務邏輯）
-                          └─► src/（實作：Controller / Service / Repository）
-                               ├─► tests/unit/（每個 public function 必須有）
-                               └─► tests/integration/（每個外部 I/O 必須有）
+IDEA.md（可選，最上游概念入口）
+ └─► BRD（Business Requirements，商業目標與範圍）
+      └─► PRD（User Story + Acceptance Criteria）
+           └─► PDD（UX / Interaction Design，可選；client_type=none 時跳過）
+                └─► EDD（Engineering Design Document，技術設計）
+                     ├─► ARCH.md（架構設計：元件拆解、分層、Mermaid 圖）
+                     ├─► API.md（所有 Endpoint 定義：Method、Path、Schema、Error Code）
+                     └─► SCHEMA.md（資料模型：ER 圖 + CREATE TABLE SQL）
+                          └─► test-plan.md（測試策略：Unit / Integration / E2E / Performance）
+                               ├─► features/（Server BDD Gherkin Scenario）
+                               │    └─► step definitions → src/（實作）
+                               │         ├─► tests/unit/
+                               │         └─► tests/integration/
+                               └─► features/client/（Client BDD；client_type≠none 時）
+                                    └─► tests/（Client TDD：Playwright / Unity / Jest）
 ```
 
 > 唯一合法跳過條件：功能明確列在 **BRD `## Out of Scope`** 章節。
+
+#### 累積依賴鏈（Full Upstream Alignment）
+
+每份文件生成時，必須讀取**所有上游文件**，而非僅讀直接父文件。這確保每一層的內容都與整條業務脈絡完全對齊。
+
+```
+文件          必須讀取的上游（累積）
+──────────    ──────────────────────────────────────────────
+IDEA.md       （無，最上游）
+BRD           IDEA
+PRD           BRD, IDEA
+PDD           PRD, BRD, IDEA
+EDD           PDD, PRD, BRD, IDEA
+ARCH          EDD, PDD, PRD, BRD, IDEA
+API           ARCH, EDD, PDD, PRD, BRD, IDEA
+SCHEMA        API, ARCH, EDD, PDD, PRD, BRD, IDEA
+test-plan     SCHEMA, API, ARCH, EDD, PDD, PRD, BRD, IDEA
+BDD features  test-plan, SCHEMA, API, ARCH, EDD, PDD, PRD, BRD, IDEA
+```
+
+> 若某上游文件不存在，靜默跳過；不得因上游缺失而降低覆蓋深度。
 
 ---
 

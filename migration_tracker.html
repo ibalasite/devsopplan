@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Migration Tracker — MYDEVSOP</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body>
+  <header class="top-nav">
+    <a href="index.html" class="nav-brand">MYDEVSOP</a>
+    <div class="nav-controls">
+      <div class="search-wrap">
+        <input class="search-input" type="search" placeholder="搜尋文件...">
+        <div class="search-results"></div>
+      </div>
+      <a class="nav-gh-link" href="https://github.com/ibalasite/MYDEVSOP" target="_blank" rel="noopener">⌥ GitHub</a>
+      <button class="sidebar-toggle" id="sidebarToggle" title="收合/展開側欄">☰</button>
+    </div>
+  </header>
+  <div class="doc-page-banner">
+    <p class="banner-breadcrumb"><a href="index.html">MYDEVSOP</a> › Migration Tracker</p>
+    <h1 class="banner-title">Migration Tracker</h1>
+  </div>
+  <div class="page-wrapper">
+    <aside class="sidebar" aria-label="文件導覽">
+      <div class="sidebar__section">
+        <div class="sidebar__label">文件</div>
+        <a class="sidebar__link" href="index.html">🏠 首頁</a>
+<a class="sidebar__link" href="prd.html">📝 產品需求文件 (PRD)</a>
+<a class="sidebar__link" href="requirements.html">📌 需求規格</a>
+<a class="sidebar__link active" href="migration_tracker.html">🔄 Migration Tracker</a>
+<a class="sidebar__link" href="product_review.html">🔍 Product Review</a>
+<a class="sidebar__link" href="solution_roadmap.html">🗺️ Solution Roadmap</a>
+      </div>
+    </aside>
+    <div class="sidebar-resizer" id="sidebarResizer"></div>
+    <main class="doc-content"><h1>MYDEVSOP 共用邏輯遷移追蹤（#22）</h1>
+<blockquote><p>追蹤 devsop-shared 標準邏輯遷移至各 SKILL 的進度。</p></blockquote>
+<blockquote><p>原則：不動已達標項目，逐步遷移未統一部分。</p></blockquote>
+<blockquote><p>最後更新：2026-04-19</p></blockquote>
+<hr>
+<h2>遷移項目清單</h2>
+<h3>✅ 已完成</h3>
+<table>
+<tr><th>項目</th><th>說明</th><th>完成版本</th></tr>
+<tr><td>Session Config §0</td><td>execution_mode + review_strategy 問一次全程共用</td><td>v2.1</td></tr>
+<tr><td>review_strategy 讀取</td><td>9 個 review SKILL 統一讀取 _MAX_ROUNDS</td><td>v2.2</td></tr>
+<tr><td>_write_state() 原子寫入</td><td>mktemp + mv 防 crash 截斷，devsop-autodev 已實作</td><td>v2.3</td></tr>
+<tr><td>雙層輸出格式</td><td>[技術] + [白話說明] 並列，9 個 review SKILL</td><td>v2.4</td></tr>
+<tr><td>AskUserQuestion 取代 _ask()</td><td>devsop-lang-select、devsop-autodev STEP 02</td><td>v2.4</td></tr>
+</table>
+<hr>
+<h3>🔄 進行中</h3>
+<table>
+<tr><th>項目</th><th>說明</th><th>目標版本</th><th>受影響 SKILL</th></tr>
+<tr><td>版本檢查邏輯統一</td><td>統一 check-update.sh 呼叫方式</td><td>v2.5</td><td>所有入口 SKILL</td></tr>
+<tr><td>STEP signal 格式統一</td><td>STEP_COMPLETE / STEP_FAILED 格式</td><td>v2.5</td><td>所有 STEP Agent</td></tr>
+<tr><td>_write_state() 遷移</td><td>idea、change、repair 使用原子寫入</td><td>v2.5</td><td>3 個入口 SKILL</td></tr>
+</table>
+<hr>
+<h3>⏳ 待規劃</h3>
+<table>
+<tr><th>項目</th><th>說明</th><th>優先度</th></tr>
+<tr><td>scripts/devsop-lib.sh</td><td>提取 Bash 函式為真實 shell 腳本，可 bats 測試</td><td>中</td></tr>
+<tr><td>state file 命名空間</td><td>確認 idea/change/repair 使用 user+branch 命名</td><td>中</td></tr>
+<tr><td>三層測試覆蓋</td><td>front-matter schema + unit + smoke test</td><td>低</td></tr>
+</table>
+<hr>
+<h2>不遷移項目（已達標，不動）</h2>
+<p>以下項目已在各 SKILL 中正確實作，<strong>不需遷移</strong>：</p>
+<ul><li>devsop-autodev：_spawn_agent_with_retry()、_review_loop()、STEP signal</li><li>9 個 review SKILL：review_strategy 讀取、Per-Round Summary 格式</li><li>devsop-repair：Session Config、保護 PASS 原則</li></ul>
+<hr>
+<p><em>此文件由 MYDEVSOP 開發者手動維護，反映截至目前的遷移狀態。</em></p></main>
+  </div>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({startOnLoad:true,theme:'default',
+      flowchart:{curve:'basis',nodeSpacing:60,rankSpacing:80},
+      er:{layoutDirection:'TD',minEntityWidth:100,fontSize:12},
+      sequence:{actorMargin:60,messageMargin:30}});
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-yaml.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-sql.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-go.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-typescript.min.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>

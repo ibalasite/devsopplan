@@ -1,0 +1,32 @@
+{
+  "index.html": {
+    "url": "index.html",
+    "title": "首頁",
+    "excerpt": "MYDEVSOP\n完整軟體開發 SOP v2.4：從構想到上線，全程 AI 驅動、自動 Review、雙層輸出。\n理念\nMYDEVSOP 把整個開發 SOP 串成閉環——從最初的產品構想（BRD）到程式碼上線、PR 建立。\n每個 Review 都是 Loop：Claude subagent 找問題 "
+  },
+  "prd.html": {
+    "url": "prd.html",
+    "title": "產品需求文件 (PRD)",
+    "excerpt": "PRD — Product Requirements Document\n&lt;!-- 對應學術標準：IEEE 830 (SRS)，對應業界：Google PRD / Amazon PRFAQ --&gt;\n&lt;!-- Version: v2.4 | Status: IN_REVIEW | DO"
+  },
+  "requirements.html": {
+    "url": "requirements.html",
+    "title": "需求規格",
+    "excerpt": "MYDEVSOP AutoDev — 完整專案需求規格\n版本：v2.4\n日期：2026-04-21\n狀態：已實作（31-STEP Pipeline）\n\n1. 專案目標\n將 MYDEVSOP 從「文件 Review 工具」升級為全自動 AI 軟體開發流水線。\n使用者只需撰寫一份 BRD，執行一個指令，"
+  },
+  "migration_tracker.html": {
+    "url": "migration_tracker.html",
+    "title": "Migration Tracker",
+    "excerpt": "MYDEVSOP 共用邏輯遷移追蹤（#22）\n追蹤 devsop-shared 標準邏輯遷移至各 SKILL 的進度。\n原則：不動已達標項目，逐步遷移未統一部分。\n最後更新：2026-04-19\n\n遷移項目清單\n✅ 已完成\n\n項目說明完成版本\nSession Config §0execution_m"
+  },
+  "product_review.html": {
+    "url": "product_review.html",
+    "title": "Product Review",
+    "excerpt": "MYDEVSOP 產品 &amp; 生產力審查報告\n審查日期：2026-04-19\n版本：REQUIREMENTS.md v1.3\n審查角度：產品定位 / 生產力 ROI / 技術架構\n\n執行摘要（Executive Summary）\nMYDEVSOP 是一個技術上有真實深度的工具——Agent-p"
+  },
+  "solution_roadmap.html": {
+    "url": "solution_roadmap.html",
+    "title": "Solution Roadmap",
+    "excerpt": "MYDEVSOP 問題解決方案路線圖\n核心原則：「不會寫程式也能開發」是正確定位。就像 Gamma.app 讓人不懂 CSS 也能做簡報——\n工具按想法生成，能不能用全看 IDEA 品質，不看使用者的技術能力。\n所有解決方案都圍繞這個原則：技術複雜度由 AI 吸收，不暴露給使用者。\n\n問題與解決方案"
+  }
+}
