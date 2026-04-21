@@ -1,0 +1,47 @@
+// docs/pages/assets/app.js — MYDEVSOP Docs
+
+// Active nav + sidebar link
+const currentPage = location.pathname.split('/').pop() || 'index.html';
+document.querySelectorAll('.sidebar__link, .nav-link').forEach(link => {
+  if (link.getAttribute('href') === currentPage) {
+    link.classList.add('active');
+  }
+});
+
+// Lightbox
+const lightbox = document.createElement('div');
+lightbox.className = 'lightbox';
+lightbox.innerHTML = '<span class="lightbox__close">&#x2715;</span><div class="lightbox__content"></div>';
+document.body.appendChild(lightbox);
+lightbox.querySelector('.lightbox__close').addEventListener('click', () => lightbox.classList.remove('active'));
+lightbox.addEventListener('click', e => { if (e.target === lightbox) lightbox.classList.remove('active'); });
+document.querySelectorAll('.diagram-container').forEach(el => {
+  el.addEventListener('click', () => {
+    const clone = el.cloneNode(true);
+    lightbox.querySelector('.lightbox__content').innerHTML = '';
+    lightbox.querySelector('.lightbox__content').appendChild(clone);
+    lightbox.classList.add('active');
+    if (window.mermaid) mermaid.run({ nodes: lightbox.querySelectorAll('.mermaid:not([data-processed])') });
+  });
+});
+
+// Search
+let searchData = null;
+async function initSearch() {
+  try {
+    const res = await fetch('search-data.json');
+    if (res.ok) searchData = await res.json();
+  } catch {}
+}
+const searchInput = document.querySelector('.search-input');
+const searchResultsEl = document.querySelector('.search-results');
+searchInput?.addEventListener('input', e => {
+  const q = e.target.value.trim().toLowerCase();
+  if (!q || !searchData || !searchResultsEl) { if (searchResultsEl) searchResultsEl.style.display = 'none'; return; }
+  const hits = Object.values(searchData).filter(d => d.title.toLowerCase().includes(q) || d.excerpt.toLowerCase().includes(q)).slice(0, 8);
+  if (!hits.length) { searchResultsEl.style.display = 'none'; return; }
+  searchResultsEl.innerHTML = hits.map(d => `<a class="search-result-item" href="${d.url}"><div class="search-result-item__title">${d.title}</div><div class="search-result-item__excerpt">${d.excerpt.slice(0,80)}\u2026</div></a>`).join('');
+  searchResultsEl.style.display = 'block';
+});
+document.addEventListener('click', e => { if (!e.target.closest('.search-wrap') && searchResultsEl) searchResultsEl.style.display = 'none'; });
+initSearch();

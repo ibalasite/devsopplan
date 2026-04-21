@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MYDEVSOP — AI-Driven Software Development SOP Automation</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css">
+</head>
+<body>
+
+<nav class="top-nav">
+  <a class="nav-brand" href="index.html">MYDEVSOP Docs</a>
+  <div class="nav-links">
+    <a class="nav-link" href="index.html">首頁</a>
+    <a class="nav-link" href="prd.html">PRD</a>
+  </div>
+  <div class="nav-controls">
+    <a class="nav-gh-link" href="https://github.com/ibalasite/MYDEVSOP" target="_blank" rel="noopener">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+      GitHub
+    </a>
+    <div class="search-wrap">
+      <input class="search-input" type="search" placeholder="搜尋文件..." aria-label="搜尋文件">
+      <div class="search-results" role="listbox"></div>
+    </div>
+  </div>
+</nav>
+
+<div class="doc-page-banner">
+  <div class="banner-breadcrumb">MYDEVSOP 文件中心</div>
+  <h1 class="banner-title">MYDEVSOP</h1>
+  <p class="banner-desc">AI-Driven Software Development SOP Automation v2.4 &mdash; 完整軟體開發 SOP：從構想到上線，全程 AI 驅動、自動 Review、雙層輸出</p>
+</div>
+
+<div class="page-wrapper">
+  <aside class="sidebar">
+    <div class="sidebar__section">
+      <span class="sidebar__label">文件中心</span>
+      <a class="sidebar__link" href="index.html">README / 首頁</a>
+      <a class="sidebar__link" href="prd.html">PRD — 產品需求文件</a>
+    </div>
+    <div class="sidebar__section">
+      <span class="sidebar__label">章節導覽</span>
+      <a class="sidebar__link" href="#overview">理念與概述</a>
+      <a class="sidebar__link" href="#pipeline">完整 SOP 流程圖</a>
+      <a class="sidebar__link" href="#dependency-chain">文件上下游依賴鏈</a>
+      <a class="sidebar__link" href="#review-loop">Review Loop 機制</a>
+      <a class="sidebar__link" href="#step-table">31 STEP 輸入輸出對照</a>
+      <a class="sidebar__link" href="#installation">安裝</a>
+      <a class="sidebar__link" href="#scenarios">使用情境操作手冊</a>
+      <a class="sidebar__link" href="#session-config">Session Config</a>
+      <a class="sidebar__link" href="#skills">Skills 完整一覽</a>
+      <a class="sidebar__link" href="#structure">專案結構</a>
+      <a class="sidebar__link" href="#windows">Windows 相容性</a>
+      <a class="sidebar__link" href="#review-principles">Review 設計原則</a>
+    </div>
+  </aside>
+
+  <main class="doc-content">
+
+    <h1>MYDEVSOP</h1>
+    <blockquote>完整軟體開發 SOP v2.4：從構想到上線，全程 AI 驅動、自動 Review、雙層輸出。</blockquote>
+
+    <hr>
+
+    <h2 id="overview">理念</h2>
+    <p>MYDEVSOP 把整個開發 SOP 串成閉環——從最初的產品構想（BRD）到程式碼上線、PR 建立。每個 Review 都是 Loop：Claude subagent 找問題 → Claude 修文件/程式碼 → 重複直到 0 findings。每一步同時輸出技術摘要與 <strong>[白話說明]</strong>，讓非技術人員也能追蹤進度。</p>
+
+    <hr>
+
+    <h2 id="pipeline">完整 SOP 流程圖與說明</h2>
+    <h3>全流程鳥瞰</h3>
+    <div class="diagram-container" title="點擊放大">
+      <pre class="mermaid">
+flowchart TD
+    A["💡 構想"] -->|"/devsop-idea"| B[/"BRD Review Loop"/]
+    B --> BRD[("📄 docs/BRD.md\n📝 docs/IDEA.md")]
+    BRD -->|"自動銜接\n/devsop-autodev"| CFG["⚙️ Session Config\n執行模式 × Review 策略"]
+    CFG --> P1
+
+    subgraph P1 ["📄 STEP 01–08：需求與設計文件"]
+        direction TB
+        S01["01  BRD Review Loop ✅"] -->
+        S02["02  語言/框架選型"] -->
+        S03["03  PRD 生成"] -->
+        S04["04  PRD Review Loop ✅"] -->
+        S05["05  PDD 生成（Client 設計文件）"] -->
+        S06["06  PDD Review Loop ✅"] -->
+        S07["07  EDD 生成"] -->
+        S08["08  EDD Review Loop ✅"]
+    end
+
+    subgraph P2 ["🏗️ STEP 09–12：架構設計"]
+        direction TB
+        S09["09  並行生成 ARCH / API / Schema"] -->
+        S10["10  ARCH Review Loop ✅"] -->
+        S11["11  API Review Loop ✅"] -->
+        S12["12  Schema Review Loop ✅"]
+    end
+
+    subgraph P3 ["🧪 STEP 13–19：測試規劃與實作"]
+        direction TB
+        S13["13  Mermaid 圖表生成"] -->
+        S14["14  Test Plan 生成"] -->
+        S15["15  BDD Feature 生成"] -->
+        S16["16  Client BDD Feature 生成"] -->
+        S17["17  TDD 循環（RED → GREEN → REFACTOR）"] -->
+        S18["18  Client TDD 骨架生成"] -->
+        S19["19  效能測試生成"]
+    end
+
+    subgraph P4 ["🔍 STEP 20–26：品質驗證"]
+        direction TB
+        S20["20  Code Review Loop ✅"] -->
+        S21["21  Test Review Loop ✅（覆蓋率 ≥80%）"] -->
+        S22["22  對齊掃描（align-check）"] -->
+        S23["23  RPA 自動化測試（Playwright）"] -->
+        S24["24  Smoke Test Gate"] -->
+        S25["25  假測試稽核（Test Audit）"] -->
+        S26["26  假實作稽核（Impl Audit）"]
+    end
+
+    subgraph P5 ["🚀 STEP 27–31：基礎設施與輸出"]
+        direction TB
+        S27["27  K8s 基礎設施 + 本機部署手冊"] -->
+        S28["28  CI/CD Pipeline 生成"] -->
+        S29["29  Secrets 管理腳本生成"] -->
+        S30["30  HTML 文件站生成"] -->
+        S31["31  GitHub Pages + git push + PR 🚀"]
+    end
+
+    P1 --> P2
+    P2 --> P3
+    P3 --> P4
+    P4 --> P5
+      </pre>
+    </div>
+
+    <hr>
+
+    <h2 id="dependency-chain">文件上下游依賴鏈</h2>
+    <p>整個 pipeline 的文件與程式碼有嚴格的上下游關係。<strong>上游存在 = 下游必須全部覆蓋</strong>，缺漏由 <code>/devsop-align-check</code> 掃出、<code>/devsop-align-fix</code> 自動補齊。</p>
+    <pre><code>BRD（最上游，產品設計文件）
+ └─► PRD（User Story + Acceptance Criteria）
+      └─► EDD（Engineering Design Document，技術設計）
+           ├─► ARCH.md（架構設計：元件拆解、分層、Mermaid 圖）
+           ├─► API.md（所有 Endpoint 定義：Method、Path、Schema、Error Code）
+           └─► SCHEMA.md（資料模型：ER 圖 + CREATE TABLE SQL）
+                └─► features/（BDD Gherkin Scenario：正常路徑 + 錯誤路徑 + 邊界）
+                     └─► step definitions（呼叫真實業務邏輯）
+                          └─► src/（實作：Controller / Service / Repository）
+                               ├─► tests/unit/（每個 public function 必須有）
+                               └─► tests/integration/（每個外部 I/O 必須有）</code></pre>
+    <blockquote>唯一合法跳過條件：功能明確列在 <strong>BRD <code>## Out of Scope</code></strong> 章節。</blockquote>
+
+    <hr>
+
+    <h2 id="review-loop">Review Loop 機制</h2>
+    <p>每個帶 ✅ 的 STEP 都執行 Review Loop，直到達停止條件才進下一 STEP：</p>
+    <div class="diagram-container" title="點擊放大">
+      <pre class="mermaid">
+flowchart TD
+    A["生成文件 / 程式碼"] --> B["subagent 掃描問題"]
+    B --> C{{"finding &gt; 0？"}}
+    C -->|"YES"| D["Claude 修復"] --> B
+    C -->|"NO"| E["進入下一 STEP\n每輪一 commit，git history 可追溯"]
+      </pre>
+    </div>
+
+    <h3>Review 策略</h3>
+    <table>
+      <thead><tr><th>策略</th><th>最大輪次</th><th>停止條件</th></tr></thead>
+      <tbody>
+        <tr><td><code>rapid</code></td><td>3 輪</td><td>任一輪 finding=0 或第 3 輪後直接進下一 STEP</td></tr>
+        <tr><td><code>standard</code>（預設）</td><td>5 輪</td><td>finding=0 或第 5 輪後</td></tr>
+        <tr><td><code>exhaustive</code></td><td>無上限</td><td>finding=0 才停</td></tr>
+        <tr><td><code>tiered</code></td><td>無上限</td><td>前 5 輪 finding=0；第 6 輪起 CRITICAL+HIGH+MEDIUM=0 即可</td></tr>
+        <tr><td><code>custom</code></td><td>無上限</td><td>自訂條件</td></tr>
+      </tbody>
+    </table>
+
+    <hr>
+
+    <h2 id="step-table">31 STEP 輸入 → 輸出對照</h2>
+    <table>
+      <thead><tr><th>STEP</th><th>名稱</th><th>主要輸入</th><th>主要輸出</th><th>Review</th></tr></thead>
+      <tbody>
+        <tr><td>01</td><td>BRD Review Loop</td><td>docs/BRD.md</td><td>BRD 修訂</td><td>✅</td></tr>
+        <tr><td>02</td><td>語言/框架選型</td><td>BRD.md</td><td>lang_stack 寫入 state</td><td>—</td></tr>
+        <tr><td>03</td><td>PRD 生成</td><td>BRD.md</td><td>docs/PRD.md</td><td>—</td></tr>
+        <tr><td>04</td><td>PRD Review Loop</td><td>PRD.md</td><td>PRD 修訂</td><td>✅</td></tr>
+        <tr><td>05</td><td>PDD 生成（Client 設計文件）</td><td>PRD + BRD</td><td>docs/PDD.md</td><td>—</td></tr>
+        <tr><td>06</td><td>PDD Review Loop</td><td>PDD.md</td><td>PDD 修訂</td><td>✅</td></tr>
+        <tr><td>07</td><td>EDD 生成</td><td>PRD + BRD</td><td>docs/EDD.md</td><td>—</td></tr>
+        <tr><td>08</td><td>EDD Review Loop</td><td>EDD.md</td><td>EDD 修訂</td><td>✅</td></tr>
+        <tr><td>09</td><td>並行生成 ARCH / API / Schema</td><td>EDD.md</td><td>docs/ARCH.md + API.md + SCHEMA.md</td><td>—</td></tr>
+        <tr><td>10</td><td>ARCH Review Loop</td><td>ARCH.md</td><td>ARCH 修訂</td><td>✅</td></tr>
+        <tr><td>11</td><td>API Review Loop</td><td>API.md</td><td>API 修訂</td><td>✅</td></tr>
+        <tr><td>12</td><td>Schema Review Loop</td><td>SCHEMA.md</td><td>SCHEMA 修訂 + SQL 效能審查</td><td>✅</td></tr>
+        <tr><td>13</td><td>Mermaid 圖表生成</td><td>docs/*.md</td><td>docs/diagrams/*.md</td><td>—</td></tr>
+        <tr><td>14</td><td>Test Plan 生成</td><td>PRD + EDD + ARCH</td><td>docs/test-plan.md</td><td>—</td></tr>
+        <tr><td>15</td><td>BDD Feature 生成</td><td>PRD AC</td><td>features/*.feature</td><td>—</td></tr>
+        <tr><td>16</td><td>Client BDD Feature 生成</td><td>PRD + PDD.md</td><td>features/client/*.feature</td><td>—</td></tr>
+        <tr><td>17</td><td>TDD 循環（RED→GREEN→REFACTOR）</td><td>BDD features</td><td>src/ 實作 + tests/ 測試</td><td>—</td></tr>
+        <tr><td>18</td><td>Client TDD 骨架生成</td><td>Client BDD</td><td>tests/client/</td><td>—</td></tr>
+        <tr><td>19</td><td>效能測試生成</td><td>EDD SCALE</td><td>tests/performance/ + k6 腳本</td><td>—</td></tr>
+        <tr><td>20</td><td>Code Review Loop</td><td>src/ + tests/</td><td>程式碼品質報告 + 修復</td><td>✅</td></tr>
+        <tr><td>21</td><td>Test Review Loop</td><td>tests/</td><td>覆蓋率報告（≥80%）</td><td>✅</td></tr>
+        <tr><td>22</td><td>對齊掃描（align-check）</td><td>docs/ + src/ + tests/</td><td>docs/ALIGN_REPORT.md</td><td>—</td></tr>
+        <tr><td>23</td><td>RPA 自動化測試</td><td>src/ + dev server</td><td>Playwright 截圖 + RPA_REPORT.md</td><td>—</td></tr>
+        <tr><td>24</td><td>Smoke Test Gate</td><td>全部</td><td>通過/中止決策</td><td>—</td></tr>
+        <tr><td>25</td><td>假測試稽核（Test Audit）</td><td>tests/ 全部</td><td>假測試偵測報告 + 自動修正</td><td>—</td></tr>
+        <tr><td>26</td><td>假實作稽核（Impl Audit）</td><td>src/ 全部</td><td>假實作偵測報告 + 自動補全</td><td>—</td></tr>
+        <tr><td>27</td><td>K8s 基礎設施 + 本機部署手冊</td><td>EDD SCALE 設計</td><td>k8s/*.yaml + docs/LOCAL_DEPLOY.md</td><td>—</td></tr>
+        <tr><td>28</td><td>CI/CD Pipeline 生成</td><td>EDD + K8s</td><td>.github/workflows/*.yml</td><td>—</td></tr>
+        <tr><td>29</td><td>Secrets 管理腳本生成</td><td>EDD</td><td>scripts/secrets-*.sh + .env.example</td><td>—</td></tr>
+        <tr><td>30</td><td>HTML 文件站生成</td><td>docs/*.md</td><td>docs/pages/*.html</td><td>—</td></tr>
+        <tr><td>31</td><td>GitHub Pages + git push + PR</td><td>全部</td><td>GitHub PR 🚀</td><td>—</td></tr>
+      </tbody>
+    </table>
+
+    <hr>
+
+    <h2 id="installation">安裝</h2>
+    <h3>前置需求</h3>
+    <table>
+      <thead><tr><th>工具</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td><a href="https://claude.ai/code" target="_blank">Claude Code</a></td><td>CLI 已安裝並登入（必要）</td></tr>
+        <tr><td>Git</td><td>任意版本（必要）</td></tr>
+        <tr><td>Python 3</td><td>用於 JSON state file 讀寫（必要）</td></tr>
+        <tr><td><code>gh</code> CLI</td><td>STEP 31 自動建立 PR 需要（可選）</td></tr>
+      </tbody>
+    </table>
+
+    <h3>macOS / Linux 安裝</h3>
+    <pre><code class="language-bash">git clone https://github.com/ibalasite/MYDEVSOP.git ~/projects/MYDEVSOP
+cd ~/projects/MYDEVSOP
+bash install.sh</code></pre>
+
+    <h3>Windows 安裝（PowerShell，原生支援）</h3>
+    <pre><code class="language-powershell">git clone https://github.com/ibalasite/MYDEVSOP.git "$HOME\projects\MYDEVSOP"
+cd "$HOME\projects\MYDEVSOP"
+powershell -ExecutionPolicy Bypass -File install.ps1</code></pre>
+    <p>重啟 Claude Code 後即可使用。</p>
+
+    <hr>
+
+    <h2 id="scenarios">使用情境操作手冊</h2>
+
+    <h3>情境 A：全新專案，從構想開始</h3>
+    <p><strong>適用：</strong>還沒有任何文件，只有一個想法。</p>
+    <pre><code class="language-bash">/devsop-idea</code></pre>
+    <p><strong>流程：</strong></p>
+    <ol>
+      <li>選擇輸入方式：多輪訪談（推薦新手）/ Quick Start / AI 自動填入（Full-Auto 模式）</li>
+      <li>BRD Review Loop（最多 5 輪，可調整）</li>
+      <li>生成 <code>docs/BRD.md</code> + <code>docs/IDEA.md</code></li>
+      <li><strong>自動銜接 <code>/devsop-autodev</code></strong></li>
+    </ol>
+
+    <h3>情境 B：已有 BRD，開始全自動開發</h3>
+    <p><strong>適用：</strong>已有 <code>docs/BRD.md</code>，要跑完整 31 STEP 開發流水線。</p>
+    <pre><code class="language-bash">/devsop-autodev</code></pre>
+    <p><strong>BRD 自動搜尋規則（三層）：</strong></p>
+    <ol>
+      <li><code>docs/BRD.md</code>（最優先）</li>
+      <li>搜尋專案目錄下任何 <code>*brd*</code> 命名的 <code>.md</code> 檔案</li>
+      <li>完全找不到 → 友善提示先執行 <code>/devsop-idea</code>，<strong>中斷</strong></li>
+    </ol>
+
+    <h3>情境 C：修改既有功能</h3>
+    <p><strong>適用：</strong>已有開發中或已上線的專案，需要新增功能或修改現有功能。</p>
+    <pre><code class="language-bash">/devsop-change</code></pre>
+    <p>AI 分析影響哪些 STEP → 選擇 Branch 模式 → 選擇 Pipeline 範圍（Affected Only / Full from First Affected / Full-Auto）</p>
+
+    <h3>情境 D：修復中途失敗的 STEP</h3>
+    <p><strong>適用：</strong>pipeline 某個 STEP 卡住、報錯，或之前跑一半中斷。</p>
+    <pre><code class="language-bash">/devsop-repair</code></pre>
+
+    <h3>情境 E：快速 3 分鐘體驗</h3>
+    <p><strong>適用：</strong>第一次使用，想快速看到效果。</p>
+    <pre><code class="language-bash">/devsop-demo</code></pre>
+    <p>用內建 URL Shortener 範例 BRD，只跑 STEP 03（生成 PRD），3 分鐘看到完整輸出。</p>
+
+    <h3>情境 F：只 Review 單一文件</h3>
+    <table>
+      <thead><tr><th>文件類型</th><th>指令</th></tr></thead>
+      <tbody>
+        <tr><td>產品設計文件（BRD）</td><td><code>/devsop-brd-review</code></td></tr>
+        <tr><td>產品需求文件（PRD）</td><td><code>/devsop-prd-review</code></td></tr>
+        <tr><td>工程設計文件（EDD）</td><td><code>/devsop-edd-review</code></td></tr>
+        <tr><td>架構設計（ARCH）</td><td><code>/devsop-arch-review</code></td></tr>
+        <tr><td>API 設計</td><td><code>/devsop-api-review</code></td></tr>
+        <tr><td>DB Schema</td><td><code>/devsop-schema-review</code></td></tr>
+        <tr><td>UI/UX 設計文件</td><td><code>/devsop-pdd-review</code></td></tr>
+        <tr><td>程式碼</td><td><code>/devsop-code-review</code></td></tr>
+        <tr><td>測試品質</td><td><code>/devsop-test-review</code></td></tr>
+      </tbody>
+    </table>
+
+    <h3>情境 G：查看專案目前狀態</h3>
+    <pre><code class="language-bash">/devsop-project-status</code></pre>
+    <p>輸出健康摘要（文件狀態、測試結果、對齊率）並寫入 <code>docs/PROJECT_STATUS.md</code>。</p>
+
+    <h3>情境 H：更新 MYDEVSOP 工具</h3>
+    <pre><code class="language-bash"># macOS / Linux
+bash ~/projects/MYDEVSOP/check-update.sh
+bash ~/projects/MYDEVSOP/update.sh
+
+# Windows PowerShell
+powershell -ExecutionPolicy Bypass -File "$HOME\projects\MYDEVSOP\check-update.ps1"
+powershell -ExecutionPolicy Bypass -File "$HOME\projects\MYDEVSOP\update.ps1"</code></pre>
+
+    <hr>
+
+    <h2 id="session-config">Session Config（每次 session 問一次）</h2>
+    <h3>執行模式</h3>
+    <table>
+      <thead><tr><th>選項</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td><strong>互動模式</strong></td><td>每個關鍵決策點詢問確認（語言選型、方案選擇、branch 名稱等）</td></tr>
+        <tr><td><strong>Full-Auto 模式</strong></td><td>Claude 自動做所有決策，全程不打斷</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Review 策略</h3>
+    <table>
+      <thead><tr><th>策略</th><th>最大輪次</th><th>停止條件</th></tr></thead>
+      <tbody>
+        <tr><td><code>rapid</code></td><td>3 輪</td><td>任一輪 finding=0 或第 3 輪 fix 完</td></tr>
+        <tr><td><code>standard</code>（預設）</td><td>5 輪</td><td>任一輪 finding=0 或第 5 輪 fix 完</td></tr>
+        <tr><td><code>exhaustive</code></td><td>無上限</td><td>finding=0</td></tr>
+        <tr><td><code>tiered</code></td><td>無上限</td><td>前 5 輪 finding=0；第 6 輪起 CRITICAL+HIGH+MEDIUM=0</td></tr>
+        <tr><td><code>custom</code></td><td>無上限</td><td>自訂條件</td></tr>
+      </tbody>
+    </table>
+
+    <hr>
+
+    <h2 id="skills">Skills 完整一覽</h2>
+
+    <h3>主要入口 Skills</h3>
+    <table>
+      <thead><tr><th>指令</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td><code>/devsop-autodev</code></td><td>全自動 AI 開發流水線，跑完整 31 STEP：文件生成、架構設計、程式開發、測試、k8s、CI/CD、HTML 文件站</td></tr>
+        <tr><td><code>/devsop-idea</code></td><td>概念需求入口：描述模糊想法，自動澄清需求、網路研究、生成 BRD + IDEA.md，<strong>自動銜接 autodev</strong></td></tr>
+        <tr><td><code>/devsop-change</code></td><td>變更管理：分析影響範圍，只重跑受影響的 STEP，建立 feature branch，確保文件與程式碼同步</td></tr>
+        <tr><td><code>/devsop-repair</code></td><td>健康檢查與補強：對中途中斷或有 bug 的 pipeline 進行診斷、修復、從斷點繼續</td></tr>
+        <tr><td><code>/devsop-demo</code></td><td>3 分鐘快速體驗：用內建 URL Shortener 範例 BRD 只跑 STEP 03</td></tr>
+        <tr><td><code>/devsop-project-status</code></td><td>專案健康儀表板：分析 git log、文件狀態、測試結果，輸出白話健康摘要</td></tr>
+        <tr><td><code>/devsop-update</code></td><td>檢查是否有新版本並自動更新 MYDEVSOP</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Review Skills（9 個）</h3>
+    <table>
+      <thead><tr><th>指令</th><th>領域專家</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td><code>/devsop-brd-review</code></td><td>Product Manager</td><td>審查 BRD 品質，Claude subagent 反覆 review→修復</td></tr>
+        <tr><td><code>/devsop-prd-review</code></td><td>Product Manager</td><td>審查 PRD 品質，驗證與 BRD 的一致性</td></tr>
+        <tr><td><code>/devsop-edd-review</code></td><td>Backend Architect</td><td>審查 EDD 品質，驗證與 PRD 的一致性</td></tr>
+        <tr><td><code>/devsop-arch-review</code></td><td>Software Architect</td><td>審查 ARCH 架構設計：合理性、SPOF、安全邊界、可擴展性</td></tr>
+        <tr><td><code>/devsop-api-review</code></td><td>API Tester</td><td>審查 API 設計：RESTful/gRPC 規範、冪等性、錯誤碼、安全性</td></tr>
+        <tr><td><code>/devsop-schema-review</code></td><td>Database Optimizer</td><td>審查 DB Schema：正規化、索引、約束、SQL 效能（N+1/OFFSET 等）</td></tr>
+        <tr><td><code>/devsop-pdd-review</code></td><td>UI Designer</td><td>審查 UI/UX 設計文件，依 Client 類型（Web/Unity/Cocos/HTML5）執行</td></tr>
+        <tr><td><code>/devsop-code-review</code></td><td>Security Engineer</td><td>Claude subagent 程式碼審查：OWASP Top 10 完整審查、Anti-Fake 驗證</td></tr>
+        <tr><td><code>/devsop-test-review</code></td><td>Model QA Specialist</td><td>審查測試品質：覆蓋率 ≥80%、BDD Scenario 覆蓋、Anti-Fake 測試原則</td></tr>
+      </tbody>
+    </table>
+
+    <h3>生成 Skills（17 個）</h3>
+    <table>
+      <thead><tr><th>指令</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td><code>/devsop-gen-brd</code></td><td>依 IDEA.md 生成完整 BRD，含業務目標、使用者角色、功能範圍、成功指標</td></tr>
+        <tr><td><code>/devsop-gen-prd</code></td><td>依審查通過的 BRD 自動生成完整 PRD，含 User Story + 具體可測 AC</td></tr>
+        <tr><td><code>/devsop-gen-pdd</code></td><td>讀取 PRD + BRD，偵測 Client 類型，生成 <code>docs/PDD.md</code></td></tr>
+        <tr><td><code>/devsop-gen-edd</code></td><td>依審查通過的 PRD 自動生成完整 EDD，含架構、Security、BDD/TDD/SCALE 設計</td></tr>
+        <tr><td><code>/devsop-gen-arch</code></td><td>依 EDD 生成 ARCH 架構設計文件，含元件拆解、分層設計、Mermaid 架構圖</td></tr>
+        <tr><td><code>/devsop-gen-api</code></td><td>依 EDD + PRD 生成完整 API 文件（RESTful 或 gRPC），含所有 Endpoint 與錯誤碼</td></tr>
+        <tr><td><code>/devsop-gen-schema</code></td><td>依 EDD 生成三合一 Schema 文件：ER 圖 + 說明文件 + CREATE TABLE SQL</td></tr>
+        <tr><td><code>/devsop-gen-diagrams</code></td><td>依 EDD/ARCH/SCHEMA/API/CI 文件生成所有 Mermaid 圖表 <code>.md</code></td></tr>
+        <tr><td><code>/devsop-gen-test-plan</code></td><td>依 PRD + EDD + ARCH 生成完整測試計畫文件，含 RTM、測試金字塔、SLO 門檻</td></tr>
+        <tr><td><code>/devsop-gen-bdd</code></td><td>依 PRD AC 生成完整 BDD Feature Files（Gherkin 格式），每個 AC 含正常 + 錯誤路徑</td></tr>
+        <tr><td><code>/devsop-gen-client-bdd</code></td><td>讀取 PRD + PDD.md，依 Client 類型生成前端 BDD Feature Files</td></tr>
+        <tr><td><code>/devsop-gen-client-tdd</code></td><td>讀取 PDD.md + Client BDD，依 Client 類型生成前端單元測試骨架</td></tr>
+        <tr><td><code>/devsop-gen-k8s</code></td><td>依 EDD SCALE 設計生成 K8s 配置：Dockerfile、Deployment/Service/HPA/Ingress</td></tr>
+        <tr><td><code>/devsop-gen-cicd</code></td><td>自動生成 GitHub Actions CI/CD Pipeline：lint→test→build→deploy k8s→load test</td></tr>
+        <tr><td><code>/devsop-gen-secrets</code></td><td>生成 Secrets 管理腳本（五層防護）：setup/verify/rotate 腳本 + <code>.env.example</code></td></tr>
+        <tr><td><code>/devsop-gen-html</code></td><td>將 <code>docs/*.md</code> 一對一轉換為 HTML 文件站（<code>docs/pages/</code>）</td></tr>
+        <tr><td><code>/devsop-gen-readme</code></td><td>從 BRD/PRD/PDD/EDD/state 自動生成標準化 README.md</td></tr>
+      </tbody>
+    </table>
+
+    <h3>工具 Skills（9 個）</h3>
+    <table>
+      <thead><tr><th>指令</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td><code>/devsop-lang-select</code></td><td>分析 BRD 內容，AI 建議最佳語言/框架，5 秒無操作自動選預設</td></tr>
+        <tr><td><code>/devsop-tdd-cycle</code></td><td>完整 TDD 循環（RED→GREEN→REFACTOR），依 BDD Feature Files 撰寫測試後實作</td></tr>
+        <tr><td><code>/devsop-align-check</code></td><td>掃描文件↔文件、文件↔程式碼、程式碼↔測試所有對齊問題，輸出分層報告</td></tr>
+        <tr><td><code>/devsop-align-fix</code></td><td>讀取 ALIGN_REPORT.md，依指定 layer 自動修復對齊問題</td></tr>
+        <tr><td><code>/devsop-align-report</code></td><td>讀取 ALIGN_REPORT.md，生成矩陣式對齊狀態儀表板 HTML</td></tr>
+        <tr><td><code>/devsop-rpa-test</code></td><td>依 Client 類型啟動 dev server，透過 MCP Browser 執行 RPA：瀏覽 User Flow、截圖</td></tr>
+        <tr><td><code>/devsop-quality-loop</code></td><td>獨立品質急救工具：對現有文件或程式碼執行深度 review loop</td></tr>
+        <tr><td><code>/devsop-product-review</code></td><td>對當前專案目錄做產品品質全面審查，輸出可執行的產品改善報告</td></tr>
+        <tr><td><code>/devsop-config</code></td><td>互動式設定執行模式與審查強度，選擇從哪個 STEP 重跑</td></tr>
+      </tbody>
+    </table>
+
+    <h3>稽核 Skills（2 個）</h3>
+    <table>
+      <thead><tr><th>指令</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td><code>/devsop-test-audit</code></td><td>掃描 tests/ 下所有測試，用 Python AST 偵測假測試（7 種 Pattern），<code>check-and-fix</code> 模式自動修正</td></tr>
+        <tr><td><code>/devsop-impl-audit</code></td><td>掃描 src/ 下所有實作，用 Python AST 偵測假實作（5 種 Pattern），<code>check-and-fix</code> 模式依 EDD/API/Schema 補全</td></tr>
+      </tbody>
+    </table>
+
+    <hr>
+
+    <h2 id="structure">專案結構</h2>
+    <pre><code>MYDEVSOP/
+├── skills/
+│   ├── devsop-autodev/         # 主流水線（31 STEP）
+│   ├── devsop-idea/            # 從構想生成 BRD
+│   ├── devsop-change/          # 修改現有功能
+│   ├── devsop-repair/          # 修復失敗 STEP
+│   ├── devsop-demo/            # 3 分鐘體驗
+│   ├── devsop-project-status/  # 專案健康儀表板
+│   ├── devsop-shared/          # 共用邏輯參考（不直接呼叫）
+│   ├── devsop-*-review/        # 9 個 Review Skills
+│   ├── devsop-gen-*/           # 17 個生成 Skills
+│   ├── devsop-align-*/         # 對齊相關 Skills
+│   ├── devsop-test-audit/      # 假測試偵測與修正（STEP 25）
+│   ├── devsop-impl-audit/      # 假實作偵測與補全（STEP 26）
+│   ├── devsop-rpa-test/        # RPA 自動化測試（STEP 23）
+│   ├── devsop-quality-loop/    # 獨立品質急救工具
+│   ├── devsop-product-review/  # 當前專案產品品質審查
+│   └── devsop-update/          # 工具更新
+├── scripts/
+│   ├── devsop-lib.sh           # 共用 Bash 函式庫
+│   └── devsop-lib.ps1          # 共用 PowerShell 函式庫（Windows）
+├── examples/
+│   ├── brd-simple.md           # 小型範例：CLI 密碼管理工具
+│   ├── brd-medium.md           # 中型範例：TaskFlow 團隊任務 SaaS
+│   └── brd-complex.md          # 大型範例：ViralClip 短影音平台
+├── docs/
+│   ├── PRD.md                  # 本產品的 PRD 文件
+│   ├── REQUIREMENTS.md         # 詳細技術需求規格
+│   ├── pages/                  # HTML 文件網站
+│   │   ├── index.html          # 本頁面
+│   │   ├── prd.html            # PRD HTML 版
+│   │   └── assets/             # 樣式與腳本
+│   └── ...
+├── templates/                  # 12 個文件範本
+├── tests/
+│   ├── unit/                   # 9 個單元測試（bats）
+│   ├── integration/            # 3 個整合測試（bats）
+│   ├── smoke/                  # 2 個煙霧測試（bats）
+│   └── test_skill_smoke.bats   # 技能快速驗證
+├── install.sh / install.ps1    # 安裝腳本
+├── update.sh / update.ps1      # 更新腳本
+└── README.md</code></pre>
+
+    <hr>
+
+    <h2 id="windows">Windows 相容性</h2>
+    <table>
+      <thead><tr><th>元件</th><th>Windows 支援</th></tr></thead>
+      <tbody>
+        <tr><td>Skills（SKILL.md 執行）</td><td>全平台（Claude Code 的 AI 執行，不依賴 Shell）</td></tr>
+        <tr><td><code>install.ps1</code></td><td>原生 PowerShell 5.1+，無需額外工具</td></tr>
+        <tr><td><code>check-update.ps1</code></td><td>原生 PowerShell 5.1+</td></tr>
+        <tr><td><code>update.ps1</code></td><td>原生 PowerShell 5.1+</td></tr>
+        <tr><td><code>scripts/devsop-lib.ps1</code></td><td>原生 PowerShell 5.1+</td></tr>
+        <tr><td><code>install.sh</code></td><td>需要 WSL 或 Git Bash</td></tr>
+        <tr><td><code>tests/*.bats</code></td><td>需要 bats-core（建議在 WSL 執行）</td></tr>
+      </tbody>
+    </table>
+
+    <hr>
+
+    <h2 id="review-principles">Review 設計原則</h2>
+    <ol>
+      <li><strong>Claude subagent only</strong> — 不需要 CodeRabbit 或其他外部工具</li>
+      <li><strong>文件上下游一致性</strong> — PRD 驗證 BRD、EDD 驗證 PRD，捕捉文件漂移</li>
+      <li><strong>雙層輸出</strong> — 技術摘要 + <code>[白話說明]</code>，讓非技術人員追蹤進度</li>
+      <li><strong>修復範圍跟 finding 嚴重度走</strong> — CRITICAL/HIGH 必須修或寫入 <code>TODO[REVIEW-DEFERRED]</code>，MEDIUM/LOW 盡力修</li>
+      <li><strong>Stubborn issue</strong> — 同一問題連續出現 5 次 → 標記，不再自動修，報告特別列出</li>
+      <li><strong>每輪一 commit</strong> — git history 可追溯每輪改了什麼</li>
+      <li><strong>Anti-Fake 原則</strong> — 禁止 mock 在 production 路徑；測試必須有真實斷言</li>
+    </ol>
+
+    <hr>
+
+    <h2>License</h2>
+    <p>MIT</p>
+
+  </main>
+</div>
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({startOnLoad:true,theme:'default',flowchart:{curve:'basis'},er:{layoutDirection:'TD'}});
+</script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>
