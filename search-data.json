@@ -2,7 +2,7 @@
   "index.html": {
     "url": "index.html",
     "title": "首頁",
-    "excerpt": "MYDEVSOP\n完整軟體開發 SOP v2.6：從構想到上線，全程 AI 驅動、自動 Review、雙層輸出。\n理念\nMYDEVSOP 把整個開發 SOP 串成閉環——從最初的產品構想（BRD）到程式碼上線、PR 建立。\n每個 Review 都是 Loop：Claude subagent 找問題 "
+    "excerpt": "MYDEVSOP\n完整軟體開發 SOP v2.7：從構想到上線，全程 AI 驅動、自動 Review、雙層輸出。\n理念\nMYDEVSOP 把整個開發 SOP 串成閉環——從最初的產品構想（BRD）到程式碼上線、PR 建立。\n每個 Review 都是 Loop：Claude subagent 找問題 "
   },
   "prd.html": {
     "url": "prd.html",

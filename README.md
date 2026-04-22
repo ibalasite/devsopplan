@@ -1,6 +1,6 @@
 # MYDEVSOP
 
-> 完整軟體開發 SOP v2.6：從構想到上線，全程 AI 驅動、自動 Review、雙層輸出。
+> 完整軟體開發 SOP v2.7：從構想到上線，全程 AI 驅動、自動 Review、雙層輸出。
 
 ## 理念
 
@@ -650,6 +650,7 @@ cp ~/projects/MYDEVSOP/examples/brd-simple.md ./docs/BRD.md
 5. **Stubborn issue** — 同一問題連續出現 5 次 → 標記，不再自動修，報告特別列出
 6. **每輪一 commit** — git history 可追溯每輪改了什麼
 7. **Anti-Fake 原則** — 禁止 mock 在 production 路徑；測試必須有真實斷言
+8. **Agent subagent 隔離** — IDEA 生成、IDEA Review、BRD 生成、BRD Review 各以獨立 Agent subagent 執行，防止長流程 context overflow（v2.7+）
 
 ---
 

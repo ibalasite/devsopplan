@@ -40,7 +40,7 @@
     </aside>
     <div class="sidebar-resizer" id="sidebarResizer"></div>
     <main class="doc-content"><h1>MYDEVSOP</h1>
-<blockquote><p>完整軟體開發 SOP v2.6：從構想到上線，全程 AI 驅動、自動 Review、雙層輸出。</p></blockquote>
+<blockquote><p>完整軟體開發 SOP v2.7：從構想到上線，全程 AI 驅動、自動 Review、雙層輸出。</p></blockquote>
 <h2>理念</h2>
 <p>MYDEVSOP 把整個開發 SOP 串成閉環——從最初的產品構想（BRD）到程式碼上線、PR 建立。</p>
 <p>每個 Review 都是 Loop：Claude subagent 找問題 → Claude 修文件/程式碼 → 重複直到 0 findings。</p>
@@ -517,7 +517,7 @@ powershell -ExecutionPolicy Bypass -File &quot;$HOME\projects\MYDEVSOP\update.ps
 # /devsop-autodev</code></pre>
 <hr>
 <h2>Review 設計原則</h2>
-<ol><li><strong>Claude subagent only</strong> — 不需要 CodeRabbit 或其他外部工具</li><li><strong>文件上下游一致性</strong> — PRD 驗證 BRD、EDD 驗證 PRD，捕捉文件漂移</li><li><strong>雙層輸出</strong> — 技術摘要 + <code>[白話說明]</code>，讓非技術人員追蹤進度</li><li><strong>修復範圍跟 finding 嚴重度走</strong> — CRITICAL/HIGH 必須修或寫入 TODO[REVIEW-DEFERRED]，MEDIUM/LOW 盡力修</li><li><strong>Stubborn issue</strong> — 同一問題連續出現 5 次 → 標記，不再自動修，報告特別列出</li><li><strong>每輪一 commit</strong> — git history 可追溯每輪改了什麼</li><li><strong>Anti-Fake 原則</strong> — 禁止 mock 在 production 路徑；測試必須有真實斷言</li></ol>
+<ol><li><strong>Claude subagent only</strong> — 不需要 CodeRabbit 或其他外部工具</li><li><strong>文件上下游一致性</strong> — PRD 驗證 BRD、EDD 驗證 PRD，捕捉文件漂移</li><li><strong>雙層輸出</strong> — 技術摘要 + <code>[白話說明]</code>，讓非技術人員追蹤進度</li><li><strong>修復範圍跟 finding 嚴重度走</strong> — CRITICAL/HIGH 必須修或寫入 TODO[REVIEW-DEFERRED]，MEDIUM/LOW 盡力修</li><li><strong>Stubborn issue</strong> — 同一問題連續出現 5 次 → 標記，不再自動修，報告特別列出</li><li><strong>每輪一 commit</strong> — git history 可追溯每輪改了什麼</li><li><strong>Anti-Fake 原則</strong> — 禁止 mock 在 production 路徑；測試必須有真實斷言</li><li><strong>Agent subagent 隔離</strong> — IDEA 生成、IDEA Review、BRD 生成、BRD Review 各以獨立 Agent subagent 執行，防止長流程 context overflow（v2.7+）</li></ol>
 <hr>
 <h2>專案結構</h2>
 <pre><code class="">MYDEVSOP/
