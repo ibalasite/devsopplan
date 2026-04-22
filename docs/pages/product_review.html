@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Review — MYDEVSOP</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body>
+  <header class="top-nav">
+    <a href="index.html" class="nav-brand">MYDEVSOP</a>
+    <div class="nav-controls">
+      <div class="search-wrap">
+        <input class="search-input" type="search" placeholder="搜尋文件...">
+        <div class="search-results"></div>
+      </div>
+      <a class="nav-gh-link" href="https://github.com/ibalasite/MYDEVSOP" target="_blank" rel="noopener">⌥ GitHub</a>
+      <button class="sidebar-toggle" id="sidebarToggle" title="收合/展開側欄">☰</button>
+    </div>
+  </header>
+  <div class="doc-page-banner">
+    <p class="banner-breadcrumb"><a href="index.html">MYDEVSOP</a> › Product Review</p>
+    <h1 class="banner-title">Product Review</h1>
+  </div>
+  <div class="page-wrapper">
+    <aside class="sidebar" aria-label="文件導覽">
+      <div class="sidebar__section">
+        <div class="sidebar__label">文件</div>
+        <a class="sidebar__link" href="index.html">🏠 首頁</a>
+<a class="sidebar__link" href="prd.html">📝 產品需求文件 (PRD)</a>
+<a class="sidebar__link" href="migration_tracker.html">📄 Migration Tracker</a>
+<a class="sidebar__link active" href="product_review.html">📄 Product Review</a>
+<a class="sidebar__link" href="requirements.html">📄 Requirements</a>
+<a class="sidebar__link" href="solution_roadmap.html">📄 Solution Roadmap</a>
+<a class="sidebar__link" href="idea-vs-gendoc-comparison.html">📄 Idea-Vs-Gendoc-Comparison</a>
+<a class="sidebar__link" href="implementation-list.html">📄 Implementation-List</a>
+<a class="sidebar__link" href="modification-decisions.html">📄 Modification-Decisions</a>
+      </div>
+    </aside>
+    <div class="sidebar-resizer" id="sidebarResizer"></div>
+    <main class="doc-content"><h1>MYDEVSOP 產品 &amp; 生產力審查報告</h1>
+<blockquote><p>審查日期：2026-04-19</p></blockquote>
+<blockquote><p>版本：REQUIREMENTS.md v1.3</p></blockquote>
+<blockquote><p>審查角度：產品定位 / 生產力 ROI / 技術架構</p></blockquote>
+<hr>
+<h2>執行摘要（Executive Summary）</h2>
+<p>MYDEVSOP 是一個技術上有真實深度的工具——Agent-per-STEP 架構解決了 context overflow 問題，20-STEP 閉環覆蓋了從 BRD 到 GitHub Pages 的完整開發週期，對熟練的獨立開發者每個專案能節省 <strong>40–70 小時</strong>的重複性工作。</p>
+<p>核心問題不在技術，在產品決策：目標用戶定義矛盾（「不會寫程式的人」vs. 實際需要 CLI + git + k8s 知識）、沒有 Quick Win 路徑、沒有任何 SKILL.md 的自動化測試覆蓋、且所有 33 個技能文件都靠 copy-paste 共用邏輯——維護成本隨規模線性增長。</p>
+<p><strong>最優先改善方向（3 件事）：</strong></p>
+<ol><li>移除「不會寫程式」的錯誤定位，改為誠實 persona</li><li>加入 feature branch + auto-PR（讓工具從個人工具變成團隊工具）</li><li>提取 <code>scripts/devsop-lib.sh</code>（讓 33 個 SKILL.md 可測試、可維護）</li></ol>
+<hr>
+<h2>綜合評分</h2>
+<table>
+<tr><th>維度</th><th>評分</th><th>關鍵問題</th></tr>
+<tr><td>P1 價值主張清晰度</td><td>2/5</td><td>無單句核心承諾，README 與 REQUIREMENTS 定位矛盾</td></tr>
+<tr><td>P2 目標用戶 Fit</td><td>2/5</td><td>「不會寫程式」宣稱與 CLI+k8s 前提衝突</td></tr>
+<tr><td>P3 差異化競爭力</td><td>3/5</td><td>SOP 閉環有真實護城河，但未對外清楚表達</td></tr>
+<tr><td>P4 功能完整性</td><td>3/5</td><td>Happy path 完整；hotfix、monorepo、既有專案缺失</td></tr>
+<tr><td>P5 採用門檻</td><td>2/5</td><td>13 個門檻步驟，無範例 BRD，無 5 分鐘體驗路徑</td></tr>
+<tr><td>P6 可持續性</td><td>2/5</td><td>用完一次後沒有回頭理由，無留存機制</td></tr>
+<tr><td>G1 時間節省 ROI</td><td>3.5/5</td><td>每專案省 40-70 hr，$100/hr 工程師第一個專案就回本</td></tr>
+<tr><td>G2 流水線效率</td><td>3/5</td><td>STEP 08/09/10 和 16/17/18 可並行卻串行；每次跑 $6-15 token 費</td></tr>
+<tr><td>G3 團隊協作</td><td>2/5</td><td>個人工具，state.json 無鎖，多人使用會衝突</td></tr>
+<tr><td>G4 維護成本</td><td>2.5/5</td><td>每月 4-8 hr，33 個文件都有重複邏輯</td></tr>
+<tr><td>G5 失敗復原</td><td>3/5</td><td>STUBBORN 機制好；resume 路徑未充分實作</td></tr>
+<tr><td>G6 規模化路徑</td><td>2/5</td><td>1→10 人需大量重工，無 SaaS 路徑</td></tr>
+<tr><td>T1 Markdown-as-Code</td><td>2/5</td><td>無可執行語意，複雜分支在 prose 中不可靠</td></tr>
+<tr><td>T2 狀態管理</td><td>2/5</td><td>寫入非原子性，無鎖，缺少 step_log、schema_version</td></tr>
+<tr><td>T3 測試覆蓋</td><td>2/5</td><td>Shell scripts 有好測試；32 個 SKILL.md 零覆蓋</td></tr>
+<tr><td>T4 錯誤處理</td><td>2/5</td><td>Agent 崩潰無處理；STEP 非冪等性</td></tr>
+<tr><td>T5 技術債</td><td>2/5</td><td>14+ 個文件 copy-paste 版本檢查；tool 介面高耦合</td></tr>
+<tr><td><strong>整體</strong></td><td><strong>2.4/5</strong></td><td>技術有深度，產品決策需要補課</td></tr>
+</table>
+<hr>
+<h2>核心發現</h2>
+<h3>優勢（Keep）</h3>
+<ul><li><strong>Agent-per-STEP 架構</strong>：每個 STEP 有獨立 context window，真正解決了長流水線的 context overflow 問題——這是比大多數競品更深的工程洞見</li><li><strong>文件對齊閉環</strong>：PRD → EDD → Code → Test 四層對齊檢查（REQ-2.8）是業界首創的差異化功能，無競品等效</li><li><strong>基礎設施完整性</strong>：一個指令能生成 k8s 配置、GitHub Actions CI/CD、Secrets 腳本、HTML 文件網站——這個覆蓋廣度在個人開發者工具中獨一無二</li><li><strong>Shell 腳本品質</strong>：<code>install.sh</code>、<code>check-update.sh</code>、<code>update.sh</code> 有 32 個 bats 測試，hardened 且正確</li></ul>
+<h3>問題（Fix）</h3>
+<ul><li><strong>定位矛盾</strong>：REQUIREMENTS §1「不會寫程式的人也能全程使用」vs. 實際需要 Claude Code CLI + git + GitHub + k8s 知識——這個矛盾阻止了誠實的產品設計</li><li><strong>Markdown 作為執行單元的上限</strong>：<code>_review_loop()</code>、<code>_write_state()</code>、<code>_ask()</code> 是 prose 中的偽代碼，每次執行都靠 Claude 重新詮釋，無法被單元測試，邏輯正確性無保證</li><li><strong>單人工具的天花板</strong>：<code>.devsop-state.json</code> 無鎖、直接 commit 到 main、無 PR review gate——多人使用必然衝突</li><li><strong><code>read -t 5</code> 未驗證</strong>：整個「全自動模式」的核心假設（5 秒 timeout）在 Claude Code Bash 的非 TTY 環境中行為未定義（REQUIREMENTS Q1 自己承認），這是 v2.0 最大的技術風險</li></ul>
+<h3>缺口（Build）</h3>
+<ul><li><strong>既有專案 adoption path</strong>：沒有「我有一個現有專案，我想用 MYDEVSOP 評估它」的入口</li><li><strong>Hotfix / 生產事故流程</strong>：整個 pipeline 假設 greenfield，生產問題無法處理</li><li><strong>Resume 可靠性</strong>：中途失敗後如何精確從某個 STEP 繼續，需要 <code>--resume-from STEP-NN</code> 機制</li><li><strong>成本可視性</strong>：每次 pipeline 跑約 $6-15 token 費用，使用者完全不知道</li><li><strong>樣例 BRD</strong>：新用戶不知道什麼樣的 BRD 能通過 STEP 01，是最高的 onboarding 失敗點</li></ul>
+<hr>
+<h2>分維度詳細 Findings</h2>
+<h3>產品定位（Agent A — Product Manager）</h3>
+<p><strong>[P1] 價值主張清晰度 — 2/5</strong></p>
+<ul><li>優點：REQUIREMENTS 的核心承諾「BRD → GitHub Pages，一個指令」是具體且可驗證的</li><li>問題：README 定位是「文件 Review 工具」；REQUIREMENTS 定位是「全自動程式生成流水線」。這是兩個不同的產品。無任何地方有單句清楚的 value proposition</li><li>建議：第一行 README 改成：「寫一份 BRD，AI 生成後續所有東西——程式碼、測試、k8s、文件網站。」非程式設計師的宣稱等真正解決前置門檻問題後再加回來</li></ul>
+<p><strong>[P2] 目標用戶 Fit — 2/5</strong></p>
+<ul><li>優點：對有 2-5 年經驗的後端獨立開發者，工具匹配度很高</li><li>問題：「不會寫程式」的人在 STEP 02（GIL 限制說明）就會迷失；STEP 13（TDD GREEN 失敗 → 修 EDD）需要理解測試與設計文件的因果關係</li><li>建議：定義一個誠實的 primary persona（「有 git 和 API 基礎的獨立開發者」），把所有設計決策對準這個人</li></ul>
+<p><strong>[P3] 差異化競爭力 — 3/5</strong></p>
+<ul><li>優點：「每行程式碼都能追溯到 PRD AC，每個 AC 都能追溯到通過的測試」——這是 Copilot / Cursor / Devin 都沒有的</li><li>問題：這個差異化從未在任何對外文字中說清楚</li><li>建議：用這句話當 tagline：「MYDEVSOP enforces that every line of code traces back to a PRD acceptance criterion, and every PRD criterion traces forward to a passing test.」</li></ul>
+<p><strong>[P4] 功能完整性 — 3/5</strong></p>
+<ul><li>優點：Happy path（greenfield, 單一後端 API, macOS, PostgreSQL + k8s）覆蓋完整</li><li>缺口（前 5 大）：</li></ul>
+<ol><li>Hotfix / 生產事故流程（無法處理「現在 production 壞了」）</li><li>既有專案 adoption（沒有改造現有專案的入口）</li><li>Monorepo 支援（假設單一 repo 單一 service）</li><li>Multi-environment（只有 local k8s，無 staging/production 升版流程）</li><li>Tech debt 追蹤（align-check 找出問題但不追蹤趨勢）</li></ol>
+<p><strong>[P5] 採用門檻 — 2/5</strong></p>
+<ul><li>從零到第一次成功 <code>/devsop-autodev</code> 的門檻步驟：13 個</li><li>最高摩擦點：Step 6（撰寫好的 BRD）—— 沒有範例，新用戶不知道「夠好」的標準</li><li>沒有 Quick Win：最小有意義的輸出（生成 PRD）需要完成 STEP 03，被 STEP 01/02 的 review loop 擋在前面</li><li>建議：在 repo 放一個完整範例（URL shortener），包括樣例 BRD + 所有生成的文件 + GitHub Pages URL</li></ul>
+<p><strong>[P6] 可持續性 — 2/5</strong></p>
+<ul><li>問題：一次跑完後沒有回頭理由；無跨專案狀態；無使用量數據</li><li>建議：加一個 <code>devsop-project-status</code> skill，讀取 <code>.devsop-state.json</code> + ALIGN_REPORT 生成「健康儀表板」——這給開發者理由在已建好的專案上重新打開 MYDEVSOP</li></ul>
+<hr>
+<h3>生產力 ROI（Agent B — Engineering Manager）</h3>
+<p><strong>[G1] 時間節省評估 — 3.5/5</strong></p>
+<ul><li>估算節省時間（每個完整 pipeline run）：</li><li style="margin-left:1.0rem">PRD 生成：省 ~6 hr</li><li style="margin-left:1.0rem">EDD + 4 個 Mermaid 圖：省 ~9 hr</li><li style="margin-left:1.0rem">Schema doc：省 ~5 hr</li><li style="margin-left:1.0rem">k8s + CI/CD + Secrets：省 ~9 hr</li><li style="margin-left:1.0rem">HTML 文件網站：省 ~12 hr</li><li style="margin-left:1.0rem"><strong>總計：40–70 hr/專案</strong></li><li>ROI：工程師時薪 $100/hr → 第一個專案即回本</li><li>問題：STEP 13（TDD loop）是最被高估的；Review loop 總 overhead 估計 4-12 hr</li><li>建議：實作「輕量模式」跳過低風險 STEP 的 review loop（STEP 03, 11, 19），保留關鍵 STEP 01/06/14/15 的品質關卡</li></ul>
+<p><strong>[G2] 流水線效率 — 3/5</strong></p>
+<ul><li>STEP 08/09/10（ARCH/API/Schema Review）可並行但目前串行——並行可省 ~60% 時間</li><li>STEP 16/17/18（k8s/CI/CD/Secrets）同樣可並行</li><li>Token 成本估算：每次完整 pipeline 約 1.5–2M tokens ≈ <strong>$6–15/run</strong>（Claude Sonnet 定價）</li><li>MODE-B 無限循環：問題文件可能觸發 20+ 輪，3-5x 成本</li><li>最常被跳過的 STEP：STEP 13（TDD GREEN 失敗率高）、STEP 16-18（需要 local k8s）、STEP 20（依賴 GitHub Pages 設定）</li></ul>
+<p><strong>[G3] 團隊協作 — 2/5</strong></p>
+<ul><li>本質上是個人工具：REQUIREMENTS §18 Q4 明確說「目前個人專案」</li><li>多人使用會：競爭寫 <code>.devsop-state.json</code>（無鎖）、commit 到 main（無 PR gate）、5 秒自動選擇在團隊中危險</li><li>建議：加 feature branch + auto-PR 在 STEP 20——這一個改變讓工具從個人工具變成團隊安全工具</li></ul>
+<p><strong>[G4] 維護成本 — 2.5/5</strong></p>
+<ul><li>個人使用者：每月約 4-8 hr 維護</li><li>團隊共用：每月約 12-20 hr（支援問題 + 客製化 + 修 Claude Code 更新造成的 regression）</li><li>最大風險：33 個 SKILL.md 各自 copy-paste 共用邏輯，一個邏輯改動需要修 8-14 個文件</li><li><code>read -t 5</code> 的 TTY 假設是最高優先級的技術風險（Q1 自己承認未驗證）</li></ul>
+<p><strong>[G5] 失敗復原 — 3/5</strong></p>
+<ul><li>好：STUBBORN 機制防止無限循環；EDD backtrack loop 有 circuit breaker</li><li>問題：resume 機制語意不清——部分執行（Agent 崩潰、無 git commit）後 state 停在上個 STEP，resume 會重跑一遍，可能生成衝突 commit</li><li>建議：加 <code>--resume-from STEP-NN</code> 明確 escape hatch</li></ul>
+<p><strong>[G6] 規模化路徑 — 2/5</strong></p>
+<ul><li>1→10 人需要：branch 策略、state.json 命名空間、人工 review gate</li><li>SaaS 化受限：MYDEVSOP 完全依賴 Claude Code，移植到 SaaS 需要重寫 Agent 編排層</li><li>最高 ROI 擴展方向：pipeline run 儀表板（從 git log 重建 run 歷史）+ 成本追蹤輸出</li></ul>
+<hr>
+<h3>技術架構（Agent C — Staff Engineer）</h3>
+<p><strong>[T1] Markdown-as-Code — 2/5</strong></p>
+<ul><li>優點：SKILL.md 是 Claude Code 的原生格式，零膠水代碼</li><li>問題：</li><li style="margin-left:1.0rem"><code>_review_loop()</code> 等「函式」是 prose 偽代碼，每次執行靠 Claude 重新詮釋，無確定性</li><li style="margin-left:1.0rem"><code>devsop-autodev/SKILL.md</code> 已達 1,397 行，違反自己的 800 行限制</li><li style="margin-left:1.0rem">Step Summary 格式無 schema validation</li><li>建議：把三個核心函式提取到 <code>scripts/devsop-lib.sh</code>（可 <code>source</code> + bats 測試）</li></ul>
+<p><strong>[T2] 狀態管理 — 2/5</strong></p>
+<ul><li>問題：</li><li style="margin-left:1.0rem"><code>_write_state</code> 用 heredoc 直接覆寫，mid-crash 會產生截斷的 JSON</li><li style="margin-left:1.0rem">無文件鎖（flock），concurrent 執行會 race condition</li><li style="margin-left:1.0rem">缺失欄位：<code>step_start_time</code>、<code>step_log[]</code>、<code>schema_version</code>、<code>git_repo_root</code></li><li>建議：改為 write-to-tmp then <code>mv -f</code>（原子性）；加 <code>step_log</code> array</li></ul>
+<p><strong>[T3] 測試覆蓋 — 2/5</strong></p>
+<ul><li>好：shell scripts 有 32 個 bats 測試，覆蓋安全性和邊界條件</li><li>問題：32 個 SKILL.md 零測試覆蓋；無 end-to-end pipeline 測試；修改 SKILL.md 後 regression 完全不可見</li><li>建議：</li></ul>
+<ol><li><code>tests/unit/test_devsop_lib.bats</code>：測試 <code>_write_state</code> JSON 合法性、STEP_SEQUENCE 完整性</li><li><code>tests/integration/test_pipeline_smoke.bats</code>：用 fixture BRD + mock Claude stub 跑完整 pipeline</li></ol>
+<p><strong>[T4] 錯誤處理 — 2/5</strong></p>
+<ul><li>問題：Agent spawn 失敗無處理；STEP 非冪等（重跑會覆蓋人工編輯）；<code>_write_state</code> 失敗無錯誤檢查</li><li>建議：<code>_spawn_agent_with_retry()</code>（max 2 retry）；<code>_write_state_safe()</code>（tmp + mv + 驗證）</li></ul>
+<p><strong>[T5] 技術債 — 2/5</strong></p>
+<ul><li>問題：Step -1 版本檢查 block 被 copy-paste 進至少 14 個 SKILL.md；tool 介面名稱 hard-code，Claude Code 任何 tool rename 需要同時改 33 個文件</li><li>建議（優先序）：</li></ul>
+<ol><li>提取 <code>scripts/devsop-lib.sh</code>（最高影響）</li><li><code>tests/unit/test_skill_schema.bats</code> 驗證 SKILL.md front-matter</li><li>把 devsop-autodev 拆分成 coordinator stub + per-step sub-skills</li></ol>
+<hr>
+<h2>優先行動建議</h2>
+<h3>P0（立刻做，1 週內）</h3>
+<ol><li><strong>驗證 <code>read -t 5</code> 是否在 Claude Code Bash tool 中有效</strong></li></ol>
+<p>這是 v2.0 全自動模式的核心假設，REQUIREMENTS Q1 自己標注未驗證。如果不能用，整個 v2.0 架構需要換方案（改用 Python <code>select()</code> 或 <code>AskUserQuestion</code>）。</p>
+<p>測試方法：在 Claude Code 裡執行 <code>! bash -c &quot;read -t 5 x; echo result: $x&quot;</code> 等 5 秒看是否自動繼續。</p>
+<ol><li><strong>移除 README 和 REQUIREMENTS 中「不會寫程式的人也能全程使用」</strong></li></ol>
+<p>替換為誠實的 persona：「熟悉 git 和 CLI 的獨立開發者或小團隊 tech lead」。</p>
+<ol><li><strong>加一個完整範例 BRD 到 repo</strong></li></ol>
+<p>路徑：<code>examples/url-shortener/BRD.md</code>，展示足以通過 STEP 01 的 BRD 品質標準。</p>
+<h3>P1（本月內，1 個月內）</h3>
+<ol><li><strong>加 feature branch + auto-PR（STEP 20）</strong></li></ol>
+<p>改為在 <code>devsop/autodev-YYYYMMDD-HHMMSS</code> branch 上 commit，STEP 20 自動建 PR，PR body 為 TOTAL SUMMARY。讓工具變成團隊安全的工具。</p>
+<ol><li><strong>提取 <code>scripts/devsop-lib.sh</code></strong></li></ol>
+<p>把 <code>_ask()</code>、<code>_write_state()</code>、<code>_review_loop()</code> 從 SKILL.md prose 移到可 source 的 bash 函式庫。加入 <code>tests/unit/test_devsop_lib.bats</code>。</p>
+<ol><li><strong>並行化 STEP 08/09/10 和 16/17/18</strong></li></ol>
+<p>在 autodev SKILL.md 中，這兩個階段改為同時 spawn 三個 Agent。預計節省 30-45% pipeline 執行時間。</p>
+<h3>P2（本季，3 個月內）</h3>
+<ol><li><strong>加 <code>--resume-from STEP-NN</code> 明確復原機制</strong></li></ol>
+<p>讓用戶在 STEP 失敗後手動修復文件，然後從指定 STEP 繼續，而非重跑整個 pipeline。</p>
+<ol><li><strong>加 <code>devsop-project-status</code> skill</strong></li></ol>
+<p>讀取 <code>.devsop-state.json</code> + <code>docs/ALIGN_REPORT.md</code> + git log，生成現有專案的健康儀表板，給用戶回訪理由。</p>
+<ol><li><strong>加 token 成本估算到 TOTAL SUMMARY</strong></li></ol>
+<p>每次 pipeline 結束時顯示：「估計消耗：1.8M tokens，約 $12」，讓使用者知道成本。</p>
+<ol><li><strong><code>_write_state</code> 改為原子寫入（write-to-tmp + mv）</strong></li></ol>
+<p>防止 mid-crash 產生截斷的 <code>.devsop-state.json</code>。</p>
+<hr>
+<h2>競爭矩陣</h2>
+<table>
+<tr><th>功能</th><th>MYDEVSOP</th><th>GitHub Copilot</th><th>Cursor</th><th>Devin</th></tr>
+<tr><td>全流程文件生成（BRD→EDD→ARCH）</td><td>✅</td><td>❌</td><td>❌</td><td>部分</td></tr>
+<tr><td>文件對齊驗證（PRD→Code→Test）</td><td>✅</td><td>❌</td><td>❌</td><td>❌</td></tr>
+<tr><td>BDD + TDD 閉環</td><td>✅</td><td>❌</td><td>❌</td><td>部分</td></tr>
+<tr><td>k8s + CI/CD 生成</td><td>✅</td><td>❌</td><td>❌</td><td>部分</td></tr>
+<tr><td>HTML 文件網站生成</td><td>✅</td><td>❌</td><td>❌</td><td>❌</td></tr>
+<tr><td>即時程式碼補全</td><td>❌</td><td>✅</td><td>✅</td><td>✅</td></tr>
+<tr><td>瀏覽器 UI（非 CLI）</td><td>❌</td><td>❌</td><td>✅</td><td>✅</td></tr>
+<tr><td>多人協作</td><td>❌</td><td>✅</td><td>✅</td><td>部分</td></tr>
+<tr><td>既有專案改造</td><td>❌</td><td>✅</td><td>✅</td><td>✅</td></tr>
+<tr><td>無需 Claude Code 前提</td><td>❌</td><td>✅</td><td>✅</td><td>✅</td></tr>
+<tr><td>每次使用成本</td><td>$6-15</td><td>$0-10/月</td><td>$20/月</td><td>$15/hr</td></tr>
+</table>
+<p>MYDEVSOP 的真實護城河：<strong>文件對齊驗證</strong> + <strong>BDD-TDD 閉環強制</strong> + <strong>全流程文件生成</strong>——這三個組合是其他工具都沒有的。</p>
+<hr>
+<p><em>報告生成：devsop-product-review skill v1.0</em></p></main>
+  </div>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({startOnLoad:true,theme:'default',
+      flowchart:{curve:'basis',nodeSpacing:60,rankSpacing:80},
+      er:{layoutDirection:'TD',minEntityWidth:100,fontSize:12},
+      sequence:{actorMargin:60,messageMargin:30}});
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-yaml.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-sql.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-go.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-typescript.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-json.min.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>

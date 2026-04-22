@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modification-Decisions — MYDEVSOP</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body>
+  <header class="top-nav">
+    <a href="index.html" class="nav-brand">MYDEVSOP</a>
+    <div class="nav-controls">
+      <div class="search-wrap">
+        <input class="search-input" type="search" placeholder="搜尋文件...">
+        <div class="search-results"></div>
+      </div>
+      <a class="nav-gh-link" href="https://github.com/ibalasite/MYDEVSOP" target="_blank" rel="noopener">⌥ GitHub</a>
+      <button class="sidebar-toggle" id="sidebarToggle" title="收合/展開側欄">☰</button>
+    </div>
+  </header>
+  <div class="doc-page-banner">
+    <p class="banner-breadcrumb"><a href="index.html">MYDEVSOP</a> › Modification-Decisions</p>
+    <h1 class="banner-title">Modification-Decisions</h1>
+  </div>
+  <div class="page-wrapper">
+    <aside class="sidebar" aria-label="文件導覽">
+      <div class="sidebar__section">
+        <div class="sidebar__label">文件</div>
+        <a class="sidebar__link" href="index.html">🏠 首頁</a>
+<a class="sidebar__link" href="prd.html">📝 產品需求文件 (PRD)</a>
+<a class="sidebar__link" href="migration_tracker.html">📄 Migration Tracker</a>
+<a class="sidebar__link" href="product_review.html">📄 Product Review</a>
+<a class="sidebar__link" href="requirements.html">📄 Requirements</a>
+<a class="sidebar__link" href="solution_roadmap.html">📄 Solution Roadmap</a>
+<a class="sidebar__link" href="idea-vs-gendoc-comparison.html">📄 Idea-Vs-Gendoc-Comparison</a>
+<a class="sidebar__link" href="implementation-list.html">📄 Implementation-List</a>
+<a class="sidebar__link active" href="modification-decisions.html">📄 Modification-Decisions</a>
+      </div>
+    </aside>
+    <div class="sidebar-resizer" id="sidebarResizer"></div>
+    <main class="doc-content"><h1>MYDEVSOP Skill 修改決策文件</h1>
+<blockquote><p><strong>版本</strong>：v1.0 — 2026-04-22</p></blockquote>
+<blockquote><p><strong>用途</strong>：以第一性原則重新分析 devsop-idea / devsop-gendoc 的差距，整理需決策的修改項目。</p></blockquote>
+<blockquote><p><strong>填寫方式</strong>：在「決策」欄填入選擇，例如：<code>採納</code> / <code>否決</code> / <code>調整後採納：...</code></p></blockquote>
+<blockquote><p><strong>閱讀建議</strong>：Tier 1 → Tier 2 → Tier 3 → Tier 4 依序決策，後面的項目可能依賴前面的決定。</p></blockquote>
+<hr>
+<h2>第一性原則分析框架</h2>
+<p>在逐項決策前，先確認三個根本問題的答案：</p>
+<h3>根本問題 1：這兩個 skill 的本質差異是什麼？</h3>
+<table>
+<tr><th></th><th>devsop-idea</th><th>devsop-gendoc</th></tr>
+<tr><td>輸入特性</td><td>無中生有（想法尚未成形）+ 已有素材（文件/程式碼/圖片）</td><td>無中生有（想法尚未成形）+ 已有素材（文件/程式碼/圖片））</td></tr>
+<tr><td>需求清晰度</td><td>低到高都要能接受，但不管多清楚都要做 澄清與研究, 表材只是參考資料之一</td><td>低到高都要能接受，但不管多清楚都要做 澄清與研究, 表材只是參考資料之一</td></tr>
+<tr><td>輸出</td><td>IDEA.md + BRD.md (要先idea.md, 再關聯idea.md產生 BRD.md 跟專案要求文件上下遊的累積關聯有關) → autodev（有程式碼 有文件）</td><td>IDEA.md + BRD.md (要先idea.md, 再關聯idea.md產生 BRD.md 跟專案要求文件上下遊的累積關聯有關)  → autogen（純文件）</td></tr>
+<tr><td>下游</td><td>程式碼 + 部署 + local 測試環境啟動 + 文件 + HTML Pages +git pus and deploy page</td><td>文件 + HTML Pages+git pus and deploy page</td></tr>
+</table>
+<p><strong>核心結論</strong>：兩者輸出物（ IDEA＋BRD.md）應達到相同品質標準，但抵達輸出的「過程」可以因輸入性質不同而有所差異。</p>
+<h3>根本問題 2：修改的優先原則是什麼？</h3>
+<ol><li><strong>安全性優先</strong>：不能意外覆蓋已存在的工作成果</li><li><strong>正確性次之</strong>：斷點後能正確接續</li><li><strong>品質第三</strong>：輸出文件的完整度</li><li><strong>一致性最後</strong>：兩 skill 共用設計模式</li></ol>
+<h3>根本問題 3：什麼是「最小可行」修改集？</h3>
+<p>有些修改是<strong>架構正確性</strong>所必需（不改就會出錯），有些只是<strong>品質提升</strong>（改了更好但不影響正確性）。本文件明確區分兩者。</p>
+<hr>
+<h2>Tier 1：架構基礎決策（最高優先，其他一切依賴於此）</h2>
+<hr>
+<h3>TF-01：gendoc 的工作空間創建模式</h3>
+<p><strong>影響</strong>：gendoc｜<strong>類型</strong>：架構正確性（必改）</p>
+<p><strong>現況</strong></p>
+<p>gendoc 目前假設使用者<strong>已在</strong>某個目錄下執行，直接在 <code>$(pwd)/docs/</code> 寫出文件。它沒有「偵測根目錄 → 詢問位置 → mkdir → cd → git init」的流程。</p>
+<p><strong>第一性原則分析</strong></p>
+<p>若 gendoc 要實作「全新建時禁止覆蓋已存在目錄」的保護（即 TF-02 斷點守衛），前提是 gendoc 必須<strong>明確知道並控制</strong>工作空間的建立。但目前它不建立工作空間，無從實施保護。</p>
+<p>這揭示了一個根本性設計問題：</p>
+<ul><li><strong>現有設計</strong>：gendoc 是一個「就地執行」的 skill（在呼叫者當前目錄運行）</li><li><strong>目標設計</strong>：gendoc 變成一個「自主建立工作空間」的 skill（與 idea 相同架構）</li></ul>
+<p>這兩種設計不能同時成立。必須選一個。</p>
+<p><strong>方案選擇</strong></p>
+<table>
+<tr><th>方案</th><th>描述</th><th>優點</th><th>缺點</th></tr>
+<tr><td><strong>A（自主建立）</strong></td><td>gendoc 完全複製 idea 的 Step 1～1.5 工作空間建立流程，從偵測根目錄到 git init</td><td>架構一致；可實施 TF-02 守衛；支援斷點續跑</td><td>工作量最大；需大幅重寫 Step 0 前段</td></tr>
+<tr><td><strong>B（就地執行+守衛）</strong></td><td>保持「就地執行」模式，但在 Step 0 前加入「此目錄是否由 MYDEVSOP 管理」的識別標記檢查</td><td>改動最少；保持現有使用慣例</td><td>識別標記的可靠性存疑；無法完整實施 TF-02</td></tr>
+<tr><td><strong>C（混合模式）</strong></td><td>gendoc 保持就地執行，但 Step 0 之前新增「是否在 MYDEVSOP 目錄中」偵測：是→斷點續跑；否→詢問是否建立新工作空間</td><td>靈活；向下相容</td><td>邏輯複雜；有兩條不同路徑，測試負擔重</td></tr>
+</table>
+<p><strong>建議</strong>：方案 A（完全對齊 idea 架構），理由是長期維護成本最低，且 TF-02 守衛的實施最為乾淨。</p>
+<table>
+<tr><th>決策</th><th></th></tr>
+<tr><td><strong>你的決策</strong></td><td>A，但idea 要先調到對，他現在也有錯，在/Users/tobala/projects/MYDEVSOP/docs/idea-vs-gendoc-comparison.md我有明確指出，要先改好，才能完整複制idea</td></tr>
+</table>
+<hr>
+<h3>TF-02：斷點續跑狀態機設計</h3>
+<p><strong>影響</strong>：兩者｜<strong>類型</strong>：架構正確性（必改）</p>
+<p><strong>現況</strong></p>
+<ul><li><strong>gendoc</strong>：Step 0-E 有「docs/ 已存在時 skip/overwrite/abort 三選項」，但邏輯依賴使用者選擇，不是基於 state 自動判斷</li><li><strong>idea</strong>：完全無此保護</li></ul>
+<p><strong>第一性原則分析</strong></p>
+<p>正確的狀態機應滿足以下不變量（invariants）：</p>
+<pre><code class="">不變量 1：全新建 ≡ state file 不存在
+不變量 2：斷點續跑 ≡ state file 存在 + completed_steps 陣列不完整
+不變量 3：已完成 ≡ state file 存在 + 所有 STEP 都在 completed_steps 中
+但兩者有不同的STEP，不能共用，要在devsop-config 多一個設定doc 文件產生的STEP，這樣才會各自獨立</code></pre>
+<p>在此基礎上，守衛邏輯為：</p>
+<pre><code class="">if state_file 不存在:
+  → 全新建路徑
+  → 驗證：目標專案名目錄 （不一定是父目錄）不存在 AND GitHub repo 不存在
+  → 若任一存在 → ABORT（給出精確原因）但在自動模式（devsop-config 可以選）下，不能無故ABORT，要給出一個可以用的專案名稱，可以用在建專案目錄與REPO
+
+elif state_file 存在, 但要確定是這個流程的狀態，因為現在所在目錄也有可能有別的工作在進行，所以要註記是那一個skill的狀態，同一個SKILL的狀態才能斷點續跑，你不能idea-&gt; autodev 的狀態，拿來做gendoc-&gt; autogen 做為斷點續跑:
+  → 斷點續跑路徑
+  → 讀取 completed_steps
+  → 找出最後完成的 STEP N
+  → 驗證 STEP N 的輸出物是否完整（見各步的 completion_criteria）
+  → 若不完整：重做 STEP N，再繼續 STEP N+1
+  → 若完整：從 STEP N+1 繼續</code></pre>
+<p><strong>關鍵問題：每個 STEP 的 completion_criteria 如何定義？ 這裡特別注意原idea流程，並沒有做idea流程的reveiw loop 這違背原設計的文件階層要補做這段相關skill, 下遊的各層文件都要關聯上來</strong></p>
+<table>
+<tr><th>STEP</th><th>輸出物</th><th>completion_criteria</th></tr>
+<tr><td>工作空間建立</td><td><code>$_PROJECT_DIR/</code> + <code>.git/</code></td><td>兩者均存在</td></tr>
+<tr><td>IDEA.md 生成</td><td><code>docs/IDEA.md</code></td><td>檔案存在 + <code>wc -l &gt; 30</code></td></tr>
+<tr><td>IDEA Review</td><td>state 的 <code>idea_review_passed=true</code></td><td>state key 存在且為 true</td></tr>
+<tr><td>git commit</td><td>git log 有對應 commit</td><td>`git log --oneline</td><td>grep &quot;init idea&quot;`</td></tr>
+<tr><td>BRD 生成</td><td><code>docs/BRD.md</code></td><td>檔案存在 + <code>wc -l &gt; 50</code></td></tr>
+<tr><td>git commit</td><td>git log 有對應 commit</td><td>`git log --oneline</td><td>grep &quot;init BRD&quot;`</td></tr>
+<tr><td>BRD Review</td><td>state 的 <code>brd_review_passed=true</code></td><td>state key 存在且為 true</td></tr>
+</table>
+<p><strong>與現有 gendoc skip 邏輯的根本差異</strong></p>
+<ul><li><strong>現有 skip 邏輯</strong>：「文件存在就跳過」→ 問題：文件可能是不完整的（被中斷的上次生成）</li><li><strong>新邏輯</strong>：「state 記錄此 STEP 完成」→ 可靠，不依賴文件是否存在</li></ul>
+<p><strong>方案選擇</strong></p>
+<table>
+<tr><th>方案</th><th>描述</th><th>優點</th><th>缺點</th></tr>
+<tr><td><strong>A（完整狀態機）</strong></td><td>上述完整設計，每步寫入 <code>completed_steps</code> 陣列，守衛在 Step 0 最前端執行</td><td>最正確；完全可靠</td><td>實施複雜；每步都要寫 state</td></tr>
+<tr><td><strong>B（輕量守衛）</strong></td><td>只檢查「state 存在 vs 不存在」，不追蹤個別 STEP，斷點後從 <code>gendoc_start_step</code> 指定的步驟重跑</td><td>實施簡單；利用現有 start_step 機制</td><td>不能自動找斷點位置；需使用者知道從哪裡接</td></tr>
+<tr><td><strong>C（文件存在守衛）</strong></td><td>全新建時禁止目錄/repo 衝突；斷點後沿用現有 skip 邏輯</td><td>改動最少</td><td>skip 邏輯的可靠性問題未解決</td></tr>
+</table>
+<p><strong>建議</strong>：方案 A，但以漸進方式實施（先實施全新建守衛，再實施斷點追蹤）。</p>
+<table>
+<tr><th>決策</th><th></th></tr>
+<tr><td><strong>你的決策</strong></td><td>A ，但不用該檔案每一個細節都找，因為每份文件的產生都有TEMPLATE參考，只要跟要執行的項目對應不起來，就要重建該文件</td></tr>
+</table>
+<hr>
+<h3>TF-03：Config 委派邊界</h3>
+<p><strong>影響</strong>：兩者｜<strong>類型</strong>：架構正確性（應改）</p>
+<p><strong>現況</strong></p>
+<ul><li><strong>gendoc</strong>：自行管理 <code>gendoc_loop_count</code>（Step 0-B）和 <code>gendoc_start_step</code>（Step 0-C），用自己的 AskUserQuestion 問使用者</li><li><strong>idea</strong>：用 <code>review_strategy</code> 換算 <code>max_rounds</code>，沒有獨立 loop_count</li></ul>
+<p><strong>第一性原則分析</strong></p>
+<p>Config 委派的核心原則：<strong>執行參數不應散落在各 skill，應有單一真理來源</strong>。</p>
+<p>但必須注意：<code>devsop-config</code> 本身也是一個 skill，呼叫它需要有明確的觸發條件和返回機制。</p>
+<p><strong>真正需要委派的是什麼？</strong></p>
+<table>
+<tr><th>參數</th><th>現況</th><th>應由誰管理</th><th>理由</th></tr>
+<tr><td><code>execution_mode</code></td><td>兩者均有，讀 state 或問使用者</td><td>devsop-config / state</td><td>跨 skill 共用，應只問一次</td></tr>
+<tr><td><code>review_strategy</code></td><td>兩者均有</td><td>devsop-config / state</td><td>同上</td></tr>
+<tr><td><code>loop_count</code></td><td>只 gendoc 有，自問</td><td>gendoc 自己可管（skill 特定）</td><td>每個 skill 的 review 輪次可以不同</td></tr>
+<tr><td><code>start_step</code></td><td>只 gendoc 有，自問</td><td>gendoc 自己應管</td><td>每個 skill 的步驟名稱不同，無法共用</td></tr>
+</table>
+<p><strong>核心問題</strong>：<code>loop_count</code> 和 <code>start_step</code> 本質上是 <strong>skill-specific</strong> 的參數，不是 cross-skill 的 config。把它們委派給 devsop-config 會讓 config 知道太多 skill 內部細節（違反關注點分離）。</p>
+<p><strong>建議</strong></p>
+<ul><li><code>execution_mode</code> + <code>review_strategy</code>：若 state 已有，沿用；若無，顯示標準 §0 選單（保持現有做法，不需另外呼叫 devsop-config）</li><li><code>loop_count</code>：保留在 gendoc 自管，但<strong>讀取 <code>review_strategy</code> 來換算預設值</strong>（不需要問使用者）</li><li style="margin-left:1.0rem"><code>rapid</code> → 1 輪；<code>standard</code> → 2 輪；<code>thorough</code> → 3 輪；<code>exhaustive</code> → 5 輪</li><li><code>start_step</code>：保留在 gendoc 自管（斷點續跑由 TF-02 自動判斷，不需問使用者）</li></ul>
+<table>
+<tr><th>決策</th><th></th></tr>
+<tr><td><strong>你的決策</strong></td></tr>
+</table>
+<p>loop_count 就是要拿來做文件的review loop 的條件，本質跟 review_strategy 一樣，不應該讓gendoc跟其他skill不同，應取消loop_count , 直接用review-strategy</p>
+<p>start_step 是因為用autodev 流程的31 step, 但在其step也有分是文件產生還是非文件產生，也可以用同一個start_step, 只是要讓autogen去找出，指定的step 是自己的那一個文件step, 可以在autogen裡有autodev跟autogen 文件STEP對照表，這樣就不用兩個變數了，一個變數兩段都能用，因此當我指定的step 是autodev 非文件step 找出該step的下一個文件step來開始執行與check</p>
+<p>因此變數共用是原則，文件產生順序要一致，以文件上下遊關係，與上下遊累積原則來看，要能符合</p>
+<p>|</p>
+<hr>
+<h3>TF-04：BRD 與 IDEA.md 生成邏輯的共用策略</h3>
+<p><strong>影響</strong>：兩者｜<strong>類型</strong>：架構設計（值得決策）</p>
+<p><strong>現況</strong></p>
+<p>gendoc 和 idea 都生成 BRD + IDEA.md，但各自有不同的 prompt 和章節結構。</p>
+<p><strong>第一性原則分析</strong></p>
+<p>若兩個 skill 輸出相同的文件格式，而生成邏輯<strong>在兩個 skill 中各自維護</strong>，則：</p>
+<ul><li>任何模板修改都需要改兩處</li><li>兩份 prompt 必然漸漸偏離（維護不同步）</li><li>Bug 修復需要在兩處修</li></ul>
+<p><strong>三種架構選擇</strong></p>
+<table>
+<tr><th>方案</th><th>描述</th><th>優點</th><th>缺點</th></tr>
+<tr><td><strong>A（共用 devsop-shared）</strong></td><td>BRD 和 IDEA.md 的生成邏輯抽到 devsop-shared（共用 skill），兩者都 invoke 它</td><td>單一修改點；DRY</td><td>需建立新的 devsop-shared skill；呼叫路徑增加</td></tr>
+<tr><td><strong>B（各自維護，但對齊）</strong></td><td>各自保有生成邏輯，但本次修改時對齊，未來靠人工保持同步</td><td>零架構成本</td><td>長期漂移風險高</td></tr>
+<tr><td><strong>C（gendoc 呼叫 idea 的生成邏輯）</strong></td><td>gendoc 做完輸入處理後，把 BRD/IDEA 生成委派給 idea 的對應步驟</td><td>不需要額外 skill</td><td>耦合嚴重；若 idea 改動會影響 gendoc</td></tr>
+</table>
+<p><strong>建議</strong>：方案 B（本次對齊，長期觀察是否真的分化），原因是引入 devsop-shared 是重大架構變動，可以先對齊再看是否真的需要。</p>
+<table>
+<tr><th>決策</th><th></th></tr>
+<tr><td><strong>你的決策</strong></td><td>A，但拉出去的產生邏輯都要依文件TEMPLATE要求的項目去產生，不能TEMPLATE，說的跟實際跑的不同，例如產生idea就要依template/idea.md, 產生BRD就要依template/BRD.md, 其他文件以此類推，若其他文件沒有這麼做也要改尤其在autodev, autogen裡沒有尊守此原則都要改，因為維護只在template而不是skill, 精練項目要尊從統一來源，template</td></tr>
+</table>
+<hr>
+<h3>TF-05：State File 命名統一</h3>
+<p><strong>影響</strong>：gendoc｜<strong>類型</strong>：架構正確性（應改）</p>
+<p><strong>現況</strong></p>
+<ul><li>gendoc：固定使用 <code>.devsop-state.json</code></li><li>idea：動態使用 <code>.devsop-state-{git_user}-{branch}.json</code> + symlink</li></ul>
+<p><strong>第一性原則分析</strong></p>
+<p>固定命名在多人協作或多分支場景下會互相覆蓋。例如：</p>
+<ul><li>Alice 在 <code>main</code> 分支跑 gendoc，state 為 <code>.devsop-state.json</code></li><li>Bob 在 <code>feature/v2</code> 分支跑 gendoc，同樣寫入 <code>.devsop-state.json</code></li><li>→ 兩者互相覆蓋，斷點續跑失效</li></ul>
+<p>動態命名（user + branch）解決了這個問題。</p>
+<p><strong>潛在問題</strong>：若 TF-01 決定 gendoc 採方案 A（自主建立工作空間），則 state file 的路徑需要在工作空間建立後才能確定，這影響 Step 0 的 Session Config 讀取時機（見 TF-06）。</p>
+<p><strong>建議</strong>：gendoc 改為與 idea 相同的動態命名，在工作空間建立後（Step 1 之後）才初始化 state file。</p>
+<table>
+<tr><th>決策</th><th></th></tr>
+<tr><td><strong>你的決策</strong></td><td>gendoc 跟idea 要一樣，但不能有+ symlink 和<code>.devsop-state.json</code> 統一格式<code>.devsop-state-{git_user}-{branch}.json</code></td></tr>
+</table>
+<hr>
+<h3>TF-06：Session Config 執行時機</h3>
+<p><strong>影響</strong>：gendoc｜<strong>類型</strong>：架構正確性（依賴 TF-01）</p>
+<p><strong>現況</strong></p>
+<ul><li>gendoc：Step 0 最前端執行 Session Config（讀 <code>.devsop-state.json</code>）</li><li>idea：Step 1.5 執行（工作空間建立後）</li></ul>
+<p><strong>第一性原則分析</strong></p>
+<p>若 TF-01 決定 gendoc 採方案 A（自主建立工作空間）：</p>
+<ul><li>Session Config 必須在工作空間建立<strong>之後</strong>才能執行（因為 state file 在工作空間裡）</li><li>gendoc 的 Step 0 Session Config 必須後移到等效於 idea Step 1.5 的位置</li></ul>
+<p>若 TF-01 決定 gendoc 採方案 B 或 C（保持就地執行）：</p>
+<ul><li>Session Config 保持在 Step 0 執行（維持現有邏輯）</li></ul>
+<p>此決策<strong>完全依賴 TF-01</strong>。</p>
+<table>
+<tr><th>決策</th><th></th></tr>
+<tr><td><strong>你的決策</strong>（填 TF-01 決定後自然解決）</td><td>A，但gendoc 跟idea 要一樣，不能有+ symlink 和<code>.devsop-state.json</code> 統一格式<code>.devsop-state-{git_user}-{branch}.json</code></td></tr>
+</table>
+<hr>
+<h3>TF-07：Step 命名規範（gendoc）</h3>
+<p><strong>影響</strong>：gendoc｜<strong>類型</strong>：可讀性（可改可不改）</p>
+<p><strong>現況</strong></p>
+<p>gendoc 使用 <code>DOC-01</code>～<code>DOC-12</code> 命名，使用者看不出每步產生的是什麼文件。</p>
+<p><strong>第一性原則分析</strong></p>
+<p><code>DOC-01</code> 是 opaque ID，不傳達語意。<code>01-IDEA</code> 明確告訴讀者此步產生 IDEA.md。</p>
+<p><strong>改名帶來的問題</strong></p>
+<ul><li>若其他 skill（autogen、autodev）有寫死 <code>gendoc_start_step</code> 的步驟名稱，改名後需要同步更新</li><li>state file 中存的 <code>gendoc_start_step</code> 值是舊名稱，升級後舊 state 會失效</li></ul>
+<p><strong>建議映射</strong></p>
+<table>
+<tr><th>舊名</th><th>建議新名</th><th>輸出文件</th></tr>
+<tr><td>DOC-01</td><td><code>01-INIT</code></td><td>專案初始化 + 衝突檢查</td></tr>
+<tr><td>DOC-01.5</td><td><code>02-IDEA</code></td><td>IDEA.md</td></tr>
+<tr><td>DOC-02</td><td><code>03-BRD</code></td><td>BRD.md</td></tr>
+<tr><td>DOC-03</td><td><code>04-HANDOFF</code></td><td>Handoff → autogen</td></tr>
+</table>
+<p>（後續 DOC-04 以後在 autogen 中，不在 gendoc 範圍）</p>
+<p><strong>建議</strong>：採納，但同時在 state 中保留舊名 alias 做向後相容（<code>gendoc_start_step: &quot;02-IDEA&quot;</code> 或 <code>&quot;DOC-01.5&quot;</code> 均可解析）。</p>
+<table>
+<tr><th>決策</th><th></th></tr>
+<tr><td><strong>你的決策</strong></td><td>要有對照但是是autodev的31 step 文件step 標示，也不要有alias, 一次改對，不應該讓gendoc跟其他skill不同，應取消loop_count , 直接用review-strategy</td></tr>
+</table>
+<p>start_step 是因為用autodev 流程的31 step, 但在其step也有分是文件產生還是非文件產生，也可以用同一個start_step, 只是要讓autogen去找出，指定的step 是自己的那一個文件step, 可以在autogen裡有autodev跟autogen 文件STEP對照表，這樣就不用兩個變數了，一個變數兩段都能用，因此當我指定的step 是autodev 非文件step 找出該step的下一個文件step對照到autogen step來開始執行與check</p>
+<p>因此變數共用是原則，文件產生順序要一致，以文件上下遊關係，與上下遊累積原則來看，要能符合|</p>
+<hr>
+<h2>Tier 2：流程設計決策</h2>
+<hr>
+<h3>PD-01：idea 移除 Step -0.5 輸入模式選單</h3>
+<p><strong>影響</strong>：idea｜<strong>類型</strong>：流程簡化（建議改）</p>
+<p><strong>現況</strong></p>
+<p>idea 的 Step -0.5 詢問使用者選擇「多輪訪談 / Quick Start / AI 自動填入」，設定 <code>_QUICK_START</code> 和 <code>_FULL_AUTO_INPUT</code> 旗標。</p>
+<p><strong>第一性原則分析</strong></p>
+<p>這個選單存在是因為 <code>execution_mode</code>（interactive/full-auto）和「是否讓 AI 完全自主推斷 Q1-Q5」是兩個<strong>不完全等價</strong>的維度：</p>
+<ul><li><code>interactive</code> + 使用者願意回答 → 多輪訪談</li><li><code>interactive</code> + 使用者懶得回答 → Quick Start</li><li><code>full-auto</code> → AI 自動填入</li></ul>
+<p>問題是：<code>interactive</code> 模式下的「Quick Start」實際上是「interactive 模式，但跳過 Step 2 的問題」。這個旗標只用來決定<strong>是否執行 Step 2 的澄清問題</strong>。</p>
+<p><strong>第一性原則結論</strong>：這個選單可以被簡化掉。如果使用者是 <code>interactive</code> 模式，就執行 Step 2 澄清問題（使用者可以直接選「AI 推薦預設」跳過）；如果是 <code>full-auto</code>，就直接跳過 Step 2。中間不需要一個額外的模式選單。</p>
+<p><strong>建議</strong>：移除 Step -0.5，刪除 <code>_QUICK_START</code> 和 <code>_FULL_AUTO_INPUT</code> 旗標。Step 2 的執行完全由 <code>execution_mode</code> 決定。</p>
+<table>
+<tr><th>決策</th><th></th></tr>
+<tr><td><strong>你的決策</strong></td><td>不要有這個選單STEP，因為devsop-config 就有選自動與互動，就夠了，找不到狀態就直接叫出devsop-config處理，不要有太多散在各skill類似意思的選單</td></tr>
+</table>
+<hr>
+<h3>PD-02：gendoc 是否需要 Q1-Q5 澄清步驟</h3>
+<p><strong>影響</strong>：gendoc｜<strong>類型</strong>：流程設計（重要判斷）</p>
+<p><strong>現況</strong></p>
+<p>gendoc 無 Q1-Q5 步驟（從素材直接推斷）。使用者決策：gendoc 也要有 Q1-Q5。</p>
+<p><strong>第一性原則分析</strong></p>
+<p>Q1-Q5 的<strong>存在理由</strong>是：當輸入（IDEA 文字）不夠具體時，AI 需要更多資訊才能生成高品質 BRD。</p>
+<p>gendoc 的輸入性質與 idea 不同：</p>
+<table>
+<tr><th>輸入類型</th><th>Q1-Q5 必要性</th><th>理由</th></tr>
+<tr><td><code>text_idea</code>（純文字想法）</td><td>高</td><td>與 idea 相同情況</td></tr>
+<tr><td><code>doc_url</code>（規格文件）</td><td>低</td><td>文件已包含大部分答案</td></tr>
+<tr><td><code>doc_git</code>（GitHub repo）</td><td>低</td><td>README/docs 已有 context</td></tr>
+<tr><td><code>codebase_local/git</code></td><td>中</td><td>程式碼隱含技術決策，但使用者意圖不明</td></tr>
+<tr><td><code>image_url</code>（截圖）</td><td>高</td><td>圖片只提供 UI，缺少業務 context</td></tr>
+</table>
+<p><strong>第一性原則結論</strong>：gendoc 應做<strong>條件式澄清</strong>（Conditional Clarification），而非全面 Q1-Q5：</p>
+<pre><code class="">if _INPUT_TYPE in [&quot;text_idea&quot;, &quot;image_url&quot;]:
+    → 執行完整 Q1-Q5（與 idea 相同）
+elif _INPUT_TYPE in [&quot;doc_url&quot;, &quot;doc_git&quot;, &quot;codebase_local&quot;, &quot;codebase_git&quot;]:
+    → 從素材推斷 Q1-Q5 答案
+    → 僅在推斷可信度低時（AI 判斷）追問特定問題
+    → interactive 模式：顯示推斷結果，詢問「確認/修正？」
+    → full-auto 模式：直接使用推斷結果</code></pre>
+<p><strong>方案選擇</strong></p>
+<table>
+<tr><th>方案</th><th>描述</th><th>建議</th></tr>
+<tr><td><strong>A（條件式）</strong></td><td>依輸入類型決定是否執行 Q1-Q5</td><td>✅ 最合理</td></tr>
+<tr><td><strong>B（全面 Q1-Q5）</strong></td><td>所有輸入類型都問 Q1-Q5</td><td>文件類輸入問法重複且低效</td></tr>
+<tr><td><strong>C（不問）</strong></td><td>保持現有，全部從素材推斷</td><td>損失部分準確度</td></tr>
+</table>
+<table>
+<tr><th>決策</th><th></th></tr>
+<tr><td><strong>你的決策</strong></td><td>B 全部都要有，不管誰給什麼資料都是參考來源，不是給的多就決定項目內容了，AI要自主研究只是加入更多實際參考資料，最後統一分析，而devsop-idea 也要求要能接收更多input 因此對兩個流程來說都是一樣的</td></tr>
+</table>
+<hr>
+<h3>PD-03：gendoc 是否需要 Web Research</h3>
+<p><strong>影響</strong>：gendoc｜<strong>類型</strong>：流程設計（重要判斷）</p>
+<p><strong>現況</strong></p>
+<p>gendoc 無 Web Research 步驟。使用者決策：gendoc 也要做 3 次 WebSearch。</p>
+<p><strong>第一性原則分析</strong></p>
+<p>Web Research 的<strong>存在理由</strong>：填補「從想法到 BRD」過程中的背景知識空白（競品分析、技術選型、已知風險）。</p>
+<p>gendoc 的問題：如果輸入已是完整的規格文件或 codebase，<strong>研究的邊際價值大幅降低</strong>：</p>
+<table>
+<tr><th>輸入類型</th><th>研究必要性</th><th>理由</th></tr>
+<tr><td><code>text_idea</code></td><td>高</td><td>與 idea 相同</td></tr>
+<tr><td><code>doc_url</code>（詳細規格）</td><td>低</td><td>規格已決定了技術與範疇</td></tr>
+<tr><td><code>codebase_local/git</code></td><td>中</td><td>程式已決定技術棧，但市場情況未知</td></tr>
+<tr><td><code>doc_git</code>（開源專案）</td><td>中</td><td>可補充競品對比資訊</td></tr>
+</table>
+<p><strong>第一性原則結論</strong>：gendoc 應做<strong>條件式研究</strong>（1 次 targeted WebSearch），而非複製 idea 的 3 次全面研究。</p>
+<pre><code class="">若 _INPUT_TYPE in [&quot;text_idea&quot;, &quot;image_url&quot;]:
+    → 執行 3 次 WebSearch（同 idea）
+若 _INPUT_TYPE in [&quot;codebase_local&quot;, &quot;codebase_git&quot;, &quot;doc_git&quot;]:
+    → 執行 1 次 WebSearch（僅競品/市場定位）
+若 _INPUT_TYPE in [&quot;doc_url&quot;]:
+    → 跳過研究（規格已自足）</code></pre>
+<p><strong>方案選擇</strong></p>
+<table>
+<tr><th>方案</th><th>描述</th><th>建議</th></tr>
+<tr><td><strong>A（條件式研究）</strong></td><td>依輸入類型決定研究深度</td><td>✅ 最合理</td></tr>
+<tr><td><strong>B（全面 3 次研究）</strong></td><td>所有輸入類型都做 3 次</td><td>部分情況冗餘</td></tr>
+<tr><td><strong>C（不研究）</strong></td><td>保持現有，無研究步驟</td><td>BRD §6 競品分析為空</td></tr>
+</table>
+<table>
+<tr><th>決策</th><th></th></tr>
+<tr><td><strong>你的決策</strong></td><td>B，不管誰給什麼資料都是參考來源，不是給的多就決定項目內容了，AI要自主研究只是加入更多實際參考資料，最後統一分析，而devsop-idea 也要求要能接收更多input 因此對兩個流程來說都是一樣的</td></tr>
+</table>
+<hr>
+<h3>PD-04：gendoc Loop Count 來源</h3>
+<p><strong>影響</strong>：gendoc｜<strong>類型</strong>：流程設計（依賴 TF-03）</p>
+<p><strong>現況</strong></p>
+<p>gendoc Step 0-B 自行用 AskUserQuestion 問使用者選 1-5 輪，存 <code>gendoc_loop_count</code>。</p>
+<p><strong>第一性原則分析</strong></p>
+<p>TF-03 建議用 <code>review_strategy</code> 換算 loop_count，而非獨立問使用者。</p>
+<p><strong>換算關係建議</strong></p>
+<pre><code class="">review_strategy → max_rounds（每份文件）
+rapid       → 1
+standard    → 2
+thorough    → 3
+exhaustive  → 5</code></pre>
+<p>這樣做的好處：使用者只需在 Session Config 選一次「review 策略」，不需要再被問「幾輪？」。</p>
+<p><strong>方案選擇</strong></p>
+<table>
+<tr><th>方案</th><th>描述</th><th>建議</th></tr>
+<tr><td><strong>A（從 review_strategy 換算）</strong></td><td>移除 Step 0-B 的詢問，用 review_strategy 自動換算</td><td>✅ 建議</td></tr>
+<tr><td><strong>B（保持自問）</strong></td><td>維持現有 Step 0-B，使用者選輪數</td><td>多了一次詢問</td></tr>
+<tr><td><strong>C（固定輪數）</strong></td><td>不問，固定使用 2 輪</td><td>缺少彈性</td></tr>
+</table>
+<table>
+<tr><th>決策</th><th></th></tr>
+<tr><td><strong>你的決策</strong></td><td>不應該有loop count, 其本質跟 review_strategy 一樣，不應該讓gendoc跟其他skill不同，應取消loop_count , 直接用review-strategy</td></tr>
+</table>
+<p>start_step 是因為用autodev 流程的31 step, 但在其step也有分是文件產生還是非文件產生，也可以用同一個start_step, 只是要讓autogen去找出，指定的step 是自己的那一個文件step, 可以在autogen裡有autodev跟autogen 文件STEP對照表，這樣就不用兩個變數了，一個變數兩段都能用，因此當我指定的step 是autodev 非文件step 找出該step的下一個文件step來對應autogen 文件step開始執行與check</p>
+<p>因此變數共用是原則，文件產生順序要一致，以文件上下遊關係，與上下遊累積原則來看，要能符合 |</p>
+<hr>
+<h3>PD-05：起始步驟選擇（gendoc Start Step）</h3>
+<p><strong>影響</strong>：gendoc｜<strong>類型</strong>：流程設計（依賴 TF-02）</p>
+<p><strong>現況</strong></p>
+<p>gendoc Step 0-C 在 interactive 模式下用 AskUserQuestion 問使用者「從 DOC-01 到 DOC-12 哪步開始」。</p>
+<p><strong>第一性原則分析</strong></p>
+<p>若 TF-02 決定實施完整狀態機（方案 A），則：</p>
+<ul><li>斷點位置由系統自動判斷，不需要問使用者</li><li>全新建永遠從 STEP 1 開始</li><li>使用者手動指定起始步驟的場景只在「想重跑特定步驟」時有用</li></ul>
+<p><strong>建議</strong></p>
+<ul><li>移除 <code>interactive</code> 下的起始步驟 AskUserQuestion</li><li>改為：斷點自動偵測（TF-02）；若使用者想重跑特定步驟，透過呼叫時的 args 傳入</li><li>若 TF-02 選方案 B（輕量守衛），則保留此步驟</li></ul>
+<table>
+<tr><th>決策</th><th></th></tr>
+<tr><td><strong>你的決策</strong>（填 TF-02 決定後自然解決）</td><td>不應該有loop count, 其本質跟 review_strategy 一樣，不應該讓gendoc跟其他skill不同，應取消loop_count , 直接用review-strategy</td></tr>
+</table>
+<p>start_step 是因為用autodev 流程的31 step, 但在其step也有分是文件產生還是非文件產生，也可以用同一個start_step, 只是要讓autogen去找出，指定的step 是自己的那一個文件step, 可以在autogen裡有autodev跟autogen 文件STEP對照表，這樣就不用兩個變數了，一個變數兩段都能用，因此當我指定的step 是autodev 非文件step 找出該step的下一個文件step來對應autogen 文件step開始執行與check</p>
+<p>因此變數共用是原則，文件產生順序要一致，以文件上下遊關係，與上下遊累積原則來看，要能符合|</p>
+<hr>
+<h3>PD-06：idea 補充 PM Expert Agent + 衝突檢查</h3>
+<p><strong>影響</strong>：idea｜<strong>類型</strong>：功能補充（應改）</p>
+<p><strong>現況</strong></p>
+<p>idea 目前在 Step 0-A 用 <code>_PROJECT_SLUG</code> 做初步的名稱推斷，但無 PM Expert Agent 正式提取 <code>project_name</code>、<code>project_type</code>、<code>key_features</code>、<code>target_users</code>。gendoc 的 DOC-01 有這個完整流程。</p>
+<p>idea 目前也沒有父目錄 + GitHub repo 的衝突檢查（只在 Step 1.5 建立目錄，若目錄已存在會直接報錯）。</p>
+<p><strong>建議</strong></p>
+<p>在 idea 的 Step 1.5（工作空間建立後，Session Config 執行後）新增等效於 gendoc DOC-01 的 PM Expert Agent + 衝突檢查邏輯。</p>
+<table>
+<tr><th>決策</th><th></th></tr>
+<tr><td><strong>你的決策</strong></td><td>idea 要加</td></tr>
+</table>
+<hr>
+<h3>PD-07：舊版文件處理邏輯（skip/overwrite → REQ）</h3>
+<p><strong>影響</strong>：gendoc｜<strong>類型</strong>：流程正確性（建議改）</p>
+<p><strong>現況</strong></p>
+<p>gendoc Step 0-E 和 Step 0-C 的 skip 邏輯：已存在文件靜默跳過（full-auto）或問使用者（interactive）。</p>
+<p><strong>第一性原則分析</strong></p>
+<p>「跳過」邏輯的問題：如果輸入素材更新了（新版規格文件），跳過已存在的文件意味著無法更新它。</p>
+<p>用戶的決策（D2）：「不要用跳過邏輯，要把舊版當參考來源，放進 REQ，然後再產生新的」。</p>
+<p>這個設計的問題：</p>
+<ol><li>如何知道「舊版」是 MYDEVSOP 生成的，還是使用者自己寫的？（建議：只有在 MYDEVSOP 的 state 中有記錄的文件才算「舊版」）</li><li>重新生成意味著每次跑都會產生新版，BRD Review 的成果也會被清空 → 可能需要保留 review_passed state</li></ol>
+<p><strong>建議</strong></p>
+<pre><code class="">if 目標文件存在 AND state 記錄此文件為「已生成」:
+    mv 舊版 → docs/req/old-{filename}-{timestamp}.md
+    重新生成新版
+elif 目標文件存在 AND state 無此文件記錄:
+    詢問使用者如何處理（互動模式）或直接覆蓋（full-auto）</code></pre>
+<table>
+<tr><th>決策</th><th></th></tr>
+<tr><td><strong>你的決策</strong></td></tr>
+</table>
+<p>if 目標文件存在 AND state 記錄此文件為「已生成」:</p>
+<p>mv 舊版 → docs/req/old-{filename}-{timestamp}.md</p>
+<p>重新生成新版</p>
+<p>elif 目標文件存在 AND state 無此文件記錄:</p>
+<p>詢問使用者如何處理（互動模式）或直接copy → docs/req/old-{filename}-{timestamp}.md（full-auto）</p>
+<p>重新產生文件</p>
+<p>|</p>
+<hr>
+<h2>Tier 3：內容品質決策</h2>
+<hr>
+<h3>CQ-01：BRD 章節對齊（gendoc 補充 §0-§20）</h3>
+<p><strong>影響</strong>：gendoc｜<strong>類型</strong>：內容品質（提升）</p>
+<p><strong>現況</strong></p>
+<p>gendoc DOC-02 BRD 目前包含：Executive Summary / Business Objectives / Success Metrics / Stakeholders / Scope / Constraints / Timeline / Risk Register（共 8 個核心段落）。</p>
+<p>idea 的 BRD 包含 §0-§20 共 21 個段落，含：5 Whys / TAM-SAM-SOM / ROI 情境 / RTM / Benefits Realization Plan / Value Proposition Canvas / Market Analysis / Business Model Canvas / Unit Economics / Roadmap / Dependencies / OCM / Approval Sign-off 等。</p>
+<p><strong>第一性原則分析</strong></p>
+<p>BRD 的核心是「讓決策者能做出 Go/No-Go 決定」。過多章節可能反而降低閱讀率。</p>
+<p><strong>建議分層</strong></p>
+<table>
+<tr><th>層級</th><th>章節</th><th>必要性</th></tr>
+<tr><td><strong>核心層</strong>（8 章，gendoc 已有）</td><td>Executive Summary / Objectives / Metrics / Stakeholders / Scope / Constraints / Timeline / Risk</td><td>所有情況必有</td></tr>
+<tr><td><strong>業務分析層</strong>（+5 章）</td><td>§2 Problem Statement 5 Whys / §6 Market Analysis / §11 Business Model / §12 Roadmap / §14 Open Questions</td><td>適用「業務驅動」型專案</td></tr>
+<tr><td><strong>治理層</strong>（+5 章）</td><td>§3.4 RTM / §3.5 Benefits Realization / §9 Compliance / §19 OCM / §20 Approval Sign-off</td><td>適用「大型組織」或「合規敏感」專案</td></tr>
+</table>
+<p><strong>方案選擇</strong></p>
+<table>
+<tr><th>方案</th><th>描述</th><th>建議</th></tr>
+<tr><td><strong>A（完全對齊 idea 21 章）</strong></td><td>機械性對齊，全部補上</td><td>可能過重</td></tr>
+<tr><td><strong>B（核心+業務分析共 13 章）</strong></td><td>跳過治理層（小團隊通常不需要）</td><td>✅ 建議</td></tr>
+<tr><td><strong>C（條件式）</strong></td><td>根據 <code>project_type</code> 或使用者規模判斷是否加入治理層</td><td>實施複雜</td></tr>
+</table>
+<table>
+<tr><th>決策</th><th></th></tr>
+<tr><td><strong>你的決策</strong></td><td>產生邏輯都要依文件TEMPLATE要求的項目去產生，不能TEMPLATE，說的跟實際跑的不同，例如產生idea就要依template/idea.md, 產生BRD就要依template/BRD.md, 其他文件以此類推，若其他文件沒有這麼做也要改尤其在autodev, autogen裡沒有尊守此原則都要改，因為維護只在template而不是skill, 精練項目要尊從統一來源，template</td></tr>
+<tr><td></td></tr>
+</table>
+<hr>
+<h3>CQ-02：IDEA.md 章節對齊（gendoc 補充至 15 節 + 3 Appendix）</h3>
+<p><strong>影響</strong>：gendoc｜<strong>類型</strong>：內容品質（提升）</p>
+<p><strong>現況</strong></p>
+<p>gendoc DOC-01.5 的 IDEA.md 包含：Document Control / Idea Essence / Input Source / Key Features / Target Users / Forward Traceability / Appendix（共 7 節）。</p>
+<p>idea 的 IDEA.md 包含 §0-§19 + Appendix A/B/C，含：Innovation Type / 5 Whys / Value Hypothesis / MVP Plan / Clarification Record / Market Intelligence / Risk Assessment / Business Potential / Quality Score / Critical Assumptions / Open Questions / Handoff Checklist 等。</p>
+<p><strong>第一性原則分析</strong></p>
+<p>IDEA.md 是需求鏈的 Layer 0 起點，記錄「在 BRD 之前的原始想法與推理過程」。</p>
+<p>gendoc 的 IDEA.md 目前<strong>缺少推理過程</strong>（為什麼做這個、問題是什麼、風險在哪），只記錄了「是什麼」，沒有記錄「為什麼」。</p>
+<p><strong>建議補充的最高優先節</strong>（不論輸入類型都應有）</p>
+<table>
+<tr><th>節次</th><th>內容</th><th>為什麼必要</th></tr>
+<tr><td>§2 Problem Statement</td><td>5 Whys + 問題量化</td><td>沒有「問題陳述」的 IDEA 是不完整的</td></tr>
+<tr><td>§4 Value Hypothesis</td><td>Value Proposition Canvas</td><td>BRD §5 的前置輸入</td></tr>
+<tr><td>§8 Risk Assessment</td><td>風險矩陣 + Kill Conditions</td><td>早期識別可能失敗的原因</td></tr>
+<tr><td>§11 Quality Score</td><td>5 維度評分</td><td>量化 IDEA 的完整度</td></tr>
+<tr><td>§14 Handoff Checklist</td><td>12 項確認清單</td><td>確保移交 BRD 前所有資訊齊備</td></tr>
+</table>
+<table>
+<tr><th>決策</th><th></th></tr>
+<tr><td><strong>你的決策</strong>（可逐節決定是否加入）</td><td>產生邏輯都要依文件TEMPLATE要求的項目去產生，不能TEMPLATE，說的跟實際跑的不同，例如產生idea就要依template/idea.md, 產生BRD就要依template/BRD.md, 其他文件以此類推，若其他文件沒有這麼做也要改尤其在autodev, autogen裡沒有尊守此原則都要改，因為維護只在template而不是skill, 精練項目要尊從統一來源，template</td></tr>
+<tr><td></td></tr>
+</table>
+<hr>
+<h3>CQ-03：IDEA Quality Score（gendoc 新增）</h3>
+<p><strong>影響</strong>：gendoc｜<strong>類型</strong>：內容品質（建議加）</p>
+<p><strong>現況</strong></p>
+<p>idea 有 5 維度評分（目標清晰 / 使用者具體 / 痛點可量化 / 範圍邊界 / 可行性），各 0-1 分，轉為 0-5 星 + 質性評語。gendoc 無此步驟。</p>
+<p><strong>第一性原則分析</strong></p>
+<p>Quality Score 的作用：提示 AI 和使用者「這個 IDEA 的資訊是否足夠生成高品質 BRD」。如果分數低，應在繼續前補充資訊。</p>
+<p>對 gendoc 而言，當輸入是完整規格文件時，分數通常會高；當輸入是截圖或模糊文字時，分數會低，此時可提示使用者補充。</p>
+<p><strong>建議</strong>：gendoc 加入 Quality Score，在 IDEA.md 生成後、BRD 生成前執行。若分數 ≤ 2★，互動模式下提醒使用者補充資訊，full-auto 模式下標記警告繼續。</p>
+<table>
+<tr><th>決策</th><th></th></tr>
+<tr><td><strong>你的決策</strong></td><td>目前idea.md 在devsop-idea, devsop-gendoc 都沒有review loop 要加，而且共用devsop-config的reviw 條件</td></tr>
+</table>
+<hr>
+<h3>CQ-04：BRD Review Loop 詳細化（gendoc）</h3>
+<p><strong>影響</strong>：gendoc｜<strong>類型</strong>：內容品質（建議改）</p>
+<p><strong>現況</strong></p>
+<p>gendoc 的 BRD Reviewer 有 8 個基本檢查點（Executive Summary / Objectives / Metrics / Stakeholders / Scope / Constraints / Timeline / Risk）。idea 有 20+ 個檢查點（逐節驗證，含 RTM / Benefits / Data Governance / Vendor Risk / OCM）。</p>
+<p><strong>第一性原則分析</strong></p>
+<p>Reviewer 的檢查點數量應與 BRD 的章節數量一致（CQ-01 決定後才能確定）。</p>
+<p><strong>建議</strong>：CQ-01 決定 BRD 章節數量後，Reviewer 的檢查點同步對齊。不需要在 CQ-01 之前獨立決策。</p>
+<p><strong>附加項目（不依賴章節數量）</strong></p>
+<table>
+<tr><th>項目</th><th>現況</th><th>建議</th></tr>
+<tr><td><code>_FINDINGS_TREND</code> 趨勢追蹤</td><td>gendoc 無</td><td>加入（每輪記錄 findings 數，判斷是否改善）</td></tr>
+<tr><td>Per-Round Summary 輸出</td><td>gendoc 無</td><td>加入（<code>【Round N/MAX】findings=X</code> 格式）</td></tr>
+<tr><td>每輪修復後 git commit</td><td>gendoc 無</td><td>加入</td></tr>
+<tr><td>Review 完成報告</td><td>gendoc 無</td><td>加入</td></tr>
+</table>
+<table>
+<tr><th>決策</th><th></th></tr>
+<tr><td><strong>你的決策</strong></td><td>產生邏輯都要依文件TEMPLATE要求的項目去產生，不能TEMPLATE，說的跟實際跑的不同，例如產生idea就要依template/idea.md, 產生BRD就要依template/BRD.md, 其他文件以此類推，若其他文件沒有這麼做也要改尤其在autodev, autogen裡沒有尊守此原則都要改，因為維護只在template而不是skill, 精練項目要尊從統一來源，template review 也是要依template的完整項目review 目標document</td></tr>
+<tr><td></td></tr>
+</table>
+<hr>
+<h3>CQ-05：idea 的 IDEA.md 補充 Key Features 獨立節</h3>
+<p><strong>影響</strong>：idea｜<strong>類型</strong>：內容品質（小幅調整）</p>
+<p><strong>現況</strong></p>
+<p>idea 的 Key Features 目前在 BRD §5（Proposed Solution → MoSCoW 優先序中）。gendoc 的 IDEA.md 有獨立的 Key Features 節。</p>
+<p><strong>第一性原則分析</strong></p>
+<p>Key Features 在 IDEA.md（Layer 0）中應是最早可見的，不應等到 BRD §5 才出現。IDEA.md 代表「在決定技術方案之前，功能需求是什麼」，屬於 Layer 0 的核心資訊。</p>
+<p><strong>建議</strong>：idea 在 IDEA.md 加入獨立的 Key Features 節（≥5 項，含 Must/Should/Could 優先度）。同時保留 BRD §5 的 MoSCoW 精細化版本（兩者有不同的詳細程度）。</p>
+<table>
+<tr><th>決策</th><th></th></tr>
+<tr><td><strong>你的決策</strong></td><td>產生邏輯都要依文件TEMPLATE要求的項目去產生，不能TEMPLATE，說的跟實際跑的不同，例如產生idea就要依template/idea.md, 產生BRD就要依template/BRD.md, 其他文件以此類推，若其他文件沒有這麼做也要改尤其在autodev, autogen裡沒有尊守此原則都要改，因為維護只在template而不是skill, 精練項目要尊從統一來源，template review 也是要依template的完整項目review 目標document</td></tr>
+</table>
+<hr>
+<h3>CQ-06：codebase 複製清單補充（gendoc E5）</h3>
+<p><strong>影響</strong>：gendoc｜<strong>類型</strong>：功能完整性（小幅修正）</p>
+<p><strong>現況</strong></p>
+<p>gendoc 的 codebase 複製清單缺少 <code>README.txt</code>、<code>pom.xml</code>、<code>build.gradle</code>。idea 有這三個。</p>
+<p>（注意：讀取 gendoc 原始碼後確認，<code>codebase_local</code> 路徑已有 <code>README.txt</code>、<code>pom.xml</code>、<code>build.gradle</code>；但 <code>codebase_git</code> 的複製迴圈缺少這三個檔案。）</p>
+<p><strong>建議</strong>：僅修正 <code>codebase_git</code> 的 for 迴圈，補上缺少的三個檔案。改動極小。</p>
+<table>
+<tr><th>決策</th><th></th></tr>
+<tr><td><strong>你的決策</strong></td><td>要加</td></tr>
+</table>
+<hr>
+<h2>Tier 4：UX / 介面決策</h2>
+<hr>
+<h3>UX-01：idea 新增 Handoff Banner</h3>
+<p><strong>影響</strong>：idea｜<strong>類型</strong>：UX 改善</p>
+<p><strong>現況</strong></p>
+<p>gendoc DOC-03-B 在移交前顯示結構化 Handoff 表格（專案名稱 / 輸入類型 / BRD 行數 / IDEA 行數 / Review 輪次 / 最終 findings）。idea 無此 Banner。</p>
+<p><strong>第一性原則分析</strong></p>
+<p>Handoff Banner 讓使用者在移交給 autodev 前有一個「確認點」，知道即將啟動的是什麼規模的工作。這對 idea 同樣有價值，因為 autodev（含程式碼+部署）比 autogen 代價更高。</p>
+<p><strong>建議</strong>：idea 在 Step 8（呼叫 autodev 前）加入相同格式的 Handoff Banner。</p>
+<table>
+<tr><th>決策</th><th></th></tr>
+<tr><td><strong>你的決策</strong></td><td>要加</td></tr>
+</table>
+<hr>
+<h3>UX-02：gendoc 在移交前加入 BRD 摘要展示</h3>
+<p><strong>影響</strong>：gendoc｜<strong>類型</strong>：UX 改善</p>
+<p><strong>現況</strong></p>
+<p>gendoc 在 DOC-03-B 直接跳到 Handoff，無摘要展示。idea 在 Step 6 有結構化的 BRD 摘要展示（專案 / 使用者 / 痛點 / 技術 / 功能 / 研究 / 評分）。</p>
+<p><strong>建議</strong>：gendoc 在 DOC-03-B 的 Handoff Banner 前加入等效的 BRD 摘要展示（可以是 Handoff Banner 的一部分，而非獨立步驟）。</p>
+<table>
+<tr><th>決策</th><th></th></tr>
+<tr><td><strong>你的決策</strong></td><td>idea, gendoc 要有一致的顯示，可以共用這個流程，避免長期維護兩邊不一樣</td></tr>
+</table>
+<hr>
+<h3>UX-03：使用者確認選項統一（gendoc DOC-03-C）</h3>
+<p><strong>影響</strong>：gendoc｜<strong>類型</strong>：UX 改善</p>
+<p><strong>現況</strong></p>
+<p>gendoc 確認選項：「立即啟動 autogen」/「先查看 BRD」/「稍後手動執行」。</p>
+<p>idea 確認選項：「開始 autodev」/「查看/修改 BRD」/「重新整理 BRD」。</p>
+<p>差異：gendoc 無「重新整理 BRD」（回 Step 2 重新問 Q1-Q5，不重建目錄）。</p>
+<p><strong>建議</strong></p>
+<p>gendoc 選項改為：「開始 autogen」/「查看/修改 BRD」/「重新整理 BRD（重回 Q 澄清）」/「稍後手動執行」。</p>
+<p>注意：「重新整理 BRD」的行為應是：不重建目錄、不重跑素材保存、不重跑研究，只重跑 Q1-Q5 → BRD 生成 → Review Loop。</p>
+<table>
+<tr><th>決策</th><th></th></tr>
+<tr><td><strong>你的決策</strong></td><td>gendoc 要跟idea一樣，可以的話共用流程, 尤其不要有什麼手動執行，我就是要串起來，不要有莫名的中斷條件</td></tr>
+</table>
+<hr>
+<h3>UX-04：idea 補充 Handoff State 寫入</h3>
+<p><strong>影響</strong>：idea｜<strong>類型</strong>：功能完整性（應改）</p>
+<p><strong>現況</strong></p>
+<p>gendoc DOC-03-A 完整寫入 Handoff State（<code>brd_path</code> / <code>idea_path</code> / <code>req_dir</code> / <code>gendoc_handoff=True</code> / <code>gendoc_handoff_source</code>）。idea 在 Step 8 呼叫 autodev 時無明確的 Handoff State 寫入。</p>
+<p><strong>第一性原則分析</strong></p>
+<p>autodev 需要知道「BRD 和 IDEA.md 已存在」才能跳過自己的前置步驟（否則會重新生成 BRD）。這個資訊必須透過 state 傳遞。</p>
+<p><strong>建議</strong>：idea 在 Step 8 呼叫 autodev 前，寫入等效的 Handoff State：</p>
+<pre><code class="language-json">{
+  &quot;brd_path&quot;: &quot;docs/BRD.md&quot;,
+  &quot;idea_path&quot;: &quot;docs/IDEA.md&quot;,
+  &quot;req_dir&quot;: &quot;docs/req&quot;,
+  &quot;idea_handoff&quot;: true,
+  &quot;idea_handoff_source&quot;: &quot;devsop-idea&quot;
+}</code></pre>
+<p>起始步驟（autodev 從哪步開始）由 autodev 自己讀取 state 決定（不在 idea 內硬編碼），維持關注點分離。</p>
+<table>
+<tr><th>決策</th><th></th></tr>
+<tr><td><strong>你的決策</strong></td><td>autodev, autogen 這段要一致，但兩邊對START_STEP處理方式不同 autogen要正確轉換</td></tr>
+</table>
+<hr>
+<h3>UX-05：git commit 時機與命名統一</h3>
+<p><strong>影響</strong>：兩者｜<strong>類型</strong>：工程實踐</p>
+<p><strong>現況</strong></p>
+<p>idea 有 <code>git commit</code> 在工作空間建立後（<code>chore: init</code>）和 BRD 生成後（<code>docs(devsop-idea): init BRD</code>）。gendoc 目前無任何 git commit。</p>
+<p><strong>建議</strong>：gendoc 補充以下 git commit 時機點：</p>
+<table>
+<tr><th>時機</th><th>commit message</th></tr>
+<tr><td>工作空間建立後</td><td><code>chore(devsop-gendoc): init workspace</code></td></tr>
+<tr><td>IDEA.md 生成後</td><td><code>docs(devsop-gendoc): init IDEA</code></td></tr>
+<tr><td>BRD 生成後</td><td><code>docs(devsop-gendoc): init BRD</code></td></tr>
+<tr><td>每輪 BRD Review 修復後</td><td><code>docs(brd-review): round N fixes</code></td></tr>
+</table>
+<table>
+<tr><th>決策</th><th></th></tr>
+<tr><td><strong>你的決策</strong></td></tr>
+</table>
+<p>時機  commit message</p>
+<hr>
+<p>工作空間建立後  <code>chore(devsop-gendoc): init workspace</code></p>
+<p>IDEA.md 生成後 <code>docs(devsop-gendoc): init IDEA</code></p>
+<p>每輪 IDEA Review 修復後 | <code>docs(idea-review): round N fixes</code></p>
+<p>BRD 生成後  <code>docs(devsop-gendoc): init BRD</code></p>
+<p>每輪 BRD Review 修復後  <code>docs(brd-review): round N fixes</code></p>
+<p>|</p>
+<hr>
+<h2>決策彙總表</h2>
+<p>填寫完上方各項後，在此彙總確認的修改清單：</p>
+<h3>Tier 1 架構基礎</h3>
+<table>
+<tr><th>項目</th><th>決策</th></tr>
+<tr><td>TF-01：gendoc 工作空間創建模式</td><td></td></tr>
+<tr><td>TF-02：斷點續跑狀態機設計</td><td></td></tr>
+<tr><td>TF-03：Config 委派邊界</td><td></td></tr>
+<tr><td>TF-04：BRD/IDEA.md 生成邏輯共用策略</td><td></td></tr>
+<tr><td>TF-05：State File 命名統一</td><td></td></tr>
+<tr><td>TF-06：Session Config 執行時機</td><td></td></tr>
+<tr><td>TF-07：Step 命名規範</td><td></td></tr>
+</table>
+<h3>Tier 2 流程設計</h3>
+<table>
+<tr><th>項目</th><th>決策</th></tr>
+<tr><td>PD-01：idea 移除 Step -0.5</td><td></td></tr>
+<tr><td>PD-02：gendoc Q1-Q5 策略</td><td></td></tr>
+<tr><td>PD-03：gendoc Web Research 策略</td><td></td></tr>
+<tr><td>PD-04：Loop Count 來源</td><td></td></tr>
+<tr><td>PD-05：起始步驟選擇</td><td></td></tr>
+<tr><td>PD-06：idea 補充 PM Expert + 衝突檢查</td><td></td></tr>
+<tr><td>PD-07：舊版文件處理邏輯</td><td></td></tr>
+</table>
+<h3>Tier 3 內容品質</h3>
+<table>
+<tr><th>項目</th><th>決策</th></tr>
+<tr><td>CQ-01：BRD 章節對齊</td><td></td></tr>
+<tr><td>CQ-02：IDEA.md 章節對齊</td><td></td></tr>
+<tr><td>CQ-03：IDEA Quality Score</td><td></td></tr>
+<tr><td>CQ-04：BRD Review Loop 詳細化</td><td></td></tr>
+<tr><td>CQ-05：idea IDEA.md Key Features 獨立節</td><td></td></tr>
+<tr><td>CQ-06：codebase 複製清單補充</td><td></td></tr>
+</table>
+<h3>Tier 4 UX / 介面</h3>
+<table>
+<tr><th>項目</th><th>決策</th></tr>
+<tr><td>UX-01：idea 新增 Handoff Banner</td><td></td></tr>
+<tr><td>UX-02：gendoc 移交前 BRD 摘要展示</td><td></td></tr>
+<tr><td>UX-03：使用者確認選項統一</td><td></td></tr>
+<tr><td>UX-04：idea 補充 Handoff State</td><td></td></tr>
+<tr><td>UX-05：git commit 時機與命名</td><td></td></tr>
+</table>
+<hr>
+<p><em>此文件由 MYDEVSOP 框架維護。最後更新：2026-04-22</em></p></main>
+  </div>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({startOnLoad:true,theme:'default',
+      flowchart:{curve:'basis',nodeSpacing:60,rankSpacing:80},
+      er:{layoutDirection:'TD',minEntityWidth:100,fontSize:12},
+      sequence:{actorMargin:60,messageMargin:30}});
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-yaml.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-sql.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-go.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-typescript.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-json.min.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>

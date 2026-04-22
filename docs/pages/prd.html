@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>產品需求文件 (PRD) — MYDEVSOP</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body>
+  <header class="top-nav">
+    <a href="index.html" class="nav-brand">MYDEVSOP</a>
+    <div class="nav-controls">
+      <div class="search-wrap">
+        <input class="search-input" type="search" placeholder="搜尋文件...">
+        <div class="search-results"></div>
+      </div>
+      <a class="nav-gh-link" href="https://github.com/ibalasite/MYDEVSOP" target="_blank" rel="noopener">⌥ GitHub</a>
+      <button class="sidebar-toggle" id="sidebarToggle" title="收合/展開側欄">☰</button>
+    </div>
+  </header>
+  <div class="doc-page-banner">
+    <p class="banner-breadcrumb"><a href="index.html">MYDEVSOP</a> › 產品需求文件 (PRD)</p>
+    <h1 class="banner-title">產品需求文件 (PRD)</h1>
+  </div>
+  <div class="page-wrapper">
+    <aside class="sidebar" aria-label="文件導覽">
+      <div class="sidebar__section">
+        <div class="sidebar__label">文件</div>
+        <a class="sidebar__link" href="index.html">🏠 首頁</a>
+<a class="sidebar__link active" href="prd.html">📝 產品需求文件 (PRD)</a>
+<a class="sidebar__link" href="migration_tracker.html">📄 Migration Tracker</a>
+<a class="sidebar__link" href="product_review.html">📄 Product Review</a>
+<a class="sidebar__link" href="requirements.html">📄 Requirements</a>
+<a class="sidebar__link" href="solution_roadmap.html">📄 Solution Roadmap</a>
+<a class="sidebar__link" href="idea-vs-gendoc-comparison.html">📄 Idea-Vs-Gendoc-Comparison</a>
+<a class="sidebar__link" href="implementation-list.html">📄 Implementation-List</a>
+<a class="sidebar__link" href="modification-decisions.html">📄 Modification-Decisions</a>
+      </div>
+    </aside>
+    <div class="sidebar-resizer" id="sidebarResizer"></div>
+    <main class="doc-content"><h1>PRD — Product Requirements Document</h1>
+<p>&lt;!-- 對應學術標準：IEEE 830 (SRS)，對應業界：Google PRD / Amazon PRFAQ --&gt;</p>
+<p>&lt;!-- Version: v2.4 | Status: IN_REVIEW | DOC-ID: PRD-MYDEVSOP-20260421 --&gt;</p>
+<hr>
+<h2>Document Control</h2>
+<table>
+<tr><th>欄位</th><th>內容</th></tr>
+<tr><td><strong>DOC-ID</strong></td><td>PRD-MYDEVSOP-20260421</td></tr>
+<tr><td><strong>產品名稱</strong></td><td>MYDEVSOP — AI-Driven Software Development SOP Automation</td></tr>
+<tr><td><strong>文件版本</strong></td><td>v2.6</td></tr>
+<tr><td><strong>狀態</strong></td><td>IN_REVIEW</td></tr>
+<tr><td><strong>作者（PM）</strong></td><td>Alex (Product Manager Agent)</td></tr>
+<tr><td><strong>日期</strong></td><td>2026-04-22</td></tr>
+<tr><td><strong>上游 BRD</strong></td><td><a href="../README.md" target="_blank" rel="noopener">README.md</a>（產品設計文件）</td></tr>
+<tr><td><strong>審閱者</strong></td><td>技術架構師、QA Lead、跨職能 PM</td></tr>
+<tr><td><strong>核准者</strong></td><td>待定</td></tr>
+</table>
+<hr>
+<h2>Change Log</h2>
+<table>
+<tr><th>版本</th><th>日期</th><th>作者</th><th>變更摘要</th></tr>
+<tr><td>v2.6</td><td>2026-04-22</td><td>PM Agent</td><td>新增 devsop-gendoc（任意輸入入口）、devsop-autogen（純文件流水線）、devsop-gen-idea、devsop-idea-review；架構原則 template-driven；state file 動態命名（TF-05）；IDEA Review Loop 加入所有入口技能</td></tr>
+<tr><td>v2.5</td><td>2026-04-21</td><td>PM Agent</td><td>加入 devsop-migrate、全 gen-* 技能全上游讀取、IDEA.md Appendix C req/ 素材索引、autodev STEP 31 repo 公開化</td></tr>
+<tr><td>v2.4</td><td>2026-04-21</td><td>PM Agent</td><td>初版 PRD，涵蓋 31-STEP Pipeline 完整需求定義</td></tr>
+<tr><td>v2.3</td><td>2026-04-19</td><td>PM Agent</td><td>加入 Anti-Fake 原則、五層 Secrets 防護、Windows 支援</td></tr>
+<tr><td>v2.0</td><td>2026-04-18</td><td>PM Agent</td><td>全自動 AI Pipeline 架構升級，引入 Agent-per-STEP</td></tr>
+<tr><td>v1.3</td><td>2026-04-15</td><td>PM Agent</td><td>加入 /devsop-idea skill 需求</td></tr>
+<tr><td>v1.0</td><td>2026-04-10</td><td>PM Agent</td><td>初稿</td></tr>
+</table>
+<hr>
+<h2>1. Executive Summary</h2>
+<p>MYDEVSOP 是一個基於 Claude Code skill 系統的 AI 驅動軟體開發 SOP 自動化工具，將完整軟體開發生命週期（SDLC）串成閉環——從最初的產品構想（BRD）到程式碼上線、GitHub PR 建立，全程 AI 驅動。</p>
+<p>開發者只需撰寫一份 BRD（Business Requirements Document），執行一個指令（<code>/devsop-autodev</code>），系統自動執行 31 個 STEP，依序生成所有文件（PRD / PDD / EDD / ARCH / API / SCHEMA）、測試（BDD Gherkin / TDD 循環）、程式碼（RED→GREEN→REFACTOR）、基礎設施（Kubernetes manifests / HPA）、CI/CD pipeline（GitHub Actions）、Secrets 管理腳本（五層防護），以及完整的 HTML 文件網站，最終自動建立 GitHub PR。</p>
+<p>每個帶有 Review 標記的 STEP 由對應領域專家型別的獨立 AI subagent 執行（Product Manager / Software Architect / Security Engineer / Database Optimizer 等），確保文件與程式碼品質達到業界標準，且每輪 Review finding 必須全數修復或明確標記 <code>TODO[REVIEW-DEFERRED]</code> 方可進入下一 STEP。</p>
+<p>本工具定位為個人開發者和小型新創團隊的 AI 共同駕駛員，目標是讓「不會寫程式的人也能全程使用」，同時讓有經驗的工程師從重複性 SDLC 工作中解放，專注於架構決策與業務創新。</p>
+<hr>
+<h2>2. Problem Statement</h2>
+<h3>2.1 現狀痛點</h3>
+<p>軟體開發團隊在 SDLC 中面臨以下系統性問題：</p>
+<p><strong>問題一：文件與程式碼漂移（Drift）</strong></p>
+<p>開發過程中，PRD 修改了但 EDD 沒更新，ARCH 改了但 API 規格沒同步，程式碼寫了但測試缺失。小型團隊往往沒有專職的 PM 或 Tech Writer，文件從一開始就被視為「nice to have」。</p>
+<p><strong>問題二：Review 品質不一致</strong></p>
+<p>Code review 取決於 reviewer 的個人知識、精力與時間，無法標準化。同樣的程式碼，有經驗的 reviewer 能找出 10 個問題，忙碌的 reviewer 可能只看到 2 個。沒有人能每次都完整執行 OWASP Top 10 審查。</p>
+<p><strong>問題三：重複性工作耗時</strong></p>
+<p>從 BRD 生成 PRD、從 PRD 生成 EDD、從 EDD 生成 API spec——這些工作高度結構化、有固定模板，卻每次都需要人工完成。一份中型系統的完整文件集需要 2-4 週人工撰寫。</p>
+<p><strong>問題四：跨職能溝通成本</strong></p>
+<p>PM 寫的 User Story 工程師看不懂，工程師的架構圖 PM 無法追蹤，非技術創始人完全無法評估進度。「雙層輸出」（技術摘要 + 白話說明）從來不是標準實踐。</p>
+<p><strong>問題五：小型團隊缺乏完整 SDLC 執行能力</strong></p>
+<p>一個 2-3 人的新創公司，無法同時配備 PM、架構師、QA、DevOps。他們要麼跳過大量 SDLC 步驟（累積技術債），要麼花過多時間在流程管理而非產品開發。</p>
+<h3>2.2 根本原因分析</h3>
+<p><strong>根本原因一：SDLC 的 artifact 相互依存，人工維護導致上下游文件不同步</strong></p>
+<p>BRD → PRD → EDD → ARCH → API → SCHEMA → BDD → TDD 是嚴格的依賴鏈。任何一個環節的修改，如果沒有觸發下游 artifact 的同步更新，就產生漂移。人工維護這條依賴鏈的成本，隨著 artifact 數量呈指數增長。</p>
+<p><strong>根本原因二：Review 品質取決於個人知識與精力，無法標準化</strong></p>
+<p>人類 reviewer 有認知負荷上限。OWASP Top 10 有 10 個攻擊向量，N+1 Query 問題需要理解 ORM 的執行計畫，Cursor-based 分頁需要記得 OFFSET 的效能陷阱——沒有一個 reviewer 能在疲憊時可靠地記起所有這些。</p>
+<p><strong>根本原因三：文件生成高度結構化，人工執行效率低</strong></p>
+<p>PRD 有固定的 User Story 格式，EDD 有固定的 Security 設計章節，ARCH 有固定的 Mermaid 圖表要求。這些工作對 AI 而言是天然適合的任務，卻佔據工程師 20-40% 的非核心時間。</p>
+<h3>2.3 機會假設</h3>
+<ul><li><strong>假設 H-1</strong>：若 AI agent 能可靠執行多步驟、可審查的 pipeline，小型團隊的 SDLC 完整度將從平均 40% 提升至 90% 以上，且不增加人力成本。</li><li><strong>假設 H-2</strong>：若每個 Review STEP 由對應領域專家型別的 AI subagent 執行並強制清零 findings，文件品質將達到與資深人類 reviewer 相當的水準。</li><li><strong>假設 H-3</strong>：若提供「白話說明」輸出層，非技術 PM 和創始人能有效追蹤開發進度，減少跨職能溝通成本 50% 以上。</li><li><strong>假設 H-4</strong>：若完整 31-STEP pipeline 能在 60-90 分鐘內完成，「從構想到 PR」的週期將縮短 80% 以上（從 2-4 週人工工作縮短為 90 分鐘 AI 輸出）。</li></ul>
+<h3>2.4 System Context Diagram</h3>
+<div class="diagram-container"><pre class="mermaid">C4Context
+    title MYDEVSOP — System Context Diagram
+
+    Person(indie_dev, "獨立開發者", "使用 Claude Code CLI，執行 /devsop-* 指令")
+    Person(tech_lead, "技術主管", "在 Claude Code 中審查 STEP 輸出，觸發 Review skill")
+    Person(non_tech_pm, "非技術 PM / 創始人", "閱讀白話說明輸出與 HTML 文件站")
+
+    System(mydevsop, "MYDEVSOP", "AI-Driven SDLC Automation：31-STEP pipeline，37+ Claude Code skills，從 BRD 到 GitHub PR 全自動")
+
+    System_Ext(claude_api, "Claude API (Anthropic)", "提供 AI 推理能力，執行每個 STEP 的 subagent")
+    System_Ext(github, "GitHub", "存放程式碼、接收 git push、建立 PR")
+    System_Ext(github_pages, "GitHub Pages", "托管自動生成的 HTML 文件網站")
+    System_Ext(k8s_rancher, "Kubernetes (Rancher Desktop)", "本機 K8s 部署環境，CI/CD deploy 目標")
+    System_Ext(os_keystore, "OS Keystore (macOS Keychain / Windows Credential Manager)", "安全儲存 Secrets，五層防護的第一層")
+    System_Ext(gitleaks, "gitleaks (pre-commit hook)", "攔截含 Secret 的 git commit，防止洩漏")
+
+    Rel(indie_dev, mydevsop, "執行 /devsop-autodev", "Claude Code CLI")
+    Rel(tech_lead, mydevsop, "執行 Review skills", "Claude Code CLI")
+    Rel(non_tech_pm, mydevsop, "閱讀 HTML 文件站", "Browser")
+    Rel(mydevsop, claude_api, "spawn subagent，執行 STEP", "Claude Agent SDK")
+    Rel(mydevsop, github, "git push + gh pr create", "git / gh CLI")
+    Rel(mydevsop, github_pages, "部署 docs/pages/*.html", "GitHub Actions")
+    Rel(mydevsop, k8s_rancher, "kubectl apply k8s/*.yaml", "kubectl")
+    Rel(mydevsop, os_keystore, "讀取 Secrets (startup)", "security CLI / CredentialManager")
+    Rel(mydevsop, gitleaks, "pre-commit 驗證", "git hook")</pre></div>
+<p><strong>SDLC 文件層次（本文件定位）：</strong></p>
+<table>
+<tr><th>文件層次</th><th>文件</th><th>核心問題</th></tr>
+<tr><td>BRD / Strategy</td><td>README.md（上游設計文件）</td><td>Why — 市場機會與商業價值</td></tr>
+<tr><td><strong>PRD（本文件）</strong></td><td><strong>docs/PRD.md</strong></td><td><strong>What — 功能範圍與需求定義</strong></td></tr>
+<tr><td>PDD</td><td>docs/PDD.md（由 /devsop-gen-pdd 生成）</td><td>How it works — 使用流程與體驗設計</td></tr>
+<tr><td>EDD / Tech Spec</td><td>docs/EDD.md（由 /devsop-gen-edd 生成）</td><td>How to build — 系統架構與實作方式</td></tr>
+</table>
+<hr>
+<h2>3. Stakeholders &amp; Users</h2>
+<h3>3.1 Stakeholder Map</h3>
+<table>
+<tr><th>角色</th><th>關係</th><th>主要關切</th><th>溝通頻率</th></tr>
+<tr><td>獨立開發者</td><td>主要使用者</td><td>從構想到 PR 的速度、文件品質</td><td>每次使用</td></tr>
+<tr><td>新創技術主管</td><td>次要使用者</td><td>流程一致性、team review 品質</td><td>每 sprint</td></tr>
+<tr><td>非技術創始人 / PM</td><td>次要使用者</td><td>白話說明輸出、進度可追蹤性</td><td>每個 milestone</td></tr>
+<tr><td>Anthropic（Claude API 供應商）</td><td>技術依賴</td><td>API 穩定性、計費模型</td><td>合約週期</td></tr>
+<tr><td>GitHub</td><td>基礎設施依賴</td><td>Pages 服務可用性、PR API</td><td>服務條款週期</td></tr>
+</table>
+<h3>3.2 User Personas</h3>
+<h4>Persona A：獨立開發者 / Indie Developer</h4>
+<table>
+<tr><th>欄位</th><th>內容</th></tr>
+<tr><td><strong>背景</strong></td><td>25-40 歲，全端工程師，solo 或 2 人小團隊，想快速驗證 SaaS / 工具想法</td></tr>
+<tr><td><strong>目標</strong></td><td>從構想到可展示的 demo，快速、低成本，同時有完整的文件給早期客戶或投資人看</td></tr>
+<tr><td><strong>痛點</strong></td><td>需要同時扮演 PM、架構師、工程師、QA，難以兼顧文件品質；花 2 週寫文件不如直接寫程式碼</td></tr>
+<tr><td><strong>技術熟悉度</strong></td><td>高（熟悉 git、CLI、AI 工具）</td></tr>
+<tr><td><strong>使用頻率</strong></td><td>每個新專案啟動時；有新功能想法時</td></tr>
+<tr><td><strong>成功樣貌</strong></td><td>輸入一段構想描述，90 分鐘後有完整 PRD + EDD + 可運行的 code + GitHub PR，文件品質讓他引以為豪</td></tr>
+</table>
+<h4>Persona B：新創公司技術主管</h4>
+<table>
+<tr><th>欄位</th><th>內容</th></tr>
+<tr><td><strong>背景</strong></td><td>30-45 歲，CTO 或 Tech Lead，帶領 3-10 人工程團隊，有 Series A 以前的資源限制</td></tr>
+<tr><td><strong>目標</strong></td><td>建立可重複的 SDLC 流程，確保不同工程師寫出的文件格式和品質一致；縮短 onboarding 時間</td></tr>
+<tr><td><strong>痛點</strong></td><td>團隊規模小，無專職 PM；每個人寫文件的格式和品質差異大；review 品質參差不齊</td></tr>
+<tr><td><strong>技術熟悉度</strong></td><td>高（熟悉系統架構、CI/CD、DevOps）</td></tr>
+<tr><td><strong>使用頻率</strong></td><td>每個 sprint 啟動時；每個新功能迭代時</td></tr>
+<tr><td><strong>成功樣貌</strong></td><td>所有工程師使用相同的 SDLC 工具鏈，文件品質標準化，Review finding 有紀錄可追溯</td></tr>
+</table>
+<h4>Persona C：非技術創始人 / PM</h4>
+<table>
+<tr><th>欄位</th><th>內容</th></tr>
+<tr><td><strong>背景</strong></td><td>28-50 歲，產品或業務背景，主導產品方向但不寫程式碼，需要與工程師溝通技術決策</td></tr>
+<tr><td><strong>目標</strong></td><td>能理解系統設計決策的業務影響；有專業文件給投資人、合作夥伴看；追蹤開發進度</td></tr>
+<tr><td><strong>痛點</strong></td><td>不懂技術，但需要理解架構圖和 API 設計是否符合業務需求；工程師的文件太技術導向，無法閱讀</td></tr>
+<tr><td><strong>技術熟悉度</strong></td><td>低（只用 Claude Code 的 /devsop-idea 和閱讀 HTML 文件站）</td></tr>
+<tr><td><strong>使用頻率</strong></td><td>產品初期設計與重大功能迭代時</td></tr>
+<tr><td><strong>成功樣貌</strong></td><td>能閱讀 HTML 文件站的「白話說明」層，理解每個 STEP 做了什麼；能用 BRD 的語言驗證 PRD 的方向是否正確</td></tr>
+</table>
+<hr>
+<h2>4. Scope</h2>
+<h3>4.1 In Scope（v2.6 本版本交付）</h3>
+<p><strong>主要入口 Skills（9 個）：</strong></p>
+<ul><li style="list-style:none"><input type="checkbox" checked disabled> <code>/devsop-autodev</code>：全自動 31-STEP AI 開發流水線（BRD → 程式碼 → K8s → CI/CD → PR）</li><li style="list-style:none"><input type="checkbox" checked disabled> <code>/devsop-autogen</code>：純文件生成流水線（BRD → PRD → PDD → EDD → ARCH → API → SCHEMA → BDD → HTML Pages，不含程式碼）</li><li style="list-style:none"><input type="checkbox" checked disabled> <code>/devsop-idea</code>：文字構想入口（模糊想法 → IDEA.md + BRD.md，自動銜接 autodev）</li><li style="list-style:none"><input type="checkbox" checked disabled> <code>/devsop-gendoc</code>：任意輸入入口（圖片 / URL / 文件 / GitHub repo / 本地 Codebase → IDEA.md + BRD.md，自動銜接 autogen）</li><li style="list-style:none"><input type="checkbox" checked disabled> <code>/devsop-change</code>：變更管理（分析影響範圍，只重跑受影響的 STEP）</li><li style="list-style:none"><input type="checkbox" checked disabled> <code>/devsop-repair</code>：健康修復（診斷中斷的 pipeline，從 state file 斷點繼續）</li><li style="list-style:none"><input type="checkbox" checked disabled> <code>/devsop-demo</code>：3 分鐘快速體驗（URL Shortener 範例 BRD，只跑 STEP 03）</li><li style="list-style:none"><input type="checkbox" checked disabled> <code>/devsop-project-status</code>：專案健康儀表板（分析 git log、文件狀態、測試結果）</li><li style="list-style:none"><input type="checkbox" checked disabled> <code>/devsop-update</code>：MYDEVSOP 工具更新</li></ul>
+<p><strong>遷移 Skills（1 個）：</strong></p>
+<ul><li style="list-style:none"><input type="checkbox" checked disabled> <code>/devsop-migrate</code>：舊專案遷移（legacy / PDD-based → BRD-based pipeline），自動整理 <code>docs/req/</code> 並生成 IDEA.md Appendix C 素材索引</li></ul>
+<p><strong>生成 Skills（18 個）：</strong></p>
+<ul><li style="list-style:none"><input type="checkbox" checked disabled> <strong>gen-idea</strong>（新增）：讀取 <code>templates/IDEA.md</code> + Q1-Q5 + 研究摘要 → 生成 <code>docs/IDEA.md</code></li><li style="list-style:none"><input type="checkbox" checked disabled> gen-brd, gen-prd, gen-pdd, gen-edd, gen-arch, gen-api, gen-schema</li><li style="list-style:none"><input type="checkbox" checked disabled> gen-diagrams, gen-test-plan, gen-bdd, gen-client-bdd, gen-client-tdd</li><li style="list-style:none"><input type="checkbox" checked disabled> gen-k8s, gen-cicd, gen-secrets, gen-html, gen-readme</li><li>全部 gen-<em> 技能均讀取<strong>完整上游文件鏈</strong>；<strong>template-driven 架構：文件結構由 <code>templates/</em>.md</code> 決定，gen-* 執行時讀取 template，改 template 自動適應，無需修改 skill</strong></li></ul>
+<p><strong>Review Skills（10 個，各由對應領域專家 subagent 執行）：</strong></p>
+<ul><li style="list-style:none"><input type="checkbox" checked disabled> <strong>idea-review</strong>（新增）：審查 IDEA.md 章節完整性、Q1-Q5 一致性，通過後寫入 <code>idea_review_passed: true</code></li><li style="list-style:none"><input type="checkbox" checked disabled> brd-review（Product Manager）, prd-review（Product Manager）</li><li style="list-style:none"><input type="checkbox" checked disabled> pdd-review（UI Designer）, edd-review（Backend Architect）</li><li style="list-style:none"><input type="checkbox" checked disabled> arch-review（Software Architect）, api-review（API Tester）</li><li style="list-style:none"><input type="checkbox" checked disabled> schema-review（Database Optimizer）</li><li style="list-style:none"><input type="checkbox" checked disabled> code-review（Security Engineer）, test-review（Model QA Specialist）</li></ul>
+<p><strong>工具 Skills（9 個）：</strong></p>
+<ul><li style="list-style:none"><input type="checkbox" checked disabled> lang-select, tdd-cycle, align-check, align-fix, align-report</li><li style="list-style:none"><input type="checkbox" checked disabled> rpa-test, quality-loop, product-review, config</li></ul>
+<p><strong>稽核 Skills（2 個）：</strong></p>
+<ul><li style="list-style:none"><input type="checkbox" checked disabled> test-audit（7 種假測試 Pattern 偵測）, impl-audit（5 種假實作 Pattern 偵測）</li></ul>
+<p><strong>平台支援：</strong></p>
+<ul><li style="list-style:none"><input type="checkbox" checked disabled> macOS / Linux：bash 腳本（install.sh / update.sh / check-update.sh）</li><li style="list-style:none"><input type="checkbox" checked disabled> Windows：PowerShell 5.1+ 原生腳本（install.ps1 / update.ps1 / check-update.ps1）</li><li style="list-style:none"><input type="checkbox" checked disabled> Skills 執行：全平台（Claude Code AI 執行，不依賴 Shell）</li></ul>
+<p><strong>品質機制：</strong></p>
+<ul><li style="list-style:none"><input type="checkbox" checked disabled> Anti-Fake 原則：禁止 mock 在 production 路徑；測試必須有真實斷言</li><li style="list-style:none"><input type="checkbox" checked disabled> 五層 Secrets 防護（gitleaks / pre-commit / env.example / fail-fast / log 遮罩）</li><li style="list-style:none"><input type="checkbox" checked disabled> Review Loop：每個 ✅ STEP 反覆掃描直到 finding = 0 或達停止條件</li><li style="list-style:none"><input type="checkbox" checked disabled> State file 動態命名（TF-05）：<code>.devsop-state-{git_user}-{branch}.json</code>，無 symlink，支援多分支並行</li><li style="list-style:none"><input type="checkbox" checked disabled> <code>skill_source</code> 欄位：防止跨 skill 誤用 state file</li><li style="list-style:none"><input type="checkbox" checked disabled> IDEA Review Loop：所有入口技能（idea / gendoc）均在 BRD 前執行 IDEA Review</li><li style="list-style:none"><input type="checkbox" checked disabled> Handoff State：idea / gendoc 完成後寫入 <code>idea_review_passed</code> / <code>brd_review_passed</code> / <code>handoff_source</code>，下游 autogen / autodev 據此跳過已完成的 Review</li><li style="list-style:none"><input type="checkbox" checked disabled> IDEA.md Appendix C：<code>docs/req/</code> 素材索引（結構化表格），讓所有 gen-* 技能可繼承 legacy 文件知識</li><li style="list-style:none"><input type="checkbox" checked disabled> STEP 31 自動將 GitHub Repo 從 private 改為 public，確保 GitHub Pages 部署成功</li></ul>
+<h3>4.2 Out of Scope（明確排除）</h3>
+<ul><li>多使用者協作 / 團隊管理功能（原因：個人工具定位，多人協作需要獨立的權限與衝突解決設計，後續有需求再設計）</li><li>自架伺服器部署模式（原因：MYDEVSOP 深度整合 Claude Code CLI 執行環境，非獨立服務；自架版本需重新設計 skill 執行機制）</li><li>IDE 外掛（原因：Claude Code 已有 VS Code / JetBrains 擴充套件，重複投入無增量價值）</li><li>非 Claude AI 模型（原因：工具深度整合 Claude Agent SDK 的 subagent 機制，GPT / Gemini 無相同原生 skill 系統）</li><li>GUI 介面（原因：CLI 是目標用戶的天然環境；GUI 開發成本高且 Claude Code 本身提供視覺輸出）</li><li>即時協作編輯（如 Google Docs 風格）（原因：不在個人工具定位的核心使用情境中）</li></ul>
+<h3>4.3 Future Scope（下一版本候選）</h3>
+<ul><li>多人協作 workflow / PR review 整合（需求信號：多個 Persona B 使用者要求）</li><li>自訂 skill template 市場（社群貢獻的 skill 模板）</li><li>與 Linear / Jira ticket 自動同步（PM 工具整合）</li><li>支援更多 K8s 平台（AWS EKS / GKE，目前只支援 Rancher Desktop）</li><li>漸進式 pipeline 執行（只重跑 dirty 的 STEP，基於 content hash 變更偵測）</li></ul>
+<hr>
+<h2>5. User Stories &amp; Acceptance Criteria</h2>
+<h3>5.1 US-IDEA-001：從模糊構想生成 BRD</h3>
+<p><strong>User Story：</strong></p>
+<blockquote><p>作為 <strong>Persona C（非技術創始人）</strong>，</p></blockquote>
+<blockquote><p>我希望能 <strong>描述一個模糊的產品構想，系統自動澄清需求並生成結構化 BRD</strong>，</p></blockquote>
+<blockquote><p>以便 <strong>不需要 PM 背景也能啟動 AI 開發流水線</strong>。</p></blockquote>
+<p><strong>REQ-ID：</strong> US-IDEA-001（對應 README.md 情境 A）</p>
+<p><strong>優先度：</strong> P0（Must Have）</p>
+<p><strong>關聯需求：</strong> REQUIREMENTS.md §19 /devsop-idea 規格</p>
+<p><strong>Acceptance Criteria：</strong></p>
+<table>
+<tr><th>REQ-ID / AC#</th><th>Given（前提）</th><th>When（行動）</th><th>Then（結果）</th><th>測試類型</th></tr>
+<tr><td>US-IDEA-001 / AC-1</td><td>使用者說出任何形式的產品構想（「我想做一個 URL 縮短器」）</td><td>執行 <code>/devsop-idea</code></td><td>系統透過最多 3 個澄清問題（AskUserQuestion tool）引導使用者，5 秒無回應自動選預設選項</td><td>Integration</td></tr>
+<tr><td>US-IDEA-001 / AC-2</td><td>使用者完成 3 個澄清問題（或接受預設值）</td><td>系統執行 WebSearch</td><td>競品、技術可行性、已知風險的研究結果寫入 docs/BRD.md §0 背景研究章節</td><td>Integration</td></tr>
+<tr><td>US-IDEA-001 / AC-3</td><td>/devsop-idea 完成 BRD 生成</td><td>系統詢問使用者確認</td><td>若選擇「BRD 沒問題，開始 autodev」，系統提示使用者輸入 <code>/devsop-autodev</code> 繼續流程（5 秒後自動繼續）</td><td>E2E</td></tr>
+<tr><td>US-IDEA-001 / AC-4</td><td>任何使用情境</td><td>BRD 生成後</td><td>docs/BRD.md 存在且包含：§產品目標、§使用者、§核心功能（P0/P1/P2）、§限制、§成功指標；同時生成 docs/IDEA.md（原始想法 + 澄清參數溯源）</td><td>Unit</td></tr>
+</table>
+<p><strong>邊界條件：</strong></p>
+<ul><li>使用者在 STEP 3 選擇「重新整理 BRD」：回到澄清問題，不重新執行 WebSearch</li><li>使用者在 STEP 3 選擇「我要修改 BRD」：輸出 BRD 全文供編輯，不重新生成</li><li>WebSearch 失敗（網路問題）：繼續流程，在 BRD §0 標記「背景研究暫缺，建議手動補充」</li></ul>
+<hr>
+<h3>5.1b US-GENDOC-001：任意輸入 → 文件集 + autogen</h3>
+<p><strong>User Story：</strong></p>
+<blockquote><p>作為 <strong>Persona C（非技術創始人）</strong>，</p></blockquote>
+<blockquote><p>我希望能 <strong>提供任何形式的輸入（文字描述、圖片截圖、GitHub URL、本地 codebase），系統自動分析並生成完整文件集</strong>，</p></blockquote>
+<blockquote><p>以便 <strong>不限輸入格式也能啟動 AI 文件流水線</strong>。</p></blockquote>
+<p><strong>REQ-ID：</strong> US-GENDOC-001（對應 README.md 情境 A2）</p>
+<p><strong>優先度：</strong> P0（Must Have）</p>
+<p><strong>關聯需求：</strong> REQUIREMENTS.md devsop-gendoc 規格</p>
+<p><strong>驗收條件：</strong></p>
+<table>
+<tr><th>REQ-ID / AC#</th><th>Given（前提）</th><th>When（行動）</th><th>Then（結果）</th><th>測試類型</th></tr>
+<tr><td>US-GENDOC-001 / AC-1</td><td>使用者提供任一格式的輸入（text / image URL / GitHub URL / 本地路徑）</td><td>執行 <code>/devsop-gendoc &lt;輸入&gt;</code></td><td>系統自動偵測輸入類型（<code>_INPUT_TYPE</code>），依類型路由至對應的素材擷取流程</td><td>Integration</td></tr>
+<tr><td>US-GENDOC-001 / AC-2</td><td>輸入類型偵測完成</td><td>系統處理輸入</td><td>所有輸入素材保存至 <code>docs/req/</code>；GitHub / 本地路徑來源為唯讀，不修改原始檔案</td><td>Integration</td></tr>
+<tr><td>US-GENDOC-001 / AC-3</td><td>素材收集完成</td><td>系統執行 Q1-Q5 澄清 + WebSearch</td><td>在 interactive 模式下提問；在 full-auto 模式下 AI 自動推斷；3 次 WebSearch 完成後生成 docs/IDEA.md</td><td>Integration</td></tr>
+<tr><td>US-GENDOC-001 / AC-4</td><td>IDEA.md 生成完成</td><td>系統執行 IDEA Review Loop</td><td><code>idea_review_passed: true</code> 寫入 state file；之後生成 docs/BRD.md 並執行 BRD Review Loop</td><td>Integration</td></tr>
+<tr><td>US-GENDOC-001 / AC-5</td><td>BRD Review 完成</td><td>系統移交 autogen</td><td>state file 包含 <code>handoff: true</code>、<code>handoff_source: devsop-gendoc</code>、<code>brd_review_passed: true</code>；自動呼叫 <code>/devsop-autogen</code></td><td>E2E</td></tr>
+</table>
+<p><strong>邊界條件：</strong></p>
+<ul><li><code>codebase_git</code> / <code>codebase_local</code> 輸入：素材唯讀複製至 <code>docs/req/</code>，原始目錄不得有任何寫入操作</li><li>GitHub repo 名稱衝突：interactive 模式詢問後綴策略；full-auto 模式自動加日期後綴</li><li>state file <code>skill_source != devsop-gendoc</code>：偵測到跨 skill 誤用，立即中止並提示</li></ul>
+<hr>
+<h3>5.2 US-AUTO-001：全自動 31-STEP 開發流水線</h3>
+<p><strong>User Story：</strong></p>
+<blockquote><p>作為 <strong>Persona A（獨立開發者）</strong>，</p></blockquote>
+<blockquote><p>我希望能 <strong>執行一個指令，系統自動完成從 BRD 到 GitHub PR 的所有步驟</strong>，</p></blockquote>
+<blockquote><p>以便 <strong>在 90 分鐘內得到完整的文件集、測試、程式碼、K8s 配置與 PR</strong>。</p></blockquote>
+<p><strong>REQ-ID：</strong> US-AUTO-001（對應 README.md 情境 B）</p>
+<p><strong>優先度：</strong> P0（Must Have）</p>
+<p><strong>關聯需求：</strong> REQUIREMENTS.md §2 完整流水線</p>
+<p><strong>Acceptance Criteria：</strong></p>
+<table>
+<tr><th>REQ-ID / AC#</th><th>Given（前提）</th><th>When（行動）</th><th>Then（結果）</th><th>測試類型</th></tr>
+<tr><td>US-AUTO-001 / AC-1</td><td><code>docs/BRD.md</code> 存在於專案目錄</td><td>執行 <code>/devsop-autodev</code></td><td>Session Config 詢問執行模式（互動 / Full-Auto）與 Review 策略（rapid / standard / exhaustive / tiered / custom），只問一次</td><td>Integration</td></tr>
+<tr><td>US-AUTO-001 / AC-2</td><td>Session Config 完成</td><td>系統開始執行 31 STEP</td><td>每個 STEP 完成後輸出 Step Summary 框（含 commit hash、修改/新增檔案、本步驟重點）</td><td>E2E</td></tr>
+<tr><td>US-AUTO-001 / AC-3</td><td>所有 31 STEP 完成</td><td>系統輸出 TOTAL SUMMARY</td><td>TOTAL SUMMARY 包含：每個 STEP 結果、所有 commit 時序、文件網站 URL、剩餘未解問題、PR 連結</td><td>E2E</td></tr>
+<tr><td>US-AUTO-001 / AC-4</td><td>Full-Auto 模式選定</td><td>任何決策點（語言選型、分支名稱等）</td><td>系統自動選第一選項（AI 推薦預設），不等待使用者輸入</td><td>Unit</td></tr>
+<tr><td>US-AUTO-001 / AC-5</td><td>任何執行模式</td><td>STEP 02 語言/框架選型</td><td>系統分析 BRD 內容，提供帶優缺點的選單；5 秒無回應自動選第一選項（AI 推薦）</td><td>Integration</td></tr>
+</table>
+<p><strong>邊界條件：</strong></p>
+<ul><li>BRD 找不到（三層搜尋規則）：友善提示先執行 <code>/devsop-idea</code>，中斷</li><li>STEP 執行時 Claude API 逾時：寫入 .devsop-state.json 後中斷，提示執行 <code>/devsop-repair</code> 繼續</li><li>Full-Auto 模式下 STEP 06 PDD Review（client_type = none）：自動跳過，不影響後續 STEP 編號</li></ul>
+<hr>
+<h3>5.3 US-AUTO-002：Pipeline 中斷後從斷點繼續</h3>
+<p><strong>User Story：</strong></p>
+<blockquote><p>作為 <strong>Persona A（獨立開發者）</strong>，</p></blockquote>
+<blockquote><p>我希望能 <strong>在 pipeline 中斷後，從中斷的 STEP 繼續執行，而不是從頭重跑</strong>，</p></blockquote>
+<blockquote><p>以便 <strong>不因為網路問題或 API 逾時而損失已完成的工作</strong>。</p></blockquote>
+<p><strong>REQ-ID：</strong> US-AUTO-002（對應 R-01，.devsop-state.json 斷點機制）</p>
+<p><strong>優先度：</strong> P0（Must Have）</p>
+<p><strong>關聯需求：</strong> REQUIREMENTS.md REQ-2.1 State File 規格</p>
+<p><strong>Acceptance Criteria：</strong></p>
+<table>
+<tr><th>REQ-ID / AC#</th><th>Given（前提）</th><th>When（行動）</th><th>Then（結果）</th><th>測試類型</th></tr>
+<tr><td>US-AUTO-002 / AC-1</td><td>Pipeline 在 STEP N 中斷，.devsop-state.json 存在</td><td>重新執行 <code>/devsop-autodev</code></td><td>系統偵測 state file，顯示「偵測到 STEP N 中斷，是否從此繼續？」（5 秒自動選是）</td><td>Integration</td></tr>
+<tr><td>US-AUTO-002 / AC-2</td><td>從 STEP N 繼續執行</td><td>系統執行 STEP N</td><td>STEP N 之前已完成的 STEP 不會重新執行；STEP N 重新從頭執行</td><td>Integration</td></tr>
+<tr><td>US-AUTO-002 / AC-3</td><td>.devsop-state.json 中有未知欄位（舊版本 state）</td><td>載入 state file</td><td>系統採用 merge 策略，保留所有未知欄位，不刪除不報錯</td><td>Unit</td></tr>
+<tr><td>US-AUTO-002 / AC-4</td><td>手動執行 <code>/devsop-repair</code></td><td>系統啟動健康檢查</td><td>掃描每個 STEP 的通過標準（git commit 存在 + 輸出文件存在 + 測試通過），列出需要修復的 STEP</td><td>Integration</td></tr>
+</table>
+<p><strong>邊界條件：</strong></p>
+<ul><li>state file 損壞（JSON 解析失敗）：顯示錯誤，建議從 STEP 01 重跑或手動修復 state file</li><li>使用者選擇「從頭重跑」：備份現有 state file 為 .devsop-state.json.bak，清空 state 重跑</li></ul>
+<hr>
+<h3>5.4 US-REVIEW-001：每個 Review STEP 由領域專家 subagent 執行</h3>
+<p><strong>User Story：</strong></p>
+<blockquote><p>作為 <strong>Persona B（新創技術主管）</strong>，</p></blockquote>
+<blockquote><p>我希望能 <strong>每個 Review STEP 由對應領域的 AI 專家執行，而非通用 AI</strong>，</p></blockquote>
+<blockquote><p>以便 <strong>確保架構 review 有架構師視角、程式碼 review 有安全工程師視角，品質更有深度</strong>。</p></blockquote>
+<p><strong>REQ-ID：</strong> US-REVIEW-001（對應 R-29，subagent_type 規格）</p>
+<p><strong>優先度：</strong> P0（Must Have）</p>
+<p><strong>關聯需求：</strong> REQUIREMENTS.md §16 Review Skills，各 skill 的 subagent_type</p>
+<p><strong>Acceptance Criteria：</strong></p>
+<table>
+<tr><th>REQ-ID / AC#</th><th>Given（前提）</th><th>When（行動）</th><th>Then（結果）</th><th>測試類型</th></tr>
+<tr><td>US-REVIEW-001 / AC-1</td><td>任何帶 ✅ 的 STEP（01, 04, 06, 08, 10, 11, 12, 20, 21）</td><td>該 STEP 的 Review 階段啟動</td><td>subagent 以對應領域專家的角色執行 review（STEP 01/04 = Product Manager，STEP 08 = Backend Architect，STEP 20 = Security Engineer，等）</td><td>Unit</td></tr>
+<tr><td>US-REVIEW-001 / AC-2</td><td>Security Engineer subagent 執行 STEP 20 Code Review</td><td>Code Review 執行</td><td>subagent 必須逐條審查 OWASP Top 10 攻擊向量（Injection / Broken Auth / XSS / Insecure Design 等），輸出每條是否通過</td><td>Integration</td></tr>
+<tr><td>US-REVIEW-001 / AC-3</td><td>Database Optimizer subagent 執行 STEP 12 Schema Review</td><td>Schema Review 執行</td><td>subagent 必須審查使用案例 SQL 的效能問題（Full Table Scan / OFFSET 分頁 / N+1 / GROUP BY）並提供具體改善建議</td><td>Integration</td></tr>
+<tr><td>US-REVIEW-001 / AC-4</td><td>任何 Review STEP</td><td>一輪 Review 完成後</td><td>輸出格式必須包含：FINDINGS_COUNT、每個 finding 的嚴重度（CRITICAL/HIGH/MEDIUM/LOW）、位置、描述、建議修復方式</td><td>Unit</td></tr>
+</table>
+<p><strong>邊界條件：</strong></p>
+<ul><li>STEP 06 PDD Review 且 client_type = none：自動跳過，記錄「PDD Review skipped: client_type=none」</li><li>Review subagent 回傳格式不符預期：主 Claude 重試一次，若仍不符，記錄 parse error 並繼續</li></ul>
+<hr>
+<h3>5.5 US-REVIEW-002：Review finding 全數修復或標記 DEFERRED</h3>
+<p><strong>User Story：</strong></p>
+<blockquote><p>作為 <strong>Persona A（獨立開發者）</strong>，</p></blockquote>
+<blockquote><p>我希望能 <strong>確保每一個 Review finding 不是被修復就是被明確標記延後，不能靜默忽略</strong>，</p></blockquote>
+<blockquote><p>以便 <strong>文件和程式碼品質有可追溯的保證，而不是看似通過但暗藏問題</strong>。</p></blockquote>
+<p><strong>REQ-ID：</strong> US-REVIEW-002（對應 REQUIREMENTS.md REQ-2.2）</p>
+<p><strong>優先度：</strong> P0（Must Have）</p>
+<p><strong>Acceptance Criteria：</strong></p>
+<table>
+<tr><th>REQ-ID / AC#</th><th>Given（前提）</th><th>When（行動）</th><th>Then（結果）</th><th>測試類型</th></tr>
+<tr><td>US-REVIEW-002 / AC-1</td><td>一輪 Review 輸出 N 個 findings</td><td>系統執行修復</td><td>所有 CRITICAL + HIGH findings 必須完全修復（FINDINGS_COUNT = 0）才能進入下一輪</td><td>Integration</td></tr>
+<tr><td>US-REVIEW-002 / AC-2</td><td>同一個 finding 連續出現 5 輪未解決</td><td>第 5 輪修復嘗試失敗</td><td>該 finding 標記為 [STUBBORN]，列入 TOTAL SUMMARY 的「剩餘未解問題」，帶著它繼續（需人工確認）</td><td>Integration</td></tr>
+<tr><td>US-REVIEW-002 / AC-3</td><td>MEDIUM / LOW finding 在 tiered 模式 第 6 輪後仍存在</td><td>Review 達停止條件</td><td>finding 標記為 <code>TODO[REVIEW-DEFERRED]</code>，寫入文件對應位置，不阻塞 pipeline</td><td>Unit</td></tr>
+<tr><td>US-REVIEW-002 / AC-4</td><td>任何 Review STEP 完成</td><td>進入下一 STEP 前</td><td>每輪執行一次 git commit（「review(devsop)[STEP-NN]: round N，fixed=M todo=K」），git history 可追溯每輪改了什麼</td><td>Unit</td></tr>
+</table>
+<p><strong>邊界條件：</strong></p>
+<ul><li>exhaustive 模式：無輪次上限，finding = 0 才停止（可能執行數十輪）</li><li>rapid 模式：最多 3 輪，第 3 輪後仍有 findings 帶著走，但在 TOTAL SUMMARY 標記</li></ul>
+<hr>
+<h3>5.6 US-CHANGE-001：修改現有功能，只重跑受影響的 STEP</h3>
+<p><strong>User Story：</strong></p>
+<blockquote><p>作為 <strong>Persona B（新創技術主管）</strong>，</p></blockquote>
+<blockquote><p>我希望能 <strong>描述要變更的功能，系統只重跑受影響的 STEP，而不是從頭重跑全部 31 STEP</strong>，</p></blockquote>
+<blockquote><p>以便 <strong>功能迭代週期縮短，不因為小改動而浪費大量 AI 資源</strong>。</p></blockquote>
+<p><strong>REQ-ID：</strong> US-CHANGE-001（對應 README.md 情境 C）</p>
+<p><strong>優先度：</strong> P1（Should Have）</p>
+<p><strong>Acceptance Criteria：</strong></p>
+<table>
+<tr><th>REQ-ID / AC#</th><th>Given（前提）</th><th>When（行動）</th><th>Then（結果）</th><th>測試類型</th></tr>
+<tr><td>US-CHANGE-001 / AC-1</td><td>已有開發中的專案（docs/ + src/ + tests/ 存在）</td><td>執行 <code>/devsop-change</code> 並描述變更內容</td><td>系統分析影響範圍，列出需要重跑的 STEP 清單（例：修改 API 設計 → 影響 STEP 09, 11, 15, 17, 20）</td><td>Integration</td></tr>
+<tr><td>US-CHANGE-001 / AC-2</td><td>影響範圍分析完成</td><td>使用者選擇 Pipeline 範圍</td><td>提供三個選項：Affected Only / Full from First Affected / Full-Auto（≤3 STEP → Affected Only；&gt;3 → Full）</td><td>Integration</td></tr>
+<tr><td>US-CHANGE-001 / AC-3</td><td>使用者選擇 Feature Branch 模式（預設）</td><td>執行受影響的 STEP</td><td>系統建立 <code>feature/{change-description}</code> 分支後執行，確保 main branch 不受影響</td><td>Integration</td></tr>
+<tr><td>US-CHANGE-001 / AC-4</td><td>重跑 STEP 完成</td><td>文件與程式碼更新後</td><td>對齊掃描（align-check）自動執行，確認上下游文件同步更新</td><td>Integration</td></tr>
+</table>
+<p><strong>邊界條件：</strong></p>
+<ul><li>POC 模式：跳過 branch 建立，直接在當前 branch 修改（適合快速實驗）</li><li>影響範圍無法判斷：建議使用 Full 模式</li></ul>
+<hr>
+<h3>5.7 US-REPAIR-001：修復中途失敗的 STEP</h3>
+<p><strong>User Story：</strong></p>
+<blockquote><p>作為 <strong>Persona A（獨立開發者）</strong>，</p></blockquote>
+<blockquote><p>我希望能 <strong>對中途卡住或報錯的 STEP 執行診斷與修復，而不是手動逐一檢查每個 STEP</strong>，</p></blockquote>
+<blockquote><p>以便 <strong>快速恢復被中斷的 pipeline，繼續完成剩餘工作</strong>。</p></blockquote>
+<p><strong>REQ-ID：</strong> US-REPAIR-001（對應 README.md 情境 D）</p>
+<p><strong>優先度：</strong> P1（Should Have）</p>
+<p><strong>Acceptance Criteria：</strong></p>
+<table>
+<tr><th>REQ-ID / AC#</th><th>Given（前提）</th><th>When（行動）</th><th>Then（結果）</th><th>測試類型</th></tr>
+<tr><td>US-REPAIR-001 / AC-1</td><td>pipeline 在某個 STEP 失敗，state file 存在</td><td>執行 <code>/devsop-repair</code></td><td>系統自動掃描 .devsop-state.json，判斷哪個 STEP 失敗，列出失敗原因</td><td>Integration</td></tr>
+<tr><td>US-REPAIR-001 / AC-2</td><td>健康檢查完成</td><td>系統顯示診斷報告</td><td>報告包含：每個 STEP 的通過/失敗狀態、失敗的根本原因（文件缺失 / 測試失敗 / git commit 缺失）</td><td>Integration</td></tr>
+<tr><td>US-REPAIR-001 / AC-3</td><td>使用者選擇 repair 策略</td><td>系統執行修復</td><td>修復完成後自動繼續剩餘的 STEP，無需使用者手動輸入繼續指令</td><td>E2E</td></tr>
+</table>
+<p><strong>邊界條件：</strong></p>
+<ul><li>state file 不存在：建議從 STEP 01 重跑，或手動指定從哪個 STEP 開始</li><li>修復失敗（同一 STEP 修復 3 次仍失敗）：標記 [STUBBORN-STEP]，停止並請使用者人工介入</li></ul>
+<hr>
+<h3>5.8 US-QUALITY-001：Anti-Fake 驗證，禁止假測試與假實作</h3>
+<p><strong>User Story：</strong></p>
+<blockquote><p>作為 <strong>Persona B（新創技術主管）</strong>，</p></blockquote>
+<blockquote><p>我希望能 <strong>確保所有測試和實作都是真實的，而不是為了通過 pipeline 而偽造的</strong>，</p></blockquote>
+<blockquote><p>以便 <strong>測試覆蓋率數字有真實意義，不是虛假的安全感</strong>。</p></blockquote>
+<p><strong>REQ-ID：</strong> US-QUALITY-001（對應 REQUIREMENTS.md §14 Anti-Fake 原則，STEP 25/26）</p>
+<p><strong>優先度：</strong> P0（Must Have）</p>
+<p><strong>Acceptance Criteria：</strong></p>
+<table>
+<tr><th>REQ-ID / AC#</th><th>Given（前提）</th><th>When（行動）</th><th>Then（結果）</th><th>測試類型</th></tr>
+<tr><td>US-QUALITY-001 / AC-1</td><td>STEP 25 Test Audit 執行</td><td>系統用 Python AST 掃描 tests/</td><td>偵測 7 種假測試 Pattern（BROAD_GREP_C / NO_ASSERT / DEAD_VAR / TRIVIAL_ASSERT / MOCK_ALL / EMPTY_TEST / SKIP_ALL），每個 Pattern 有具體的程式碼 Pattern 定義</td><td>Unit</td></tr>
+<tr><td>US-QUALITY-001 / AC-2</td><td>偵測到假測試</td><td>check-and-fix 模式啟動</td><td>自動修正可修復的假測試（如補上有意義的 assert）；無法自動修復的列出清單，標記 [FAKE-TEST-DEFERRED]</td><td>Unit</td></tr>
+<tr><td>US-QUALITY-001 / AC-3</td><td>STEP 26 Impl Audit 執行</td><td>系統用 Python AST 掃描 src/</td><td>偵測 5 種假實作 Pattern（EMPTY_BODY / TODO_STUB / HARDCODED_RETURN / MOCK_IN_PROD / PASS_ALL_VALIDATION），依 EDD/API/Schema 補全</td><td>Unit</td></tr>
+<tr><td>US-QUALITY-001 / AC-4</td><td>任何 production 路徑的程式碼</td><td>任何時候</td><td>禁止出現 <code>return mock_data</code>、<code>assert True</code>、Integration test 用假回應通過等反模式；repr/str 覆寫必須遮罩敏感欄位</td><td>Unit</td></tr>
+</table>
+<p><strong>邊界條件：</strong></p>
+<ul><li>AST 解析失敗（語法錯誤的測試檔）：標記該檔案為 parse error，繼續掃描其他檔案</li><li>自動修復後測試 RED：退出修復，要求手動審查</li></ul>
+<hr>
+<h3>5.9 US-SECRETS-001：五層 Secrets 防護，零洩漏設計</h3>
+<p><strong>User Story：</strong></p>
+<blockquote><p>作為 <strong>Persona A（獨立開發者）</strong>，</p></blockquote>
+<blockquote><p>我希望能 <strong>確保 API Keys 和密碼永遠不會出現在 git commit 或 log 中</strong>，</p></blockquote>
+<blockquote><p>以便 <strong>避免因 secrets 洩漏造成的安全事故和帳號被盜</strong>。</p></blockquote>
+<p><strong>REQ-ID：</strong> US-SECRETS-001（對應 REQUIREMENTS.md §13 Secrets 管理）</p>
+<p><strong>優先度：</strong> P0（Must Have）</p>
+<p><strong>Acceptance Criteria：</strong></p>
+<table>
+<tr><th>REQ-ID / AC#</th><th>Given（前提）</th><th>When（行動）</th><th>Then（結果）</th><th>測試類型</th></tr>
+<tr><td>US-SECRETS-001 / AC-1</td><td>開發者嘗試 git commit 含真實 API Key 的檔案</td><td>pre-commit hook 執行</td><td>gitleaks 偵測到 secret pattern → 強制中斷 commit，顯示警告訊息</td><td>Integration</td></tr>
+<tr><td>US-SECRETS-001 / AC-2</td><td>應用程式啟動</td><td>讀取環境變數</td><td>若必要的 SECRET 缺失：exit(1) 並顯示「請執行 scripts/setup_secrets.sh」（fail-fast 原則）</td><td>Unit</td></tr>
+<tr><td>US-SECRETS-001 / AC-3</td><td>應用程式 log 任何含 API Key 的物件</td><td>log 輸出</td><td>Key 值顯示為遮罩格式（前 4 + 後 2：<code>abcd...xy</code>），原始值不出現在 log</td><td>Unit</td></tr>
+<tr><td>US-SECRETS-001 / AC-4</td><td>.env.example 存在</td><td>任何時候</td><td>.env.example 只含佔位符（如 <code>OPENAI_API_KEY=your_key_here</code>），禁止填入真實值</td><td>Unit</td></tr>
+</table>
+<p><strong>邊界條件：</strong></p>
+<ul><li>macOS：Secrets 存放在 macOS Keychain（security add-generic-password）</li><li>Windows：Secrets 存放在 Windows Credential Manager（CredentialManager PowerShell module）</li><li>K8s 環境：secrets 從 OS Keystore 讀出後建立 K8s Secret 物件（scripts/setup_k8s_secrets.sh）</li></ul>
+<hr>
+<h3>5.10 US-HTML-001：自動生成圖文並茂的 HTML 文件網站</h3>
+<p><strong>User Story：</strong></p>
+<blockquote><p>作為 <strong>Persona C（非技術創始人）</strong>，</p></blockquote>
+<blockquote><p>我希望能 <strong>瀏覽一個美觀的 HTML 文件網站，看到所有 Mermaid 圖表直接渲染，而不是閱讀原始 Markdown</strong>，</p></blockquote>
+<blockquote><p>以便 <strong>能向投資人或合作夥伴展示專業的技術文件，不需要技術背景就能閱讀</strong>。</p></blockquote>
+<p><strong>REQ-ID：</strong> US-HTML-001（對應 REQUIREMENTS.md §9 HTML 文件網站，STEP 30/31）</p>
+<p><strong>優先度：</strong> P1（Should Have）</p>
+<p><strong>Acceptance Criteria：</strong></p>
+<table>
+<tr><th>REQ-ID / AC#</th><th>Given（前提）</th><th>When（行動）</th><th>Then（結果）</th><th>測試類型</th></tr>
+<tr><td>US-HTML-001 / AC-1</td><td>docs/*.md 存在</td><td>執行 STEP 30</td><td>docs/pages/ 下生成對應的 *.html，一對一映射（BRD.md → brd.html，PRD.md → prd.html，等），包含 index.html 首頁</td><td>Integration</td></tr>
+<tr><td>US-HTML-001 / AC-2</td><td>prd.html 等頁面載入</td><td>瀏覽器渲染</td><td>所有 <code> </code>`<code>mermaid </code> 程式碼塊正確渲染為 SVG 圖表（使用 mermaid.js CDN），圖表點擊可放大（Lightbox）</td><td>E2E</td></tr>
+<tr><td>US-HTML-001 / AC-3</td><td>任何 HTML 頁面</td><td>使用者互動</td><td>左側 Sidebar 列出當前文件所有 ## 章節錨點，點擊可跳轉；Client-side 搜尋功能可搜尋標題與摘要</td><td>E2E</td></tr>
+<tr><td>US-HTML-001 / AC-4</td><td>執行 STEP 31</td><td>git push + GitHub Actions 觸發</td><td>docs/pages/*.html 部署至 GitHub Pages，URL 為 <code>https://&lt;user&gt;.github.io/&lt;repo&gt;/</code>，24 小時內可訪問</td><td>E2E</td></tr>
+</table>
+<p><strong>邊界條件：</strong></p>
+<ul><li>docs/*.md 新增了新文件：STEP 30 重新生成所有頁面（不只更新部分）確保導覽一致性</li><li>Mermaid 語法錯誤：頁面仍正常載入，錯誤的 diagram 顯示錯誤訊息而非破壞整個頁面</li></ul>
+<hr>
+<h2>6. User Flows</h2>
+<h3>6.1 主流程（Happy Path）：全新專案</h3>
+<div class="diagram-container"><pre class="mermaid">flowchart TD
+    A(["使用者：有個模糊構想"]) --> B["/devsop-idea\n澄清 3 個問題 + WebSearch 研究"]
+    B --> C[("docs/BRD.md + docs/IDEA.md\ngit commit")]
+    C --> D{{"使用者確認 BRD\n（5 秒自動繼續）"}}
+    D -->|"BRD 沒問題"| E["/devsop-autodev\nSession Config：執行模式 + Review 策略"]
+    D -->|"修改 BRD"| B2["編輯 BRD 後確認"]
+    B2 --> E
+    E --> P1["STEP 01-08\n需求與設計文件\n（PRD / PDD / EDD）"]
+    P1 --> P2["STEP 09-12\n架構設計\n（ARCH / API / SCHEMA）"]
+    P2 --> P3["STEP 13-19\n測試規劃與實作\n（BDD / TDD / 效能測試）"]
+    P3 --> P4["STEP 20-26\n品質驗證\n（Code Review / Align / Anti-Fake）"]
+    P4 --> P5["STEP 27-31\n基礎設施與輸出\n（K8s / CI/CD / Secrets / HTML / PR）"]
+    P5 --> F[["TOTAL SUMMARY\n所有 STEP 結果 + PR 連結 + 文件站 URL"]]</pre></div>
+<h3>6.2 Review Loop 流程（每個帶 ✅ 的 STEP）</h3>
+<div class="diagram-container"><pre class="mermaid">flowchart TD
+    A["生成文件 / 程式碼"] --> B["subagent 以領域專家角色掃描"]
+    B --> C{{"finding > 0？"}}
+    C -->|"YES"| D["Claude 修復 CRITICAL + HIGH finding"]
+    D --> E["verify subagent 重新掃描被修復點"]
+    E --> F{{"finding 仍存在？"}}
+    F -->|"YES (< 5 次)"| D
+    F -->|"YES (≥ 5 次)"| G["標記 [STUBBORN]，記入 TOTAL SUMMARY"]
+    G --> H["git commit（per-round）"]
+    F -->|"NO"| H
+    C -->|"NO"| H
+    H --> I{{"達停止條件？\n(finding=0 OR 達最大輪次)"}}
+    I -->|"NO"| B
+    I -->|"YES"| J["進入下一 STEP"]</pre></div>
+<h3>6.3 變更流程</h3>
+<div class="diagram-container"><pre class="mermaid">flowchart TD
+    A(["使用者描述變更內容"]) --> B["/devsop-change\n分析影響哪些 STEP 的 artifact"]
+    B --> C{{"選擇 Pipeline 範圍"}}
+    C -->|"Affected Only"| D["只重跑受影響的 N 個 STEP"]
+    C -->|"Full from First Affected"| E["從第一個受影響 STEP 跑到 STEP 31"]
+    C -->|"Full-Auto（≤3→Affected Only；>3→Full）"| F{{"影響 ≤ 3 STEP？"}}
+    F -->|"YES"| D
+    F -->|"NO"| E
+    D --> G["建立 feature/{change} 分支"]
+    E --> G
+    G --> H["執行選定的 STEP"]
+    H --> I["align-check：驗證上下游文件同步"]
+    I --> J[["PR 建立"]]</pre></div>
+<h3>6.4 修復流程</h3>
+<div class="diagram-container"><pre class="mermaid">flowchart TD
+    A(["pipeline 中斷"]) --> B["/devsop-repair\n掃描 .devsop-state.json"]
+    B --> C["健康檢查：每個 STEP 通過標準"]
+    C --> D[["診斷報告：失敗 STEP + 根本原因"]]
+    D --> E{{"選擇 repair 策略\n（rapid / standard / exhaustive）"}}
+    E --> F["修復失敗的 STEP"]
+    F --> G{{"修復成功？"}}
+    G -->|"YES"| H["繼續剩餘 STEP"]
+    G -->|"NO（連續 3 次）"| I["標記 [STUBBORN-STEP]\n停止並請使用者人工介入"]</pre></div>
+<h3>6.5 Pipeline STEP 狀態機</h3>
+<div class="diagram-container"><pre class="mermaid">stateDiagram-v2
+    [*] --> PENDING: pipeline 啟動
+    PENDING --> IN_PROGRESS: 開始執行 STEP
+    IN_PROGRESS --> REVIEW_LOOP: STEP 有 ✅ 標記
+    REVIEW_LOOP --> IN_PROGRESS: finding=0 且達停止條件
+    IN_PROGRESS --> COMMITTED: git commit 成功
+    COMMITTED --> PENDING: 進入下一 STEP
+    IN_PROGRESS --> FAILED: 執行錯誤 / API 逾時
+    FAILED --> IN_PROGRESS: /devsop-repair 修復
+    COMMITTED --> [*]: 所有 31 STEP 完成</pre></div>
+<hr>
+<h2>7. Non-Functional Requirements (NFR)</h2>
+<h3>7.1 效能（Performance）</h3>
+<table>
+<tr><th>指標</th><th>目標值</th><th>量測方式</th><th>降級策略</th></tr>
+<tr><td>每個 Gen STEP 完成時間</td><td>&lt; 5 分鐘</td><td>STEP Summary 的 commit timestamp</td><td>重試一次，若仍超過標記 SLOW-STEP</td></tr>
+<tr><td>每個 Review STEP 每輪時間</td><td>&lt; 3 分鐘</td><td>per-round commit timestamp 差值</td><td>縮短 Review prompt 長度</td></tr>
+<tr><td>完整 31-STEP pipeline</td><td>60-90 分鐘</td><td>TOTAL SUMMARY 執行時間</td><td>使用 rapid Review 策略</td></tr>
+<tr><td>任何 STEP 最大允許時間</td><td>15 分鐘</td><td>state file last_updated 間隔</td><td>超過 → 視為卡住，標記 TIMEOUT，觸發修復</td></tr>
+<tr><td>HTML 頁面載入時間</td><td>&lt; 2 秒</td><td>Browser 開發工具</td><td>CSS / JS 最小化，Mermaid CDN 預載</td></tr>
+</table>
+<h3>7.2 可靠性（Reliability）</h3>
+<table>
+<tr><th>指標</th><th>要求</th></tr>
+<tr><td>Pipeline 從斷點繼續</td><td>100%（任意 STEP 中斷後必須可繼續）</td></tr>
+<tr><td>state file merge 策略</td><td>未知欄位保留，不刪除，不報錯</td></tr>
+<tr><td>Review finding 修復驗證</td><td>修復後必須 verify subagent 重新掃描確認</td></tr>
+<tr><td>git history 可追溯性</td><td>每輪 commit 一次，commit message 包含 round 數和 finding 數量</td></tr>
+<tr><td>Anti-Fake 違規數</td><td>= 0（Test Audit + Impl Audit 偵測到的假實作數量）</td></tr>
+</table>
+<h3>7.3 安全性（Security）</h3>
+<table>
+<tr><th>機制</th><th>規格</th></tr>
+<tr><td>五層 Secrets 防護</td><td>.gitignore + gitleaks pre-commit + .env.example + fail-fast + log 遮罩</td></tr>
+<tr><td>Secrets 儲存</td><td>macOS Keychain / Windows Credential Manager，不存入任何檔案</td></tr>
+<tr><td>OWASP Top 10 審查</td><td>STEP 20 Code Review 必須逐條審查，不可跳過</td></tr>
+<tr><td>Anti-Fake 原則</td><td>禁止 mock 在 production 路徑（production code 打真實依賴）</td></tr>
+<tr><td>log 遮罩格式</td><td>前 4 + 後 2 字元（<code>abcd...xy</code>），物件 repr/str 覆寫</td></tr>
+</table>
+<h3>7.4 可維護性（Maintainability）</h3>
+<table>
+<tr><th>指標</th><th>要求</th></tr>
+<tr><td>MYDEVSOP 自身測試</td><td>9 unit + 3 integration + 2 smoke + 1 skill_smoke（bats-core 框架）</td></tr>
+<tr><td>測試覆蓋率</td><td>≥ 80%（unit + integration）</td></tr>
+<tr><td>skill 文件完整性</td><td>每個 skill 有獨立 SKILL.md（name / description / allowed-tools 完整）</td></tr>
+<tr><td>程式碼行數限制</td><td>每個 SKILL.md &lt; 800 行（超過需分拆）</td></tr>
+<tr><td>共用邏輯</td><td>devsop-shared skill 提供所有 skill 使用的共用函式與格式規範</td></tr>
+</table>
+<h3>7.5 平台相容性（Compatibility）</h3>
+<table>
+<tr><th>元件</th><th>macOS / Linux</th><th>Windows</th></tr>
+<tr><td>Skills 執行</td><td>全平台（Claude Code AI 執行）</td><td>全平台（Claude Code AI 執行）</td></tr>
+<tr><td>install 腳本</td><td>install.sh（bash）</td><td>install.ps1（PowerShell 5.1+，原生）</td></tr>
+<tr><td>update 腳本</td><td>update.sh（bash）</td><td>update.ps1（PowerShell 5.1+，原生）</td></tr>
+<tr><td>check-update 腳本</td><td>check-update.sh（bash）</td><td>check-update.ps1（PowerShell 5.1+，原生）</td></tr>
+<tr><td>devsop-lib</td><td>devsop-lib.sh（bash，需 WSL on Windows）</td><td>devsop-lib.ps1（PowerShell，原生）</td></tr>
+<tr><td>測試（bats）</td><td>原生執行</td><td>需要 bats-core（建議在 WSL 執行）</td></tr>
+</table>
+<h3>7.6 可觀測性（Observability）</h3>
+<table>
+<tr><th>機制</th><th>規格</th></tr>
+<tr><td>STEP Summary</td><td>每個 STEP 完成後輸出框格式摘要（commit hash + 修改檔案 + 重點）</td></tr>
+<tr><td>TOTAL SUMMARY</td><td>所有 STEP 完成後輸出全局摘要（ASCII art 框格式）</td></tr>
+<tr><td>.devsop-state.json</td><td>持久化 pipeline 狀態（version / project_dir / current_step / lang_stack / last_updated）</td></tr>
+<tr><td>git history</td><td>每輪每個 commit 包含 STEP 編號、動作類型、輸出摘要</td></tr>
+<tr><td>/devsop-project-status</td><td>隨時可執行，輸出 PROJECT_STATUS.md（文件狀態 + 測試結果 + 對齊率）</td></tr>
+<tr><td>ALIGN_REPORT.md</td><td>docs/ALIGN_REPORT.md，記錄文件↔文件、文件↔程式碼、程式碼↔測試的對齊問題</td></tr>
+</table>
+<h3>7.7 Analytics Event Instrumentation Map</h3>
+<table>
+<tr><th>功能</th><th>Event Name</th><th>觸發時機</th><th>關聯指標</th></tr>
+<tr><td>pipeline 啟動</td><td><code>pipeline_started</code></td><td>執行 /devsop-autodev</td><td>pipeline 完成率</td></tr>
+<tr><td>STEP 完成</td><td><code>step_completed</code></td><td>每個 STEP git commit</td><td>STEP 完成率、平均耗時</td></tr>
+<tr><td>Review finding 偵測</td><td><code>review_finding_detected</code></td><td>Review subagent 回傳</td><td>平均 finding 數/STEP</td></tr>
+<tr><td>假測試偵測</td><td><code>fake_test_detected</code></td><td>STEP 25 Test Audit</td><td>Anti-Fake 違規率</td></tr>
+<tr><td>pipeline 完成</td><td><code>pipeline_completed</code></td><td>TOTAL SUMMARY 輸出</td><td>完整完成率、總耗時</td></tr>
+<tr><td>PR 建立</td><td><code>pr_created</code></td><td>STEP 31 gh pr create</td><td>PR 建立成功率</td></tr>
+</table>
+<blockquote><p>注意：上述 Analytics 為概念性定義，MYDEVSOP 本身為 CLI 工具，無後端 analytics 基礎設施。實際追蹤依賴 git history 分析和 state file。</p></blockquote>
+<hr>
+<h2>8. Constraints &amp; Dependencies</h2>
+<h3>8.1 技術限制</h3>
+<ul><li>必須使用 Claude Code CLI（核心 AI 執行環境，skill 機制依賴 Claude Code Agent SDK）</li><li>必須有 Git（版本控制，每個 STEP 依賴 git commit 做狀態追蹤）</li><li>必須有 Python 3（state file JSON 讀寫，Python AST 用於 Anti-Fake 稽核）</li><li>不得引入非 Claude 的 AI 模型（原因：工具深度整合 Claude Agent SDK 的 subagent 機制）</li><li>Skills 不得超過 800 行（原因：可維護性限制，超過需分拆成多個 skill）</li></ul>
+<h3>8.2 業務限制</h3>
+<ul><li>個人工具定位：不設計多使用者協作功能（後續有需求再設計）</li><li>依賴 Anthropic 計費：長 pipeline（31 STEP）有較高的 Claude API token 消耗，使用者需有有效的 Claude Pro / Team 帳號</li><li>GitHub 依賴：STEP 31 的自動 PR 建立需要安裝 gh CLI 並完成 GitHub 身份驗證</li></ul>
+<h3>8.3 外部依賴</h3>
+<table>
+<tr><th>依賴項</th><th>類型</th><th>負責方</th><th>風險等級</th><th>備援方案</th></tr>
+<tr><td>Claude API</td><td>外部 AI 服務</td><td>Anthropic</td><td>HIGH</td><td>無法繞過，核心依賴；Anthropic API 中斷時 pipeline 完全無法執行</td></tr>
+<tr><td>GitHub</td><td>外部版本控制</td><td>GitHub</td><td>MEDIUM</td><td>可手動 git push 到其他 remote；PR 建立需降級為手動操作</td></tr>
+<tr><td>GitHub Pages</td><td>外部靜態托管</td><td>GitHub</td><td>LOW</td><td>本機 docs/pages/ 可用 <code>python -m http.server</code> 預覽</td></tr>
+<tr><td>Rancher Desktop</td><td>本機 K8s</td><td>SUSE</td><td>LOW</td><td>STEP 27/28 K8s 相關 STEP 可跳過，不影響其他 STEP</td></tr>
+<tr><td>gitleaks</td><td>pre-commit 安全工具</td><td>gitleaks 開源社群</td><td>LOW</td><td>若未安裝，五層防護降至四層；建議必裝</td></tr>
+<tr><td>bats-core</td><td>測試框架</td><td>bats 開源社群</td><td>LOW</td><td>僅用於 MYDEVSOP 自身測試，不影響被生成的專案測試</td></tr>
+</table>
+<h3>8.4 關鍵假設（Assumptions）</h3>
+<table>
+<tr><th>#</th><th>假設內容</th><th>若假設錯誤的風險等級</th><th>驗證方式</th><th>驗證截止日</th><th>負責人</th></tr>
+<tr><td>A-1</td><td>Claude Code skill 機制（SKILL.md + allowed-tools）在 Anthropic 未來版本中保持向後相容</td><td>HIGH</td><td>每次 Claude Code 版本更新後執行 <code>/devsop-demo</code> smoke test</td><td>每次 Claude Code 版本更新</td><td>MYDEVSOP 維護者</td></tr>
+<tr><td>A-2</td><td>使用者的工作目錄有 git 初始化，且 Claude Code 有讀寫該目錄的權限</td><td>HIGH</td><td>install.sh 前置需求檢查</td><td>安裝時即時驗證</td><td>install 腳本</td></tr>
+<tr><td>A-3</td><td>Python 3 在目標機器上已安裝且在 PATH 中（用於 AST 稽核腳本）</td><td>MEDIUM</td><td>install.sh 前置需求檢查（<code>python3 --version</code>）</td><td>安裝時即時驗證</td><td>install 腳本</td></tr>
+<tr><td>A-4</td><td>完整 31-STEP pipeline 的 Claude API token 消耗在使用者的 Claude Pro 限額內</td><td>MEDIUM</td><td>對 3 個不同規模的 BRD 範例執行完整 pipeline 並記錄 token 消耗</td><td>2026-05-31</td><td>PM Agent</td></tr>
+<tr><td>A-5</td><td>Mermaid.js CDN（cdn.jsdelivr.net）在目標使用者環境可訪問</td><td>LOW</td><td>HTML 文件站增加 CDN 可用性說明，提供本地版備援方案</td><td>2026-05-31</td><td>前端負責人</td></tr>
+</table>
+<h3>8.5 向後相容性宣告</h3>
+<table>
+<tr><th>欄位</th><th>內容</th></tr>
+<tr><td><strong>本版本是否有 Breaking Change</strong></td><td>否（v2.4 相對 v2.3 向後相容）</td></tr>
+<tr><td><strong>受影響的 API 版本</strong></td><td>不適用（CLI 工具，無對外 API）</td></tr>
+<tr><td><strong>Breaking Change 清單</strong></td><td>無</td></tr>
+<tr><td><strong>向下相容保障</strong></td><td>.devsop-state.json merge 策略確保舊版 state file 在新版 pipeline 下仍可繼續執行</td></tr>
+</table>
+<hr>
+<h2>9. Success Metrics &amp; Launch Criteria</h2>
+<h3>9.1 成功指標（KPIs）</h3>
+<table>
+<tr><th>指標</th><th>Baseline（初始）</th><th>目標（上線後 30 天）</th><th>量測工具</th></tr>
+<tr><td>Pipeline 完成率（STEP 01 → STEP 31 不中斷）</td><td>待測量</td><td>≥ 90%</td><td>git history 分析（TOTAL SUMMARY commit 存在）</td></tr>
+<tr><td>每個 Review STEP 初次 finding 數量</td><td>待測量</td><td>&lt; 5 個 / STEP</td><td>STEP Summary finding 計數</td></tr>
+<tr><td>Review STEP 通過後 finding 數量</td><td>待測量</td><td>= 0（或只有 STUBBORN 標記）</td><td>STEP Summary finding 計數</td></tr>
+<tr><td>Anti-Fake 違規偵測數</td><td>待測量</td><td>= 0</td><td>STEP 25 + STEP 26 報告</td></tr>
+<tr><td>完整 pipeline 執行時間</td><td>待測量</td><td>60-90 分鐘</td><td>TOTAL SUMMARY 時間戳</td></tr>
+<tr><td>3 個範例 BRD 測試通過率</td><td>待測量</td><td>100%（simple / medium / complex 各一）</td><td>/devsop-demo + 手動測試</td></tr>
+</table>
+<h3>9.2 護欄指標（Guardrail Metrics）</h3>
+<table>
+<tr><th>指標</th><th>可接受下限</th><th>若跌破的處置</th></tr>
+<tr><td>任何 STEP 不得超過 15 分鐘</td><td>&lt; 15 分鐘</td><td>標記 TIMEOUT，觸發 /devsop-repair</td></tr>
+<tr><td>Secrets 洩漏事件</td><td>= 0</td><td>gitleaks 攔截 + 立即旋轉所有相關 Secrets</td></tr>
+<tr><td>STEP 25 假測試偵測後仍殘留假測試</td><td>= 0</td><td>手動審查後修復，重新執行 STEP 25</td></tr>
+<tr><td>HTML 文件站生成失敗</td><td>= 0</td><td>回退到純 Markdown 輸出</td></tr>
+</table>
+<h3>9.3 上線 Go / No-Go 清單</h3>
+<p><strong>Go 條件（全部必須通過）：</strong></p>
+<ul><li style="list-style:none"><input type="checkbox" checked disabled> 所有 P0 AC 通過 bats 單元測試驗收</li><li style="list-style:none"><input type="checkbox" checked disabled> 測試覆蓋率 ≥ 80%（9 unit + 3 integration + 2 smoke + 1 skill_smoke）</li><li style="list-style:none"><input type="checkbox" checked disabled> 三個範例 BRD（simple / medium / complex）各執行 /devsop-demo 通過</li><li style="list-style:none"><input type="checkbox" checked disabled> Anti-Fake 稽核（STEP 25 + 26）對 MYDEVSOP 自身代碼執行後 = 0 違規</li><li style="list-style:none"><input type="checkbox" checked disabled> gitleaks pre-commit hook 安裝並驗證攔截有效</li><li style="list-style:none"><input type="checkbox" checked disabled> Windows PowerShell install.ps1 在 Windows 10/11 測試通過</li><li style="list-style:none"><input type="checkbox" checked disabled> HTML 文件站在 Chrome / Firefox / Safari 三個瀏覽器正確渲染 Mermaid 圖表</li></ul>
+<p><strong>No-Go 條件（任一存在就不上線）：</strong></p>
+<ul><li style="list-style:none"><input type="checkbox" disabled> STEP 任何一個有已知 CRITICAL bug 未修復</li><li style="list-style:none"><input type="checkbox" disabled> .devsop-state.json 斷點繼續機制有 data loss 風險</li><li style="list-style:none"><input type="checkbox" disabled> gitleaks pre-commit hook 有已知繞過方法未修復</li></ul>
+<h3>9.4 Definition of Done（完成定義）</h3>
+<p><strong>Product DoD：</strong></p>
+<table>
+<tr><th>項目</th><th>驗收標準</th></tr>
+<tr><td>User Story 覆蓋</td><td>所有 10 個 User Story 的 AC 均有對應 bats test case 並通過</td></tr>
+<tr><td>Anti-Fake 合規</td><td>STEP 25 + 26 對所有 skills 掃描後 = 0 違規</td></tr>
+<tr><td>文件完整性</td><td>所有 skill 有 SKILL.md（name / description / allowed-tools 完整）</td></tr>
+<tr><td>Windows 相容性</td><td>install.ps1 + update.ps1 + check-update.ps1 在 Windows 10/11 測試通過</td></tr>
+<tr><td>HTML 文件站</td><td>/devsop-gen-html 生成的 docs/pages/*.html 通過跨瀏覽器 Mermaid 渲染測試</td></tr>
+</table>
+<p><strong>Engineering DoD：</strong></p>
+<table>
+<tr><th>項目</th><th>驗收標準</th></tr>
+<tr><td>單元測試</td><td>9 個 bats unit tests 全部通過，coverage ≥ 80%</td></tr>
+<tr><td>整合測試</td><td>3 個 bats integration tests 全部通過</td></tr>
+<tr><td>Smoke 測試</td><td>2 個 smoke tests + 1 skill_smoke 全部通過</td></tr>
+<tr><td>Secrets 防護</td><td>五層防護全部就位，gitleaks 攔截測試通過</td></tr>
+<tr><td>平台測試</td><td>macOS + Linux + Windows 安裝腳本測試通過</td></tr>
+</table>
+<hr>
+<h2>10. Rollout Plan</h2>
+<table>
+<tr><th>階段</th><th>對象</th><th>說明</th><th>觀察期</th><th>成功條件</th></tr>
+<tr><td>Alpha</td><td>MYDEVSOP 開發者自身</td><td>對 3 個範例 BRD 執行完整 pipeline，驗證所有 STEP 功能正確</td><td>1 週</td><td>所有 bats tests 通過，無 CRITICAL bug</td></tr>
+<tr><td>Beta</td><td>5-10 位早期採用者</td><td>在真實專案上執行，收集 pipeline 中斷點、效能問題、UX 改善建議</td><td>2 週</td><td>pipeline 完成率 ≥ 80%，無 Secrets 洩漏事件</td></tr>
+<tr><td>GA</td><td>GitHub 公開發布</td><td>push to GitHub，README 提供安裝指引，發布 Release Notes</td><td>2 週</td><td>pipeline 完成率 ≥ 90%，Anti-Fake 違規 = 0</td></tr>
+</table>
+<h3>10.2 Feature Flag 規格</h3>
+<p>MYDEVSOP 為 CLI 工具，不使用雲端 feature flag 服務。Feature flag 透過 <code>/devsop-config</code> 設定 Session Config 實現：</p>
+<table>
+<tr><th>設定項</th><th>預設值</th><th>說明</th></tr>
+<tr><td><code>auto_mode</code></td><td><code>standard</code>（互動模式）</td><td>full / interactive / key-decision</td></tr>
+<tr><td><code>review_mode</code></td><td><code>standard</code>（5 輪 MODE-C）</td><td>rapid / standard / exhaustive / tiered / custom</td></tr>
+<tr><td><code>skip_steps</code></td><td><code>[]</code></td><td>手動指定跳過的 STEP 列表（如跳過 STEP 23 RPA）</td></tr>
+<tr><td><code>client_type</code></td><td>自動偵測</td><td>none / web / unity / cocos / html5</td></tr>
+</table>
+<hr>
+<h2>11. Data Requirements</h2>
+<h3>11.1 .devsop-state.json Schema</h3>
+<p><code>.devsop-state.json</code> 是 pipeline 的持久化狀態檔，存放於被開發專案的根目錄：</p>
+<pre><code class="language-json">{
+  &quot;version&quot;: &quot;2.6&quot;,
+  &quot;skill_source&quot;: &quot;devsop-autodev&quot;,
+  &quot;project_dir&quot;: &quot;/path/to/project&quot;,
+  &quot;brd_path&quot;: &quot;docs/BRD.md&quot;,
+  &quot;idea_path&quot;: &quot;docs/IDEA.md&quot;,
+  &quot;req_dir&quot;: &quot;docs/req&quot;,
+  &quot;input_type&quot;: &quot;text_idea&quot;,
+  &quot;input_source&quot;: &quot;&quot;,
+  &quot;execution_mode&quot;: &quot;interactive&quot;,
+  &quot;current_step&quot;: 7,
+  &quot;completed_steps&quot;: [1, 2, 3, 4, 5, 6],
+  &quot;lang_stack&quot;: &quot;Python FastAPI + pytest&quot;,
+  &quot;client_type&quot;: &quot;web&quot;,
+  &quot;auto_mode&quot;: &quot;full&quot;,
+  &quot;review_mode&quot;: &quot;standard&quot;,
+  &quot;review_strategy&quot;: &quot;tiered&quot;,
+  &quot;idea_generated&quot;: true,
+  &quot;idea_review_passed&quot;: true,
+  &quot;brd_generated&quot;: true,
+  &quot;brd_review_passed&quot;: true,
+  &quot;handoff&quot;: true,
+  &quot;handoff_source&quot;: &quot;devsop-gendoc&quot;,
+  &quot;review_rounds&quot;: {
+    &quot;step_01&quot;: {&quot;rounds&quot;: 3, &quot;final_findings&quot;: 0, &quot;stubborn&quot;: []},
+    &quot;step_04&quot;: {&quot;rounds&quot;: 2, &quot;final_findings&quot;: 0, &quot;stubborn&quot;: []}
+  },
+  &quot;step_summaries&quot;: {
+    &quot;step_01&quot;: &quot;BRD Review Loop 完成，3 輪，fixed=5，todo=0&quot;,
+    &quot;step_02&quot;: &quot;語言選型：Python FastAPI + pytest&quot;
+  },
+  &quot;last_updated&quot;: &quot;2026-04-22T10:30:00Z&quot;,
+  &quot;pipeline_start_time&quot;: &quot;2026-04-22T09:00:00Z&quot;,
+  &quot;errors&quot;: []
+}</code></pre>
+<h3>11.2 Data Dictionary</h3>
+<table>
+<tr><th>欄位名稱</th><th>型別</th><th>必填</th><th>說明</th></tr>
+<tr><td><code>version</code></td><td>string</td><td>是</td><td>state file schema 版本，用於向後相容判斷</td></tr>
+<tr><td><code>skill_source</code></td><td>string</td><td>是</td><td>建立此 state file 的 skill 名稱（防止跨 skill 誤用）</td></tr>
+<tr><td><code>project_dir</code></td><td>string</td><td>是</td><td>被開發專案的絕對路徑</td></tr>
+<tr><td><code>brd_path</code></td><td>string</td><td>是</td><td>BRD 文件相對路徑</td></tr>
+<tr><td><code>idea_path</code></td><td>string</td><td>否</td><td>IDEA.md 文件相對路徑（devsop-idea / devsop-gendoc 設定）</td></tr>
+<tr><td><code>req_dir</code></td><td>string</td><td>否</td><td>輸入素材目錄相對路徑（devsop-gendoc 設定，通常為 <code>docs/req</code>）</td></tr>
+<tr><td><code>input_type</code></td><td>string</td><td>否</td><td>輸入類型：text_idea / image_url / doc_url / doc_git / doc_local / codebase_local / codebase_git</td></tr>
+<tr><td><code>input_source</code></td><td>string</td><td>否</td><td>輸入來源 URL 或本地路徑（text_idea 時為空）</td></tr>
+<tr><td><code>execution_mode</code></td><td>string</td><td>是</td><td>interactive / full-auto（Session Config 設定）</td></tr>
+<tr><td><code>current_step</code></td><td>integer</td><td>是</td><td>目前執行到的 STEP 編號（1-31）</td></tr>
+<tr><td><code>completed_steps</code></td><td>array[integer/string]</td><td>是</td><td>已完成的 STEP 編號或名稱列表</td></tr>
+<tr><td><code>lang_stack</code></td><td>string</td><td>是（STEP 02 後）</td><td>語言/框架選型結果</td></tr>
+<tr><td><code>client_type</code></td><td>string</td><td>是（STEP 05 後）</td><td>none / web / unity / cocos / html5</td></tr>
+<tr><td><code>auto_mode</code></td><td>string</td><td>是</td><td>full / interactive / key-decision</td></tr>
+<tr><td><code>review_mode</code></td><td>string</td><td>是</td><td>rapid / standard / exhaustive / tiered / custom</td></tr>
+<tr><td><code>idea_generated</code></td><td>boolean</td><td>否</td><td>IDEA.md 是否已由 gen-idea 生成</td></tr>
+<tr><td><code>idea_review_passed</code></td><td>boolean</td><td>否</td><td>IDEA Review Loop 是否已通過（true = 下游可跳過）</td></tr>
+<tr><td><code>brd_generated</code></td><td>boolean</td><td>否</td><td>BRD.md 是否已由 gen-brd 生成</td></tr>
+<tr><td><code>brd_review_passed</code></td><td>boolean</td><td>否</td><td>BRD Review Loop 是否已通過</td></tr>
+<tr><td><code>handoff</code></td><td>boolean</td><td>否</td><td>上游入口技能是否已完成 Handoff（idea / gendoc 設定）</td></tr>
+<tr><td><code>handoff_source</code></td><td>string</td><td>否</td><td>執行 handoff 的入口技能名稱（devsop-idea / devsop-gendoc）</td></tr>
+<tr><td><code>review_rounds</code></td><td>object</td><td>否</td><td>各 Review STEP 的執行輪次記錄</td></tr>
+<tr><td><code>step_summaries</code></td><td>object</td><td>否</td><td>各 STEP 的摘要文字</td></tr>
+<tr><td><code>last_updated</code></td><td>string (ISO 8601)</td><td>是</td><td>最後更新時間（UTC）</td></tr>
+<tr><td><code>pipeline_start_time</code></td><td>string (ISO 8601)</td><td>是</td><td>pipeline 啟動時間</td></tr>
+<tr><td><code>errors</code></td><td>array[object]</td><td>否</td><td>執行中遇到的錯誤記錄</td></tr>
+</table>
+<h3>11.3 資料品質要求</h3>
+<table>
+<tr><th>要求項目</th><th>規格</th></tr>
+<tr><td>向後相容性</td><td>新版 pipeline 讀取舊版 state file 時，採 merge 策略，保留所有未知欄位，不刪除不報錯</td></tr>
+<tr><td>原子性寫入</td><td>state file 更新使用臨時檔案 + rename 方式，確保寫入過程中斷不會造成損壞</td></tr>
+<tr><td>JSON 合規</td><td>所有字串使用 UTF-8 編碼，timestamp 使用 ISO 8601 UTC 格式</td></tr>
+<tr><td>大小限制</td><td>state file 不得超過 10 MB（如果 step_summaries 過大，截斷到 500 字元 / STEP）</td></tr>
+</table>
+<hr>
+<h2>12. Open Questions</h2>
+<table>
+<tr><th>#</th><th>問題</th><th>負責人</th><th>截止日</th><th>狀態</th></tr>
+<tr><td>Q1</td><td>完整 31-STEP pipeline 的實際 Claude API token 消耗是多少？是否在 Claude Pro 限額內？</td><td>PM Agent</td><td>2026-05-31</td><td>OPEN</td></tr>
+<tr><td>Q2</td><td>多人同時使用同一個 GitHub repo 執行 /devsop-autodev，是否有 state file 衝突問題？</td><td>技術架構師</td><td>2026-05-31</td><td>OPEN（已在 Out of Scope，記錄供 v3.0 設計參考）</td></tr>
+<tr><td>Q3</td><td>gitleaks pre-commit hook 在 Windows 原生（非 WSL）環境的安裝方式是否已文件化？</td><td>DevOps 負責人</td><td>2026-04-30</td><td>RESOLVED：install.ps1 包含 gitleaks Windows 安裝指引</td></tr>
+<tr><td>Q4</td><td>Mermaid.js CDN 在中國大陸地區可能被封鎖，是否需要提供本地版備援？</td><td>前端負責人</td><td>2026-05-15</td><td>OPEN</td></tr>
+<tr><td>Q5</td><td>STEP 19 效能測試生成的 k6 腳本，是否需要在 pipeline 中自動執行並驗證通過 EDD 門檻？</td><td>QA Lead</td><td>2026-04-30</td><td>RESOLVED：k6 腳本生成但不自動執行，CI/CD pipeline 執行（STEP 28 的 GitHub Actions）</td></tr>
+</table>
+<hr>
+<h2>13. Glossary</h2>
+<table>
+<tr><th>術語</th><th>定義</th></tr>
+<tr><td>BRD</td><td>Business Requirements Document，產品設計文件，MYDEVSOP pipeline 的最上游輸入</td></tr>
+<tr><td>PRD</td><td>Product Requirements Document（本文件），定義 What — 功能範圍與需求定義</td></tr>
+<tr><td>PDD</td><td>Product Design Document，UI/UX 設計文件，由 /devsop-gen-pdd 生成</td></tr>
+<tr><td>EDD</td><td>Engineering Design Document，工程設計文件，含架構、Security、BDD/TDD/SCALE 設計</td></tr>
+<tr><td>ARCH</td><td>Architecture Document，架構設計文件，含元件拆解、分層設計、Mermaid 架構圖</td></tr>
+<tr><td>SDLC</td><td>Software Development Life Cycle，軟體開發生命週期</td></tr>
+<tr><td>BDD</td><td>Behavior-Driven Development，行為驅動開發，使用 Gherkin 格式的 Feature File</td></tr>
+<tr><td>TDD</td><td>Test-Driven Development，測試驅動開發，RED → GREEN → REFACTOR 循環</td></tr>
+<tr><td>AC</td><td>Acceptance Criteria，驗收條件，每個 User Story 必須有可驗證的 AC</td></tr>
+<tr><td>STEP</td><td>MYDEVSOP pipeline 的執行步驟，共 31 個</td></tr>
+<tr><td>Review Loop</td><td>帶 ✅ 的 STEP 的反覆審查機制：subagent 掃描 → 修復 → 重掃，直到 finding = 0</td></tr>
+<tr><td>Anti-Fake</td><td>MYDEVSOP 的核心品質原則：禁止假測試（NO_ASSERT 等）和假實作（EMPTY_BODY 等）</td></tr>
+<tr><td>STUBBORN</td><td>同一個 finding 連續出現 5 輪未解決後的標記，列入 TOTAL SUMMARY 請人工介入</td></tr>
+<tr><td>state file</td><td><code>.devsop-state-{git_user}-{branch}.json</code>（TF-05 動態命名），記錄 pipeline 執行狀態，支援斷點繼續；<code>skill_source</code> 欄位防止跨 skill 誤用</td></tr>
+<tr><td>subagent</td><td>由 /devsop-autodev 主 Claude 使用 Agent tool spawn 的獨立 Claude 實例，執行具體 STEP</td></tr>
+<tr><td>skill</td><td>Claude Code 的 skill 機制，透過 SKILL.md 定義的可複用 AI 工作流</td></tr>
+<tr><td>TOTAL SUMMARY</td><td>pipeline 完成後輸出的全局摘要（ASCII art 框格式），包含所有 STEP 結果</td></tr>
+<tr><td>HPA</td><td>Horizontal Pod Autoscaler，K8s 的水平 Pod 自動擴縮容機制</td></tr>
+<tr><td>Drift</td><td>文件與程式碼漂移，指上下游 artifact 因人工維護而產生的不一致</td></tr>
+<tr><td>Gherkin</td><td>BDD 的場景描述語言（Given / When / Then 格式）</td></tr>
+<tr><td>RTM</td><td>Requirement Traceability Matrix，需求追蹤矩陣</td></tr>
+<tr><td>OWASP Top 10</td><td>OWASP 定義的十大 Web 應用程式安全風險，STEP 20 Code Review 必須逐條審查</td></tr>
+<tr><td>Five-Layer Secrets</td><td>MYDEVSOP 的五層 Secrets 防護：.gitignore / gitleaks / .env.example / fail-fast / log 遮罩</td></tr>
+<tr><td>Cursor-based 分頁</td><td>基於 cursor（如 <code>WHERE created_at &lt; $cursor</code>）的分頁方式，效能優於 OFFSET 分頁</td></tr>
+<tr><td>client_type</td><td>BRD 偵測到的 Client 端類型：none / web / unity / cocos / html5</td></tr>
+</table>
+<hr>
+<h2>14. References</h2>
+<ul><li>產品設計文件（上游 BRD 等效）：<a href="../README.md" target="_blank" rel="noopener">README.md</a></li><li>詳細技術需求規格：<a href="REQUIREMENTS.md" target="_blank" rel="noopener">REQUIREMENTS.md</a>（R-01 到 R-29 及設計決策記錄）</li><li>PRD 範本結構：<a href="../templates/PRD.md" target="_blank" rel="noopener">templates/PRD.md</a></li><li>範例 BRD（簡單）：<a href="../examples/brd-simple.md" target="_blank" rel="noopener">examples/brd-simple.md</a></li><li>範例 BRD（中型）：<a href="../examples/brd-medium.md" target="_blank" rel="noopener">examples/brd-medium.md</a></li><li>範例 BRD（複雜）：<a href="../examples/brd-complex.md" target="_blank" rel="noopener">examples/brd-complex.md</a></li><li>產品審查報告：<a href="PRODUCT_REVIEW.md" target="_blank" rel="noopener">docs/PRODUCT_REVIEW.md</a></li><li>解決方案路線圖：<a href="SOLUTION_ROADMAP.md" target="_blank" rel="noopener">docs/SOLUTION_ROADMAP.md</a></li></ul>
+<hr>
+<h2>15. Requirement Traceability Matrix (RTM)</h2>
+<table>
+<tr><th>REQ-ID</th><th>上游需求</th><th>User Story 章節</th><th>AC#</th><th>對應 STEP</th><th>對應 Skill</th><th>測試案例</th><th>狀態</th></tr>
+<tr><td>US-IDEA-001</td><td>README 情境 A</td><td>§5.1</td><td>AC-1, AC-2, AC-3, AC-4</td><td>前置流程</td><td>/devsop-idea</td><td>test_skill_schema.bats</td><td>IN_REVIEW</td></tr>
+<tr><td>US-GENDOC-001</td><td>README 情境 A2</td><td>§5.1b</td><td>AC-1, AC-2, AC-3, AC-4, AC-5</td><td>前置流程</td><td>/devsop-gendoc</td><td>test_skill_schema.bats</td><td>IN_REVIEW</td></tr>
+<tr><td>US-AUTO-001</td><td>README 情境 B；REQUIREMENTS §2</td><td>§5.2</td><td>AC-1, AC-2, AC-3, AC-4, AC-5</td><td>STEP 01-31</td><td>/devsop-autodev</td><td>test_pipeline_smoke.bats, test_step_chain.bats</td><td>IN_REVIEW</td></tr>
+<tr><td>US-AUTO-002</td><td>REQUIREMENTS REQ-2.1</td><td>§5.3</td><td>AC-1, AC-2, AC-3, AC-4</td><td>所有 STEP</td><td>/devsop-repair, state file</td><td>test_state_lifecycle.bats, test_state_contract.bats</td><td>IN_REVIEW</td></tr>
+<tr><td>US-REVIEW-001</td><td>REQUIREMENTS §16 Review Skills</td><td>§5.4</td><td>AC-1, AC-2, AC-3, AC-4</td><td>STEP 01, 04, 06, 08, 10, 11, 12, 20, 21</td><td>9 個 *-review skills</td><td>test_skill_contracts.bats</td><td>IN_REVIEW</td></tr>
+<tr><td>US-REVIEW-002</td><td>REQUIREMENTS REQ-2.2</td><td>§5.5</td><td>AC-1, AC-2, AC-3, AC-4</td><td>所有帶 ✅ 的 STEP</td><td>/devsop-autodev Review Loop</td><td>test_step_chain.bats</td><td>IN_REVIEW</td></tr>
+<tr><td>US-CHANGE-001</td><td>README 情境 C</td><td>§5.6</td><td>AC-1, AC-2, AC-3, AC-4</td><td>受影響的 STEP（動態）</td><td>/devsop-change</td><td>test_skill_schema.bats</td><td>IN_REVIEW</td></tr>
+<tr><td>US-REPAIR-001</td><td>README 情境 D</td><td>§5.7</td><td>AC-1, AC-2, AC-3</td><td>失敗的 STEP</td><td>/devsop-repair</td><td>test_state_lifecycle.bats</td><td>IN_REVIEW</td></tr>
+<tr><td>US-QUALITY-001</td><td>REQUIREMENTS §14 Anti-Fake</td><td>§5.8</td><td>AC-1, AC-2, AC-3, AC-4</td><td>STEP 25, STEP 26</td><td>/devsop-test-audit, /devsop-impl-audit</td><td>test_impl_upstream_compliance.bats</td><td>IN_REVIEW</td></tr>
+<tr><td>US-SECRETS-001</td><td>REQUIREMENTS §13 Secrets</td><td>§5.9</td><td>AC-1, AC-2, AC-3, AC-4</td><td>STEP 29</td><td>/devsop-gen-secrets</td><td>test_devsop_lib.bats</td><td>IN_REVIEW</td></tr>
+<tr><td>US-HTML-001</td><td>REQUIREMENTS §9 HTML 文件網站</td><td>§5.10</td><td>AC-1, AC-2, AC-3, AC-4</td><td>STEP 30, STEP 31</td><td>/devsop-gen-html, /devsop-gen-readme</td><td>test_skill_smoke.bats</td><td>IN_REVIEW</td></tr>
+</table>
+<hr>
+<h2>16. Approval Sign-off</h2>
+<table>
+<tr><th>角色</th><th>姓名</th><th>簽核日期</th><th>意見</th></tr>
+<tr><td>PM</td><td>Alex (PM Agent)</td><td>2026-04-21</td><td>初稿提交 IN_REVIEW</td></tr>
+<tr><td>Engineering Lead</td><td>待指定</td><td>—</td><td>待審閱</td></tr>
+<tr><td>QA Lead</td><td>待指定</td><td>—</td><td>待審閱</td></tr>
+<tr><td>Tech Architect</td><td>待指定</td><td>—</td><td>待審閱</td></tr>
+</table>
+<hr>
+<h2>17. Privacy by Design &amp; Data Protection</h2>
+<h3>17.1 Privacy by Design 合規檢查</h3>
+<p>MYDEVSOP 為個人使用的 CLI 工具，不收集任何使用者個人資料（PII）。所有操作均在使用者本機執行。</p>
+<table>
+<tr><th>#</th><th>原則</th><th>本產品實作方式</th><th>合規狀態</th></tr>
+<tr><td>1</td><td>Proactive not Reactive</td><td>設計階段即確保無 PII 收集</td><td>已合規</td></tr>
+<tr><td>2</td><td>Privacy as Default</td><td>無使用者帳號系統，無資料收集</td><td>已合規</td></tr>
+<tr><td>3</td><td>Privacy Embedded into Design</td><td>所有狀態（.devsop-state.json）存放在使用者本機</td><td>已合規</td></tr>
+<tr><td>4</td><td>Full Functionality</td><td>無 Privacy / 功能的零和取捨</td><td>不適用</td></tr>
+<tr><td>5</td><td>End-to-End Security</td><td>Secrets 五層防護，不存入任何檔案</td><td>已合規</td></tr>
+<tr><td>6</td><td>Visibility and Transparency</td><td>開源，所有 skill 邏輯可讀</td><td>已合規</td></tr>
+<tr><td>7</td><td>Respect for User Privacy</td><td>使用者完全控制本機的所有數據</td><td>已合規</td></tr>
+</table>
+<h3>17.2 個人資料盤點（PII Inventory）</h3>
+<p>MYDEVSOP 不收集任何 PII。以下為零 PII 宣告：</p>
+<table>
+<tr><th>資料類別</th><th>是否收集</th><th>說明</th></tr>
+<tr><td>姓名</td><td>否</td><td>無使用者帳號系統</td></tr>
+<tr><td>Email</td><td>否</td><td>無通訊功能</td></tr>
+<tr><td>使用行為</td><td>否</td><td>無 analytics 後端</td></tr>
+<tr><td>git commit 記錄</td><td>本機</td><td>存放在使用者自己的 git repo，MYDEVSOP 不傳送到任何服務</td></tr>
+</table>
+<blockquote><p><strong>例外</strong>：使用者使用 <code>/devsop-idea</code> 中的 WebSearch 功能時，搜尋關鍵字傳送給搜尋引擎 API，受搜尋引擎供應商的隱私政策約束。</p></blockquote>
+<hr>
+<h2>18. Accessibility Requirements（無障礙需求）</h2>
+<p>MYDEVSOP 為 CLI 工具，主要與 Claude Code 的 terminal 介面互動，適用的無障礙需求如下：</p>
+<h3>18.1 CLI 無障礙</h3>
+<table>
+<tr><th>需求</th><th>實作方式</th></tr>
+<tr><td>螢幕閱讀器相容</td><td>所有輸出使用純文字，避免僅靠顏色傳遞資訊</td></tr>
+<tr><td>鍵盤完整可操作</td><td>所有 AskUserQuestion 互動支援鍵盤輸入，5 秒自動選預設確保不需滑鼠</td></tr>
+<tr><td>高對比模式</td><td>STEP Summary 框格使用 ASCII art，不依賴終端顏色渲染</td></tr>
+<tr><td>多語言支援</td><td>輸出優先使用繁體中文（台灣用語），英文 skill 指令保持一致</td></tr>
+</table>
+<h3>18.2 HTML 文件站無障礙（WCAG 2.1 Level AA 目標）</h3>
+<table>
+<tr><th>#</th><th>需求</th><th>WCAG 基準</th><th>優先級</th></tr>
+<tr><td>A11y-01</td><td>所有 Mermaid 圖表有替代文字說明（alt + aria-label）</td><td>1.1.1</td><td>P1</td></tr>
+<tr><td>A11y-02</td><td>文字色彩對比度 ≥ 4.5:1</td><td>1.4.3</td><td>P0</td></tr>
+<tr><td>A11y-03</td><td>Sidebar 導覽可用鍵盤操作（Tab / Enter）</td><td>2.1.1</td><td>P1</td></tr>
+<tr><td>A11y-04</td><td>搜尋輸入框有明確 Label</td><td>1.3.1</td><td>P0</td></tr>
+<tr><td>A11y-05</td><td>頁面可縮放至 200% 不破版</td><td>1.4.4</td><td>P1</td></tr>
+<tr><td>A11y-06</td><td>Lightbox 可用 Esc 鍵關閉</td><td>2.1.1</td><td>P1</td></tr>
+</table></main>
+  </div>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({startOnLoad:true,theme:'default',
+      flowchart:{curve:'basis',nodeSpacing:60,rankSpacing:80},
+      er:{layoutDirection:'TD',minEntityWidth:100,fontSize:12},
+      sequence:{actorMargin:60,messageMargin:30}});
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-yaml.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-sql.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-go.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-typescript.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-json.min.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>
