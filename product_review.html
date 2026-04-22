@@ -29,10 +29,13 @@
         <div class="sidebar__label">文件</div>
         <a class="sidebar__link" href="index.html">🏠 首頁</a>
 <a class="sidebar__link" href="prd.html">📝 產品需求文件 (PRD)</a>
-<a class="sidebar__link" href="requirements.html">📌 需求規格</a>
-<a class="sidebar__link" href="migration_tracker.html">🔄 Migration Tracker</a>
-<a class="sidebar__link active" href="product_review.html">🔍 Product Review</a>
-<a class="sidebar__link" href="solution_roadmap.html">🗺️ Solution Roadmap</a>
+<a class="sidebar__link" href="migration_tracker.html">📄 Migration Tracker</a>
+<a class="sidebar__link active" href="product_review.html">📄 Product Review</a>
+<a class="sidebar__link" href="requirements.html">📄 Requirements</a>
+<a class="sidebar__link" href="solution_roadmap.html">📄 Solution Roadmap</a>
+<a class="sidebar__link" href="idea-vs-gendoc-comparison.html">📄 Idea-Vs-Gendoc-Comparison</a>
+<a class="sidebar__link" href="implementation-list.html">📄 Implementation-List</a>
+<a class="sidebar__link" href="modification-decisions.html">📄 Modification-Decisions</a>
       </div>
     </aside>
     <div class="sidebar-resizer" id="sidebarResizer"></div>
@@ -96,7 +99,7 @@
 <hr>
 <h3>生產力 ROI（Agent B — Engineering Manager）</h3>
 <p><strong>[G1] 時間節省評估 — 3.5/5</strong></p>
-<ul><li>估算節省時間（每個完整 pipeline run）：</li><li>PRD 生成：省 ~6 hr</li><li>EDD + 4 個 Mermaid 圖：省 ~9 hr</li><li>Schema doc：省 ~5 hr</li><li>k8s + CI/CD + Secrets：省 ~9 hr</li><li>HTML 文件網站：省 ~12 hr</li><li><strong>總計：40–70 hr/專案</strong></li><li>ROI：工程師時薪 $100/hr → 第一個專案即回本</li><li>問題：STEP 13（TDD loop）是最被高估的；Review loop 總 overhead 估計 4-12 hr</li><li>建議：實作「輕量模式」跳過低風險 STEP 的 review loop（STEP 03, 11, 19），保留關鍵 STEP 01/06/14/15 的品質關卡</li></ul>
+<ul><li>估算節省時間（每個完整 pipeline run）：</li><li style="margin-left:1.0rem">PRD 生成：省 ~6 hr</li><li style="margin-left:1.0rem">EDD + 4 個 Mermaid 圖：省 ~9 hr</li><li style="margin-left:1.0rem">Schema doc：省 ~5 hr</li><li style="margin-left:1.0rem">k8s + CI/CD + Secrets：省 ~9 hr</li><li style="margin-left:1.0rem">HTML 文件網站：省 ~12 hr</li><li style="margin-left:1.0rem"><strong>總計：40–70 hr/專案</strong></li><li>ROI：工程師時薪 $100/hr → 第一個專案即回本</li><li>問題：STEP 13（TDD loop）是最被高估的；Review loop 總 overhead 估計 4-12 hr</li><li>建議：實作「輕量模式」跳過低風險 STEP 的 review loop（STEP 03, 11, 19），保留關鍵 STEP 01/06/14/15 的品質關卡</li></ul>
 <p><strong>[G2] 流水線效率 — 3/5</strong></p>
 <ul><li>STEP 08/09/10（ARCH/API/Schema Review）可並行但目前串行——並行可省 ~60% 時間</li><li>STEP 16/17/18（k8s/CI/CD/Secrets）同樣可並行</li><li>Token 成本估算：每次完整 pipeline 約 1.5–2M tokens ≈ <strong>$6–15/run</strong>（Claude Sonnet 定價）</li><li>MODE-B 無限循環：問題文件可能觸發 20+ 輪，3-5x 成本</li><li>最常被跳過的 STEP：STEP 13（TDD GREEN 失敗率高）、STEP 16-18（需要 local k8s）、STEP 20（依賴 GitHub Pages 設定）</li></ul>
 <p><strong>[G3] 團隊協作 — 2/5</strong></p>
@@ -110,9 +113,9 @@
 <hr>
 <h3>技術架構（Agent C — Staff Engineer）</h3>
 <p><strong>[T1] Markdown-as-Code — 2/5</strong></p>
-<ul><li>優點：SKILL.md 是 Claude Code 的原生格式，零膠水代碼</li><li>問題：</li><li><code>_review_loop()</code> 等「函式」是 prose 偽代碼，每次執行靠 Claude 重新詮釋，無確定性</li><li><code>devsop-autodev/SKILL.md</code> 已達 1,397 行，違反自己的 800 行限制</li><li>Step Summary 格式無 schema validation</li><li>建議：把三個核心函式提取到 <code>scripts/devsop-lib.sh</code>（可 <code>source</code> + bats 測試）</li></ul>
+<ul><li>優點：SKILL.md 是 Claude Code 的原生格式，零膠水代碼</li><li>問題：</li><li style="margin-left:1.0rem"><code>_review_loop()</code> 等「函式」是 prose 偽代碼，每次執行靠 Claude 重新詮釋，無確定性</li><li style="margin-left:1.0rem"><code>devsop-autodev/SKILL.md</code> 已達 1,397 行，違反自己的 800 行限制</li><li style="margin-left:1.0rem">Step Summary 格式無 schema validation</li><li>建議：把三個核心函式提取到 <code>scripts/devsop-lib.sh</code>（可 <code>source</code> + bats 測試）</li></ul>
 <p><strong>[T2] 狀態管理 — 2/5</strong></p>
-<ul><li>問題：</li><li><code>_write_state</code> 用 heredoc 直接覆寫，mid-crash 會產生截斷的 JSON</li><li>無文件鎖（flock），concurrent 執行會 race condition</li><li>缺失欄位：<code>step_start_time</code>、<code>step_log[]</code>、<code>schema_version</code>、<code>git_repo_root</code></li><li>建議：改為 write-to-tmp then <code>mv -f</code>（原子性）；加 <code>step_log</code> array</li></ul>
+<ul><li>問題：</li><li style="margin-left:1.0rem"><code>_write_state</code> 用 heredoc 直接覆寫，mid-crash 會產生截斷的 JSON</li><li style="margin-left:1.0rem">無文件鎖（flock），concurrent 執行會 race condition</li><li style="margin-left:1.0rem">缺失欄位：<code>step_start_time</code>、<code>step_log[]</code>、<code>schema_version</code>、<code>git_repo_root</code></li><li>建議：改為 write-to-tmp then <code>mv -f</code>（原子性）；加 <code>step_log</code> array</li></ul>
 <p><strong>[T3] 測試覆蓋 — 2/5</strong></p>
 <ul><li>好：shell scripts 有 32 個 bats 測試，覆蓋安全性和邊界條件</li><li>問題：32 個 SKILL.md 零測試覆蓋；無 end-to-end pipeline 測試；修改 SKILL.md 後 regression 完全不可見</li><li>建議：</li></ul>
 <ol><li><code>tests/unit/test_devsop_lib.bats</code>：測試 <code>_write_state</code> JSON 合法性、STEP_SEQUENCE 完整性</li><li><code>tests/integration/test_pipeline_smoke.bats</code>：用 fixture BRD + mock Claude stub 跑完整 pipeline</li></ol>
@@ -181,6 +184,7 @@
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-sql.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-go.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-typescript.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-json.min.js"></script>
   <script src="assets/app.js"></script>
 </body>
 </html>

@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Implementation-List — MYDEVSOP</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body>
+  <header class="top-nav">
+    <a href="index.html" class="nav-brand">MYDEVSOP</a>
+    <div class="nav-controls">
+      <div class="search-wrap">
+        <input class="search-input" type="search" placeholder="搜尋文件...">
+        <div class="search-results"></div>
+      </div>
+      <a class="nav-gh-link" href="https://github.com/ibalasite/MYDEVSOP" target="_blank" rel="noopener">⌥ GitHub</a>
+      <button class="sidebar-toggle" id="sidebarToggle" title="收合/展開側欄">☰</button>
+    </div>
+  </header>
+  <div class="doc-page-banner">
+    <p class="banner-breadcrumb"><a href="index.html">MYDEVSOP</a> › Implementation-List</p>
+    <h1 class="banner-title">Implementation-List</h1>
+  </div>
+  <div class="page-wrapper">
+    <aside class="sidebar" aria-label="文件導覽">
+      <div class="sidebar__section">
+        <div class="sidebar__label">文件</div>
+        <a class="sidebar__link" href="index.html">🏠 首頁</a>
+<a class="sidebar__link" href="prd.html">📝 產品需求文件 (PRD)</a>
+<a class="sidebar__link" href="migration_tracker.html">📄 Migration Tracker</a>
+<a class="sidebar__link" href="product_review.html">📄 Product Review</a>
+<a class="sidebar__link" href="requirements.html">📄 Requirements</a>
+<a class="sidebar__link" href="solution_roadmap.html">📄 Solution Roadmap</a>
+<a class="sidebar__link" href="idea-vs-gendoc-comparison.html">📄 Idea-Vs-Gendoc-Comparison</a>
+<a class="sidebar__link active" href="implementation-list.html">📄 Implementation-List</a>
+<a class="sidebar__link" href="modification-decisions.html">📄 Modification-Decisions</a>
+      </div>
+    </aside>
+    <div class="sidebar-resizer" id="sidebarResizer"></div>
+    <main class="doc-content"><h1>MYDEVSOP 實施工作清單 v2.0</h1>
+<blockquote><p><strong>版本</strong>：v2.0 — 2026-04-22（重寫修正 v1.0 的根本錯誤）</p></blockquote>
+<blockquote><p><strong>來源</strong>：modification-decisions.md 所有決策</p></blockquote>
+<hr>
+<h2>核心架構原則（所有修改必須遵守）</h2>
+<pre><code class="">templates/*.md        → 唯一真理，改這裡等於改所有 skill 的輸出
+skills/devsop-gen-*   → 執行時 Read templates，依結構產生文件，永不硬編碼章節
+skills/devsop-*-review→ 執行時 Read templates，對照現有文件做 review
+skills/idea/gendoc/*  → 只做流程編排：何時呼叫哪個 gen-* / review-* skill</code></pre>
+<p><strong>改 template → 不需改任何 skill。改 skill → 只改流程邏輯，不改文件結構。</strong></p>
+<hr>
+<h2>現有基礎架構盤點（已存在，不需建立）</h2>
+<table>
+<tr><th>類型</th><th>現有項目</th></tr>
+<tr><td><strong>Templates</strong>（已有 14 個）</td><td><code>templates/IDEA.md</code>, <code>BRD.md</code>, <code>PRD.md</code>, <code>PDD.md</code>, <code>EDD.md</code>, <code>API.md</code>, <code>ARCH.md</code>, <code>SCHEMA.md</code>, <code>BDD.md</code>, <code>RTM.md</code>, <code>test-plan.md</code>, <code>README.md</code>, <code>LOCAL_DEPLOY.md</code>, <code>UML-CLASS-GUIDE.md</code></td></tr>
+<tr><td><strong>共用</strong></td><td><code>skills/devsop-shared/SKILL.md</code>（§-1 版本檢查、§0 Session Config、§1 State 命名）</td></tr>
+<tr><td><strong>文件生成 skills</strong>（已有 15 個）</td><td><code>devsop-gen-brd</code>, <code>devsop-gen-prd</code>, <code>devsop-gen-pdd</code>, <code>devsop-gen-edd</code>, <code>devsop-gen-arch</code>, <code>devsop-gen-api</code>, <code>devsop-gen-schema</code>, <code>devsop-gen-bdd</code>, <code>devsop-gen-test-plan</code>, <code>devsop-gen-readme</code>, <code>devsop-gen-diagrams</code>, <code>devsop-gen-html</code>, <code>devsop-gen-k8s</code>, <code>devsop-gen-cicd</code>, <code>devsop-gen-secrets</code></td></tr>
+<tr><td><strong>文件 Review skills</strong>（已有 8 個）</td><td><code>devsop-brd-review</code>, <code>devsop-prd-review</code>, <code>devsop-pdd-review</code>, <code>devsop-edd-review</code>, <code>devsop-arch-review</code>, <code>devsop-api-review</code>, <code>devsop-test-review</code>, <code>devsop-product-review</code></td></tr>
+</table>
+<hr>
+<h2>真正的缺口與需修正項（新發現）</h2>
+<table>
+<tr><th>#</th><th>缺口</th><th>動作</th></tr>
+<tr><td>N-1</td><td><code>devsop-gen-idea</code> 不存在 — IDEA.md 生成無獨立 skill</td><td><strong>新建</strong></td></tr>
+<tr><td>N-2</td><td><code>devsop-idea-review</code> 不存在 — IDEA.md review loop 無 skill</td><td><strong>新建</strong></td></tr>
+<tr><td>N-3</td><td><code>devsop-shared §0</code> 讀取固定名 <code>.devsop-state.json</code>（違反 TF-05）</td><td><strong>更新</strong></td></tr>
+<tr><td>N-4</td><td><code>devsop-shared §1</code> 建立 symlink（違反 TF-05，與 <code>.devsop-state-{user}-{branch}.json</code> 矛盾）</td><td><strong>移除</strong></td></tr>
+<tr><td>N-5</td><td>所有 <code>gen-<em></code> / <code>review-</em></code> skills 讀取固定名 <code>.devsop-state.json</code></td><td><strong>批次修正</strong></td></tr>
+<tr><td>N-6</td><td><code>autogen</code> 缺 autodev↔autogen 步驟對照表（導致 <code>start_step</code> 無法跨 skill 共用）</td><td><strong>新增</strong></td></tr>
+<tr><td>N-7</td><td><code>idea</code> 和 <code>gendoc</code> 的文件生成用 inline prompt，未委派給 gen-* skills</td><td><strong>改為 Skill tool 呼叫</strong></td></tr>
+<tr><td>N-8</td><td><code>idea</code> 和 <code>gendoc</code> 都缺 IDEA.md Review Loop（違背文件階層設計）</td><td><strong>兩者均需補</strong></td></tr>
+<tr><td>N-9</td><td><code>idea</code> 和 <code>gendoc</code> 都沒有對的順序要先 IDEA.md IDEA Review Loop，才有BRD.md BRD review loop（違背文件階層設計）</td><td><strong>兩者均需補</strong></td></tr>
+</table>
+<hr>
+<h2>Part A：基礎架構更新（所有 Part 前提，先完成）</h2>
+<hr>
+<h3>A-01：新建 <code>devsop-gen-idea</code> skill</h3>
+<p><strong>目標檔案</strong>：<code>skills/devsop-gen-idea/SKILL.md</code>（新建）</p>
+<p><strong>來源決策</strong>：TF-04（A）、N-1</p>
+<p><strong>模式</strong>：與 <code>devsop-gen-brd</code> 完全相同的框架：</p>
+<ul><li>Step -1：版本檢查（同 devsop-shared §-1）</li><li>Step 0：讀取 state（動態名 <code>$_STATE_FILE</code>）</li><li>Step 1：<code>Read templates/IDEA.md</code> → 了解期望結構（<strong>不在 skill 裡列章節，template 改了自動跟上</strong>）</li><li>Step 2：依 template 結構 + state 的 Q1-Q5 + <code>_RESEARCH_SUMMARY</code> + 輸入素材 → 生成 <code>docs/IDEA.md</code></li><li>Step 3：state 寫入 <code>idea_generated: true</code>，<code>completed_steps</code> 追加</li></ul>
+<hr>
+<h3>A-02：新建 <code>devsop-idea-review</code> skill</h3>
+<p><strong>目標檔案</strong>：<code>skills/devsop-idea-review/SKILL.md</code>（新建）</p>
+<p><strong>來源決策</strong>：TF-02 user 備註、CQ-03、N-2</p>
+<p><strong>模式</strong>：與 <code>devsop-brd-review</code> 完全相同的框架：</p>
+<ul><li>Step 1：<code>Read templates/IDEA.md</code> → 取得期望章節（動態，改 template 自動適應）</li><li>Step 2：<code>Read docs/IDEA.md</code> → 對照每個章節是否存在且完整</li><li>輪次上限：從 state 的 <code>review_strategy</code> 換算（rapid=1 / standard=2 / thorough=3 / exhaustive=5）</li><li>每輪：輸出 REVIEW_JSON + FINDINGS_TREND + Per-Round Summary</li><li>每輪修復後：<code>git commit -m &quot;docs(idea-review): round N fixes&quot;</code></li><li>通過後：state 寫入 <code>idea_review_passed: true</code></li></ul>
+<hr>
+<h3>A-03：更新 <code>devsop-shared/SKILL.md</code></h3>
+<p><strong>目標檔案</strong>：<code>skills/devsop-shared/SKILL.md</code>（更新，不是新建）</p>
+<p><strong>來源決策</strong>：TF-05、N-3、N-4</p>
+<p><strong>具體動作</strong>：</p>
+<table>
+<tr><th>位置</th><th>修改內容</th></tr>
+<tr><td><strong>§0 Session Config</strong></td><td>把所有 <code>&#x27;.devsop-state.json&#x27;</code> 固定名改為 <code>&#x27;$_STATE_FILE&#x27;</code>。各 skill 在呼叫前自行設好 <code>$_STATE_FILE</code> 變數</td></tr>
+<tr><td><strong>§1 State File 命名</strong></td><td>移除 <code>ln -sf &quot;$_STATE_FILE&quot; &quot;.devsop-state.json&quot;</code> 整行。只保留動態命名邏輯，格式統一為 <code>.devsop-state-{git_user}-{branch}.json</code></td></tr>
+<tr><td><strong>新增 §HANDOFF-DISPLAY</strong></td><td>統一的 Handoff Banner + BRD 摘要展示邏輯（idea 和 gendoc 共用，呼叫時傳入 project_name / input_type / BRD 行數 / IDEA 行數 / review 輪次 / 最終 findings 數）</td></tr>
+<tr><td><strong>新增 §STATE-SCHEMA</strong></td><td>記錄所有 skill 共用的標準 state key（見 A-04）</td></tr>
+</table>
+<hr>
+<h3>A-04：定義 State Schema 統一 key（寫入 devsop-shared §STATE-SCHEMA）</h3>
+<p><strong>來源決策</strong>：TF-02、TF-03、TF-05</p>
+<table>
+<tr><th>Key</th><th>類型</th><th>說明</th></tr>
+<tr><td><code>skill_source</code></td><td>string</td><td><code>devsop-idea</code> / <code>devsop-gendoc</code>（防止跨 skill 誤用 state）</td></tr>
+<tr><td><code>execution_mode</code></td><td>string</td><td><code>interactive</code> / <code>full-auto</code></td></tr>
+<tr><td><code>review_strategy</code></td><td>string</td><td><code>rapid</code> / <code>standard</code> / <code>thorough</code> / <code>exhaustive</code></td></tr>
+<tr><td><code>project_name</code></td><td>string</td><td>英文小寫連字號</td></tr>
+<tr><td><code>project_type</code></td><td>string</td><td>PM Expert 提取</td></tr>
+<tr><td><code>input_type</code></td><td>string</td><td>7 種輸入類型之一</td></tr>
+<tr><td><code>input_source</code></td><td>string</td><td>URL 或路徑</td></tr>
+<tr><td><code>input_summary</code></td><td>string</td><td>摘要文字</td></tr>
+<tr><td><code>req_dir</code></td><td>string</td><td><code>docs/req</code></td></tr>
+<tr><td><code>completed_steps</code></td><td>array</td><td>已完成的 STEP 名稱清單</td></tr>
+<tr><td><code>idea_generated</code></td><td>bool</td><td>IDEA.md 已生成</td></tr>
+<tr><td><code>idea_review_passed</code></td><td>bool</td><td>IDEA Review Loop 已通過</td></tr>
+<tr><td><code>brd_generated</code></td><td>bool</td><td>BRD.md 已生成</td></tr>
+<tr><td><code>brd_review_passed</code></td><td>bool</td><td>BRD Review Loop 已通過</td></tr>
+<tr><td><code>handoff</code></td><td>bool</td><td>已移交下游 skill</td></tr>
+<tr><td><code>brd_path</code></td><td>string</td><td><code>docs/BRD.md</code></td></tr>
+<tr><td><code>idea_path</code></td><td>string</td><td><code>docs/IDEA.md</code></td></tr>
+<tr><td><code>handoff_source</code></td><td>string</td><td><code>devsop-idea</code> / <code>devsop-gendoc</code></td></tr>
+<tr><td><code>start_step</code></td><td>int</td><td>autodev 31 步編號（autogen 透過對照表翻譯）</td></tr>
+</table>
+<hr>
+<h3>A-05：批次修正 gen-<em> / review-</em> skills 的 state file 讀取名稱</h3>
+<p><strong>目標</strong>：所有 gen-<em> 和 review-</em> skills</p>
+<p><strong>來源決策</strong>：TF-05、N-5</p>
+<p><strong>具體動作</strong>：</p>
+<ul><li>搜尋所有 <code>skills/devsop-gen-<em>/SKILL.md</code> 和 <code>skills/devsop-</em>-review/SKILL.md</code></li><li>找出 <code>&#x27;.devsop-state.json&#x27;</code> 固定名稱</li><li>替換為動態偵測邏輯：</li></ul>
+<pre><code class="language-bash">  _STATE_FILE=$(ls .devsop-state-*.json 2&gt;/dev/null | head -1 || echo &quot;.devsop-state.json&quot;)</code></pre>
+<p>（fallback 維持向後相容）</p>
+<hr>
+<h3>A-06：在 autogen 建立 autodev↔autogen 步驟對照表</h3>
+<p><strong>目標檔案</strong>：<code>skills/devsop-autogen/SKILL.md</code> — 文件最前端新增 <code>§STEP-MAPPING</code></p>
+<p><strong>來源決策</strong>：TF-03、TF-07</p>
+<p><strong>說明</strong>：讓 <code>start_step</code>（autodev 31 步格式）可跨兩個 skill 共用。autogen 自行翻譯。</p>
+<table>
+<tr><th>autodev STEP</th><th>說明</th><th>autogen 文件 STEP</th></tr>
+<tr><td>STEP-01</td><td>Workspace + State</td><td>無（前置）</td></tr>
+<tr><td>STEP-02</td><td>PM Expert / Project Init</td><td>無（前置）</td></tr>
+<tr><td>STEP-03</td><td>BRD</td><td><code>autogen-BRD</code></td></tr>
+<tr><td>STEP-04</td><td>PRD</td><td><code>autogen-PRD</code></td></tr>
+<tr><td>STEP-05</td><td>PDD</td><td><code>autogen-PDD</code></td></tr>
+<tr><td>STEP-06</td><td>EDD</td><td><code>autogen-EDD</code></td></tr>
+<tr><td>STEP-07</td><td>SDD</td><td><code>autogen-SDD</code></td></tr>
+<tr><td>STEP-08</td><td>API Design</td><td><code>autogen-API</code></td></tr>
+<tr><td>STEP-09</td><td>Schema</td><td><code>autogen-SCHEMA</code></td></tr>
+<tr><td>STEP-10</td><td>Test Plan</td><td><code>autogen-TESTPLAN</code></td></tr>
+<tr><td>STEP-11</td><td>BDD Features</td><td><code>autogen-BDD</code></td></tr>
+<tr><td>STEP-12</td><td>RTM</td><td><code>autogen-RTM</code></td></tr>
+<tr><td>STEP-13+</td><td>Code / Deploy / Test</td><td>不在 autogen 範圍 → 找 mapping 表中前一個 autogen STEP</td></tr>
+</table>
+<p><strong>翻譯邏輯</strong>：若 <code>start_step</code> 指向非文件 STEP（STEP-01、02、13+），往前找最近的文件 STEP 開始。</p>
+<hr>
+<h2>Part B：devsop-idea 修改清單</h2>
+<hr>
+<h3>B-01：移除 Step -0.5（輸入模式選單）</h3>
+<p><strong>目標</strong>：<code>~/.claude/skills/devsop-idea/SKILL.md</code></p>
+<p><strong>來源決策</strong>：PD-01</p>
+<ul><li>刪除整個 <code>## Step -0.5</code> 區塊</li><li>刪除 <code>_QUICK_START</code> / <code>_FULL_AUTO_INPUT</code> 旗標所有引用</li><li>Step 2 澄清提問的執行條件改為純粹依 <code>execution_mode</code>：<code>full-auto</code> → 跳過；<code>interactive</code> → 執行</li></ul>
+<hr>
+<h3>B-02：移除 Step 1.5 的 symlink</h3>
+<p><strong>目標</strong>：<code>~/.claude/skills/devsop-idea/SKILL.md</code></p>
+<p><strong>來源決策</strong>：TF-05</p>
+<ul><li>刪除 <code>ln -sf &quot;$_STATE_FILE&quot; &quot;.devsop-state.json&quot;</code> 這行</li><li>所有引用 <code>.devsop-state.json</code> 固定名稱的地方改為引用 <code>$_STATE_FILE</code></li></ul>
+<hr>
+<h3>B-03：在 Step 1.5 加入 TF-02 守衛邏輯</h3>
+<p><strong>目標</strong>：<code>~/.claude/skills/devsop-idea/SKILL.md</code> — <code>mkdir</code> 之前插入</p>
+<p><strong>來源決策</strong>：TF-01（A）、TF-02（A）</p>
+<pre><code class="">if $_STATE_FILE 不存在：
+  → 全新建路徑
+  → 驗證 $_PROJECT_DIR 不存在
+  → 驗證 GitHub repo 不存在（gh api repos/$_GH_OWNER/$_PROJECT_NAME）
+  → full-auto 衝突時：自動加日期後綴
+  → interactive 衝突時：AskUserQuestion（加後綴 / 指定新名 / 中止）
+  → 通過後才執行 mkdir
+
+elif $_STATE_FILE 存在：
+  → 讀取 state[&quot;skill_source&quot;]
+  → 若非 &quot;devsop-idea&quot; → ABORT（說明衝突原因）
+  → 讀取 completed_steps → 找最後完成 STEP
+  → 驗證最後 STEP 對應的文件是否存在（不做內容細節比對，交給對應的 gen-* skill 負責）
+  → 若文件不存在 → 刪除該 STEP 記錄，重做該 STEP
+  → 從下一 STEP 繼續</code></pre>
+<hr>
+<h3>B-04：在 Session Config 後加入 PM Expert Agent</h3>
+<p><strong>目標</strong>：<code>~/.claude/skills/devsop-idea/SKILL.md</code> — Session Config 之後</p>
+<p><strong>來源決策</strong>：PD-06</p>
+<p>移植 gendoc DOC-01 的完整 PM Expert Agent 邏輯：</p>
+<ul><li>PM Expert 分析 <code>_INPUT_SUMMARY</code>，提取 <code>project_name</code> / <code>project_type</code> / <code>tech_stack_hints</code> / <code>key_features</code> / <code>target_users</code> → 寫入 state</li><li>寫入 <code>skill_source: &quot;devsop-idea&quot;</code> → state</li></ul>
+<hr>
+<h3>B-05：IDEA.md 生成改為呼叫 Skill tool <code>devsop-gen-idea</code></h3>
+<p><strong>目標</strong>：<code>~/.claude/skills/devsop-idea/SKILL.md</code> — IDEA.md 生成步驟</p>
+<p><strong>來源決策</strong>：TF-04（A）、N-7</p>
+<ul><li>移除現有 inline IDEA.md 生成 prompt（無論多少行）</li><li>改為：透過 Skill tool 呼叫 <code>/devsop-gen-idea</code></li><li><code>devsop-gen-idea</code> 讀取 <code>templates/IDEA.md</code>，template 改了 skill 自動適應，<strong>idea 不需做任何修改</strong></li></ul>
+<hr>
+<h3>B-06：新增 IDEA.md Review Loop → 呼叫 <code>devsop-idea-review</code></h3>
+<p><strong>目標</strong>：<code>~/.claude/skills/devsop-idea/SKILL.md</code> — IDEA.md 生成後、BRD 前</p>
+<p><strong>來源決策</strong>：TF-02 user 備註、CQ-03、N-8</p>
+<p>新增步驟，透過 Skill tool 呼叫 <code>/devsop-idea-review</code>：</p>
+<ul><li>輪次由 state 的 <code>review_strategy</code> 換算</li><li>通過後寫 state <code>idea_review_passed: true</code></li></ul>
+<hr>
+<h3>B-07：BRD 生成確認/改為呼叫 <code>devsop-gen-brd</code></h3>
+<p><strong>目標</strong>：<code>~/.claude/skills/devsop-idea/SKILL.md</code></p>
+<p><strong>來源決策</strong>：TF-04（A）</p>
+<p>確認 idea 已透過 Skill tool 呼叫 <code>/devsop-gen-brd</code>。若有 inline BRD 生成 prompt 則移除，改為呼叫。</p>
+<hr>
+<h3>B-08：BRD Review Loop 確認/改呼叫 <code>devsop-brd-review</code></h3>
+<p><strong>目標</strong>：<code>~/.claude/skills/devsop-idea/SKILL.md</code></p>
+<p>確認 BRD Review 已透過 Skill tool 呼叫 <code>/devsop-brd-review</code>。若有 inline review 邏輯則移除，改為呼叫。</p>
+<hr>
+<h3>B-09：Handoff Banner 改呼叫 devsop-shared §HANDOFF-DISPLAY</h3>
+<p><strong>目標</strong>：<code>~/.claude/skills/devsop-idea/SKILL.md</code> — 呼叫 autodev 前</p>
+<p><strong>來源決策</strong>：UX-01、UX-02</p>
+<p>移除現有 Handoff Banner inline 顯示，改為引用 devsop-shared §HANDOFF-DISPLAY 的邏輯（與 gendoc 共用）。</p>
+<hr>
+<h3>B-10：補充 Handoff State 完整寫入</h3>
+<p><strong>目標</strong>：<code>~/.claude/skills/devsop-idea/SKILL.md</code> — 呼叫 autodev 前</p>
+<p><strong>來源決策</strong>：UX-04</p>
+<p>寫入 state：</p>
+<pre><code class="language-json">{
+  &quot;handoff&quot;: true,
+  &quot;brd_path&quot;: &quot;docs/BRD.md&quot;,
+  &quot;idea_path&quot;: &quot;docs/IDEA.md&quot;,
+  &quot;req_dir&quot;: &quot;docs/req&quot;,
+  &quot;handoff_source&quot;: &quot;devsop-idea&quot;
+}</code></pre>
+<p><code>start_step</code> 由 autodev 讀 state 自行決定，不在 idea 內硬編碼。</p>
+<hr>
+<h3>B-11：使用者確認選項統一</h3>
+<p><strong>目標</strong>：<code>~/.claude/skills/devsop-idea/SKILL.md</code> — 確認段落</p>
+<p><strong>來源決策</strong>：UX-03</p>
+<p>選項改為（移除「稍後手動執行」）：</p>
+<ol><li>開始 autodev</li><li>查看/修改 BRD</li><li>重新整理 BRD（重回 Q1-Q5，不重建目錄）</li></ol>
+<hr>
+<h3>B-12：PD-07 舊版文件歸檔邏輯</h3>
+<p><strong>目標</strong>：<code>~/.claude/skills/devsop-idea/SKILL.md</code> — 各文件生成步驟前</p>
+<p><strong>來源決策</strong>：PD-07</p>
+<pre><code class="">if 目標文件存在 AND state 記錄此文件為「已生成」:
+    mv 舊版 → docs/req/old-{filename}-{timestamp}.md
+    重新呼叫 gen-* skill 生成新版
+
+elif 目標文件存在 AND state 無此文件記錄:
+    interactive → AskUserQuestion 如何處理
+    full-auto   → mv 到 docs/req/old-{filename}-{timestamp}.md → 重新呼叫 gen-* skill</code></pre>
+<hr>
+<h3>B-13：每個 STEP 完成後寫入 completed_steps + git commit</h3>
+<p><strong>目標</strong>：<code>~/.claude/skills/devsop-idea/SKILL.md</code></p>
+<p><strong>來源決策</strong>：TF-02、UX-05</p>
+<table>
+<tr><th>時機</th><th>git commit message</th></tr>
+<tr><td>工作空間建立後</td><td><code>chore(devsop-idea): init workspace</code></td></tr>
+<tr><td>IDEA.md 生成後（gen-idea 返回後）</td><td><code>docs(devsop-idea): init IDEA</code> + state <code>idea_generated: true</code></td></tr>
+<tr><td>IDEA Review 每輪</td><td><code>docs(idea-review): round N fixes</code></td></tr>
+<tr><td>IDEA Review 通過</td><td>state <code>idea_review_passed: true</code></td></tr>
+<tr><td>BRD 生成後（gen-brd 返回後）</td><td><code>docs(devsop-idea): init BRD</code> + state <code>brd_generated: true</code></td></tr>
+<tr><td>BRD Review 每輪</td><td><code>docs(brd-review): round N fixes</code></td></tr>
+<tr><td>BRD Review 通過</td><td>state <code>brd_review_passed: true</code></td></tr>
+</table>
+<hr>
+<h2>Part C：devsop-gendoc 修改清單</h2>
+<hr>
+<h3>C-01：前段架構重寫（新增工作空間建立流程）</h3>
+<p><strong>目標</strong>：<code>~/.claude/skills/devsop-gendoc/SKILL.md</code> — Step 0 之前新增前置步驟</p>
+<p><strong>來源決策</strong>：TF-01（A）、TF-06（A）</p>
+<p>新增（對齊 idea Step 0 + Step 1 + Step 1.5）：</p>
+<pre><code class="">§PRE-1：輸入來源偵測（同 idea Step 0-A/0-B：偵測 _INPUT_TYPE，遠端來源立即 WebFetch）
+
+§PRE-2：專案目錄偵測（同 idea Step 1）
+  - 偵測慣用根目錄（~/projects / ~/workspace / ~/code）
+  - interactive → AskUserQuestion 3 選項
+  - full-auto   → $(pwd)/$_PROJECT_SLUG
+
+§PRE-3：工作空間建立 + Session Config（同 idea Step 1.5）
+  - mkdir -p $_PROJECT_DIR/docs &amp;&amp; cd $_PROJECT_DIR
+  - git init
+  - _STATE_FILE=&quot;.devsop-state-${_GIT_USER}-${_GIT_BRANCH}.json&quot;（不要 symlink）
+  - 寫入 skill_source: &quot;devsop-gendoc&quot; → state
+  - Session Config（execution_mode + review_strategy）
+
+§PRE-4：TF-02 守衛（同 B-03，但 skill_source 改為 &quot;devsop-gendoc&quot;）</code></pre>
+<hr>
+<h3>C-02：移除 Step 0-B（gendoc_loop_count）</h3>
+<p><strong>來源決策</strong>：PD-04、TF-03</p>
+<ul><li>刪除整個 <code>## Step 0-B</code> 區塊</li><li>刪除所有 <code>gendoc_loop_count</code> 引用</li><li>Review Loop 的 <code>max_rounds</code> 改為從 state <code>review_strategy</code> 換算（rapid=1 / standard=2 / thorough=3 / exhaustive=5）</li></ul>
+<hr>
+<h3>C-03：移除 Step 0-C（起始步驟詢問）</h3>
+<p><strong>來源決策</strong>：PD-05、TF-02</p>
+<ul><li>刪除整個 <code>## Step 0-C</code> 區塊</li><li>刪除所有 <code>gendoc_start_step</code> 引用</li><li>起始步驟由 TF-02 狀態機自動判斷（讀 <code>completed_steps</code>）</li></ul>
+<hr>
+<h3>C-04：移除 Step 0-E（skip/overwrite/abort），改為 TF-02 守衛</h3>
+<p><strong>來源決策</strong>：TF-02、PD-07</p>
+<ul><li>刪除 Step 0-E 整個區塊</li><li>守衛邏輯已在 C-01 §PRE-4 實施</li><li>文件覆蓋改為 C-16 的 REQ 歸檔邏輯</li></ul>
+<hr>
+<h3>C-05：State File 命名修正</h3>
+<p><strong>來源決策</strong>：TF-05</p>
+<p>全文搜尋 <code>.devsop-state.json</code> 固定名稱 → 改為引用 <code>$_STATE_FILE</code>（已在 C-01 §PRE-3 初始化）</p>
+<hr>
+<h3>C-06：Session Config 移至工作空間建立後</h3>
+<p><strong>來源決策</strong>：TF-06</p>
+<ul><li>從 Step 0 刪除 Session Config 段落</li><li>Session Config 已在 C-01 §PRE-3 中實施</li></ul>
+<hr>
+<h3>C-07：補充 Q1-Q5 澄清步驟</h3>
+<p><strong>修改位置</strong>：素材保存（Step 0-D）之後，IDEA.md 生成前</p>
+<p><strong>來源決策</strong>：PD-02（B）</p>
+<p>新增 <code>## Step Q：需求澄清（Q1-Q5）</code>，與 idea Step 2 完全相同：</p>
+<ul><li>Q1 主要使用者、Q2 核心痛點、Q3 技術限制、Q4 使用規模、Q5 補充</li><li>full-auto → 跳過，AI 自動推斷</li><li><strong>所有輸入類型均執行</strong>（素材是參考資料，不是答案）</li></ul>
+<hr>
+<h3>C-08：補充 Web Research 步驟（3 次 WebSearch）</h3>
+<p><strong>修改位置</strong>：Q1-Q5 澄清後，IDEA.md 生成前</p>
+<p><strong>來源決策</strong>：PD-03（B）</p>
+<p>新增 <code>## Step R：網路背景研究</code>，與 idea Step 3 完全相同：</p>
+<ul><li>3 次 WebSearch（競品+開源 / 技術最佳實踐 / 已知挑戰）</li><li>整合為 <code>_RESEARCH_SUMMARY</code>（注入後續 IDEA.md §8 + BRD §0）</li><li><strong>所有輸入類型均執行</strong></li></ul>
+<hr>
+<h3>C-09：IDEA.md 生成改為呼叫 Skill tool <code>devsop-gen-idea</code></h3>
+<p><strong>來源決策</strong>：TF-04（A）、N-7</p>
+<ul><li>移除現有 DOC-01.5 inline 生成 prompt</li><li>改為透過 Skill tool 呼叫 <code>/devsop-gen-idea</code></li><li>與 B-05 相同邏輯，template 改了自動適應</li></ul>
+<hr>
+<h3>C-10：新增 IDEA.md Review Loop → 呼叫 <code>devsop-idea-review</code></h3>
+<p><strong>修改位置</strong>：DOC-01.5 後，DOC-02 前</p>
+<p><strong>來源決策</strong>：TF-02 user 備註、N-8</p>
+<p>新增 <code>## DOC-01.6：IDEA.md Review Loop</code>，透過 Skill tool 呼叫 <code>/devsop-idea-review</code></p>
+<hr>
+<h3>C-11：BRD 生成確認/改為呼叫 Skill tool <code>devsop-gen-brd</code></h3>
+<p><strong>來源決策</strong>：TF-04（A）</p>
+<p>確認 gendoc DOC-02 已透過 Skill tool 呼叫 <code>/devsop-gen-brd</code>。若有 inline BRD 生成 prompt 則移除，改為呼叫。</p>
+<hr>
+<h3>C-12：BRD Review Loop 確認/改呼叫 <code>devsop-brd-review</code></h3>
+<p>確認 BRD Review 已透過 Skill tool 呼叫 <code>/devsop-brd-review</code>。若有 inline review 邏輯則移除。</p>
+<hr>
+<h3>C-13：修正 codebase_git 複製清單</h3>
+<p><strong>修改位置</strong>：<code>codebase_git</code> 的 for 迴圈</p>
+<p><strong>來源決策</strong>：CQ-06</p>
+<p>補充缺少的三個檔案：</p>
+<pre><code class="language-bash">for _FILE in README.md README.rst README.txt CONTRIBUTING.md \
+             package.json pyproject.toml go.mod Cargo.toml \
+             pom.xml build.gradle; do</code></pre>
+<hr>
+<h3>C-14：Handoff Display 改引用 devsop-shared §HANDOFF-DISPLAY</h3>
+<p><strong>來源決策</strong>：UX-02、UX-01</p>
+<p>移除現有 Handoff Banner inline 顯示邏輯，改為引用 <code>devsop-shared §HANDOFF-DISPLAY</code>（與 idea B-09 共用同一段邏輯）。</p>
+<hr>
+<h3>C-15：使用者確認選項統一</h3>
+<p><strong>來源決策</strong>：UX-03</p>
+<p>選項改為（與 idea B-11 對齊，移除「稍後手動執行」）：</p>
+<ol><li>開始 autogen</li><li>查看/修改 BRD</li><li>重新整理 BRD（重回 Q1-Q5，不重建目錄）</li></ol>
+<hr>
+<h3>C-16：PD-07 舊版文件歸檔邏輯（gendoc 版）</h3>
+<p><strong>來源決策</strong>：PD-07</p>
+<p>與 B-12 相同邏輯。</p>
+<hr>
+<h3>C-17：每個 STEP 完成後寫入 completed_steps + git commit</h3>
+<p><strong>來源決策</strong>：TF-02、UX-05</p>
+<table>
+<tr><th>時機</th><th>git commit message</th></tr>
+<tr><td>工作空間建立後</td><td><code>chore(devsop-gendoc): init workspace</code></td></tr>
+<tr><td>IDEA.md 生成後</td><td><code>docs(devsop-gendoc): init IDEA</code> + state <code>idea_generated: true</code></td></tr>
+<tr><td>IDEA Review 每輪</td><td><code>docs(idea-review): round N fixes</code></td></tr>
+<tr><td>IDEA Review 通過</td><td>state <code>idea_review_passed: true</code></td></tr>
+<tr><td>BRD 生成後</td><td><code>docs(devsop-gendoc): init BRD</code> + state <code>brd_generated: true</code></td></tr>
+<tr><td>BRD Review 每輪</td><td><code>docs(brd-review): round N fixes</code></td></tr>
+<tr><td>BRD Review 通過</td><td>state <code>brd_review_passed: true</code></td></tr>
+</table>
+<hr>
+<h2>Part D：autogen 修改清單</h2>
+<hr>
+<h3>D-01：新增 autodev↔autogen 步驟對照表（已在 A-06 定義）</h3>
+<p><strong>目標</strong>：<code>skills/devsop-autogen/SKILL.md</code> — 文件最前端新增 <code>§STEP-MAPPING</code></p>
+<p>詳見 A-06 的對照表。讀取 state 的 <code>start_step</code> → 翻譯為 autogen STEP → 開始執行。</p>
+<hr>
+<h3>D-02：修正 Handoff State 讀取</h3>
+<p><strong>來源決策</strong>：UX-04</p>
+<ul><li>讀取 state <code>handoff_source</code>（<code>devsop-idea</code> 或 <code>devsop-gendoc</code>）</li><li>若 <code>brd_review_passed=true</code> → 跳過 BRD 生成步驟</li><li>若 <code>idea_review_passed=true</code> → 跳過 IDEA.md 生成步驟</li></ul>
+<hr>
+<h3>D-03：確認所有文件生成呼叫 gen-* skills</h3>
+<p><strong>來源決策</strong>：TF-04（A）</p>
+<p>確認 autogen 已透過 Skill tool 呼叫對應的 gen-<em> skill（<code>/devsop-gen-prd</code>、<code>/devsop-gen-pdd</code> 等）。若有 inline 生成邏輯則移除，改為呼叫。<strong>template 改了，gen-</em> skill 會自動適應，autogen 不需修改。</strong></p>
+<hr>
+<h2>Part E：autodev 修改清單</h2>
+<hr>
+<h3>E-01：確認所有文件生成呼叫 gen-* skills</h3>
+<p><strong>來源決策</strong>：TF-04（A）</p>
+<p>與 D-03 相同。確認 autodev 文件生成步驟已呼叫 gen-* skills，若有 inline 生成邏輯則移除。</p>
+<hr>
+<h3>E-02：補充 IDEA.md Review Loop</h3>
+<p><strong>來源決策</strong>：TF-02 user 備註、N-8</p>
+<p>autodev 的 IDEA.md 生成後，透過 Skill tool 呼叫 <code>/devsop-idea-review</code>（與 B-06、C-10 相同）。</p>
+<hr>
+<h3>E-03：State file 命名確認</h3>
+<p><strong>來源決策</strong>：TF-05</p>
+<p>確認 autodev 使用動態命名 <code>.devsop-state-{git_user}-{branch}.json</code>，無 symlink，無固定名稱讀取。若有則修正（同 A-05）。</p>
+<hr>
+<h2>實施路徑</h2>
+<table>
+<tr><th>優先序</th><th>工作項目</th><th>前提條件</th></tr>
+<tr><td><strong>P0（基礎）</strong></td><td>A-01, A-02, A-03, A-04, A-05, A-06</td><td>無</td></tr>
+<tr><td><strong>P1（idea 核心）</strong></td><td>B-01, B-02, B-03, B-04</td><td>A-03, A-04</td></tr>
+<tr><td><strong>P1（gendoc 核心）</strong></td><td>C-01, C-02, C-03, C-04, C-05, C-06</td><td>A-03, A-04</td></tr>
+<tr><td><strong>P2（文件生成委派）</strong></td><td>B-05, B-07, C-09, C-11, D-03, E-01</td><td>A-01（gen-idea 存在後 B-05/C-09 才能呼叫）</td></tr>
+<tr><td><strong>P2（Review Loop）</strong></td><td>B-06, B-08, C-10, C-12, E-02</td><td>A-02（idea-review 存在後才能呼叫）</td></tr>
+<tr><td><strong>P3（流程補充）</strong></td><td>C-07, C-08, B-12, C-16</td><td>P1 完成</td></tr>
+<tr><td><strong>P3（UX 對齊）</strong></td><td>B-09, B-11, C-14, C-15</td><td>A-03（HANDOFF-DISPLAY 存在後）</td></tr>
+<tr><td><strong>P4（下游 skill）</strong></td><td>D-01, D-02</td><td>A-06</td></tr>
+<tr><td><strong>P5（收尾）</strong></td><td>B-13, C-13, C-17, E-03</td><td>P1, P2, P3</td></tr>
+</table>
+<hr>
+<p><em>此文件由 MYDEVSOP 框架維護。最後更新：2026-04-22</em></p></main>
+  </div>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({startOnLoad:true,theme:'default',
+      flowchart:{curve:'basis',nodeSpacing:60,rankSpacing:80},
+      er:{layoutDirection:'TD',minEntityWidth:100,fontSize:12},
+      sequence:{actorMargin:60,messageMargin:30}});
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-yaml.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-sql.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-go.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-typescript.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-json.min.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>

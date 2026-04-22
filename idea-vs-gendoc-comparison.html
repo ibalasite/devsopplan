@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Idea-Vs-Gendoc-Comparison — MYDEVSOP</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body>
+  <header class="top-nav">
+    <a href="index.html" class="nav-brand">MYDEVSOP</a>
+    <div class="nav-controls">
+      <div class="search-wrap">
+        <input class="search-input" type="search" placeholder="搜尋文件...">
+        <div class="search-results"></div>
+      </div>
+      <a class="nav-gh-link" href="https://github.com/ibalasite/MYDEVSOP" target="_blank" rel="noopener">⌥ GitHub</a>
+      <button class="sidebar-toggle" id="sidebarToggle" title="收合/展開側欄">☰</button>
+    </div>
+  </header>
+  <div class="doc-page-banner">
+    <p class="banner-breadcrumb"><a href="index.html">MYDEVSOP</a> › Idea-Vs-Gendoc-Comparison</p>
+    <h1 class="banner-title">Idea-Vs-Gendoc-Comparison</h1>
+  </div>
+  <div class="page-wrapper">
+    <aside class="sidebar" aria-label="文件導覽">
+      <div class="sidebar__section">
+        <div class="sidebar__label">文件</div>
+        <a class="sidebar__link" href="index.html">🏠 首頁</a>
+<a class="sidebar__link" href="prd.html">📝 產品需求文件 (PRD)</a>
+<a class="sidebar__link" href="migration_tracker.html">📄 Migration Tracker</a>
+<a class="sidebar__link" href="product_review.html">📄 Product Review</a>
+<a class="sidebar__link" href="requirements.html">📄 Requirements</a>
+<a class="sidebar__link" href="solution_roadmap.html">📄 Solution Roadmap</a>
+<a class="sidebar__link active" href="idea-vs-gendoc-comparison.html">📄 Idea-Vs-Gendoc-Comparison</a>
+<a class="sidebar__link" href="implementation-list.html">📄 Implementation-List</a>
+<a class="sidebar__link" href="modification-decisions.html">📄 Modification-Decisions</a>
+      </div>
+    </aside>
+    <div class="sidebar-resizer" id="sidebarResizer"></div>
+    <main class="doc-content"><h1>devsop-idea vs devsop-gendoc 詳細比較與決策表</h1>
+<blockquote><p><strong>用途</strong>：逐項比對兩個 skill 的實作方式，並記錄最優方案決策。</p></blockquote>
+<blockquote><p><strong>填寫方式</strong>：在「決策」欄填入選擇，例如：<code>idea做法</code> / <code>gendoc做法</code> / <code>兩者補齊</code> / <code>保持不同</code> / <code>刪除</code></p></blockquote>
+<blockquote><p><strong>更新日期</strong>：2026-04-22</p></blockquote>
+<hr>
+<h2>凡例</h2>
+<table>
+<tr><th>符號</th><th>說明</th></tr>
+<tr><td>✅</td><td>有此功能</td></tr>
+<tr><td>❌</td><td>無此功能</td></tr>
+<tr><td>～</td><td>有但做法不同</td></tr>
+<tr><td>→</td><td>建議採用方向</td></tr>
+</table>
+<hr>
+<h2>STEP 0：Frontmatter / 基本設定</h2>
+<table>
+<tr><th>#</th><th>項目</th><th>idea 作法</th><th>gendoc 作法</th><th>決策</th></tr>
+<tr><td>0-1</td><td>allowed-tools：WebSearch</td><td>✅ 有</td><td>❌ 無</td><td>gendoc 要有allowed-tools：WebSearch</td></tr>
+<tr><td>0-2</td><td>allowed-tools：WebFetch</td><td>✅ 有</td><td>✅ 有</td><td></td></tr>
+<tr><td>0-3</td><td>allowed-tools：Edit</td><td>✅ 有</td><td>✅ 有</td><td></td></tr>
+<tr><td>0-4</td><td>State file 命名</td><td>動態：<code>.devsop-state-{user}-{branch}.json</code> + symlink</td><td>固定：<code>.devsop-state.json</code></td><td>gendoc 要跟idea 一樣</td></tr>
+<tr><td>0-5</td><td>銜接下游 skill</td><td>→ <code>devsop-autodev</code>（程式碼+部署）</td><td>→ <code>devsop-autogen</code>（純文件）</td><td></td></tr>
+<tr><td>0-6</td><td>description 說明多元輸入</td><td>✅ 明確列出 7 種輸入類型</td><td>✅ 明確列出 7 種輸入類型</td><td></td></tr>
+</table>
+<hr>
+<h2>STEP -1：版本自動更新檢查</h2>
+<table>
+<tr><th>#</th><th>項目</th><th>idea 作法</th><th>gendoc 作法</th><th>決策</th></tr>
+<tr><td>M1-1</td><td>靜默檢查版本 + 有新版時 Agent 執行 <code>/devsop-update</code></td><td>✅ 遵循 devsop-shared §-1</td><td>✅ 遵循 devsop-shared §-1</td><td></td></tr>
+</table>
+<hr>
+<h2>STEP -0.5：輸入模式選擇</h2>
+<table>
+<tr><th>#</th><th>項目</th><th>idea 作法</th><th>gendoc 作法</th><th>決策</th></tr>
+<tr><td>A1</td><td>輸入模式選單（多輪訪談 / Quick Start / AI自動填入）</td><td>✅ 有，設定 <code>_QUICK_START</code> 與 <code>_FULL_AUTO_INPUT</code> 旗標</td><td>❌ 無此步驟</td><td>idea 移除</td></tr>
+<tr><td>A2</td><td>根據輸入字數（≤30字）預判為「較短描述」</td><td>✅ 有</td><td>❌ 無</td><td>idea 移除</td></tr>
+<tr><td>A3</td><td>full-auto 快速路徑（跳過選單，直設 <code>_FULL_AUTO_INPUT=true</code>）</td><td>✅ 有</td><td>❌ 無（因為無此步驟）</td><td>idea 移除</td></tr>
+</table>
+<hr>
+<h2>STEP 0：Session Config / 輸入來源偵測</h2>
+<table>
+<tr><th>#</th><th>項目</th><th>idea 作法</th><th>gendoc 作法</th><th>決策</th></tr>
+<tr><td>B1</td><td>Session Config 執行時機</td><td>Step 1.5（建立工作空間後）</td><td>Step 0（最早，進入即執行）</td><td>gendoc 也要建立空間後</td></tr>
+<tr><td>B2</td><td>Session Config 內容（execution_mode + review_strategy）</td><td>✅ 遵循 devsop-shared §0</td><td>✅ 遵循 devsop-shared §0</td><td></td></tr>
+<tr><td>B3</td><td>沿用已設定值（<code>_EXEC_MODE</code> 非空時靜默繼續）</td><td>✅ 有</td><td>✅ 有</td><td></td></tr>
+<tr><td>B4</td><td>full-auto 下自動套用 <code>standard</code> review_strategy</td><td>✅ 有</td><td>✅ 有</td><td></td></tr>
+</table>
+<hr>
+<h2>STEP 0-B：Loop Count 精修輪數</h2>
+<table>
+<tr><th>#</th><th>項目</th><th>idea 作法</th><th>gendoc 作法</th><th>決策</th></tr>
+<tr><td>C1</td><td>每份文件精修輪數詢問（1-5 輪選單）</td><td>❌ 無（用 review_strategy 換算 max_rounds）</td><td>✅ 有，key=<code>gendoc_loop_count</code>，預設 2</td><td>idea, gendoc都不能自創，要用共用的選項，選項是從config設定的，也就是有設定好state就自動執行，若連state都沒建就如同呼叫devsop-config出來設定再往下走</td></tr>
+<tr><td>C2</td><td>輪數存入 state file</td><td>❌ 無獨立 key</td><td>✅ <code>gendoc_loop_count</code></td><td>idea, gendoc都不能自創，要用共用的選項，選項是從config設定的，也就是有設定好state就自動執行，若連state都沒建就如同呼叫devsop-config出來設定再往下走</td></tr>
+<tr><td>C3</td><td>full-auto 下沿用已設定值或預設 2</td><td>❌</td><td>✅ 有</td><td>idea, gendoc都不能自創，要用共用的選項，選項是從config設定的，也就是有設定好state就自動執行，若連state都沒建就如同呼叫devsop-config出來設定再往下走</td></tr>
+<tr><td>C4</td><td>interactive 下用 AskUserQuestion 詢問輪數</td><td>❌</td><td>✅ 有</td><td>idea, gendoc都不能自創，要用共用的選項，選項是從config設定的，也就是有設定好state就自動執行，若連state都沒建就如同呼叫devsop-config出來設定再往下走</td></tr>
+</table>
+<hr>
+<h2>STEP 0-C：起始步驟選擇（斷點續跑）</h2>
+<table>
+<tr><th>#</th><th>項目</th><th>idea 作法</th><th>gendoc 作法</th><th>決策</th></tr>
+<tr><td>D1</td><td>可從任意步驟開始（<code>_START_STEP</code>）</td><td>❌ 無，永遠從 Step -0.5 開始</td><td>✅ 有，可選 DOC-01～DOC-12，key=<code>gendoc_start_step</code></td><td>idea follow devsop-config的設定與設定流程，gendoc有自己的step, 但編號會讓人看不懂，可以01-IDEA, 02-BRD, 03-PDD, 04-EDD, ....後面以此類推，這樣比較能知道有那些檔可以產生</td></tr>
+<tr><td>D2</td><td>full-auto 下從 Step 1 開始，已存在文件靜默跳過</td><td>❌ 無 skip 邏輯</td><td>✅ 有 <code>_OVERWRITE_MODE=skip</code></td><td>idea, gendoc 不要用跳過邏輯，要把舊版當參考來源，放進REQ，然後再產生新的，這樣能重跑新資料，又能記錄過去的情況</td></tr>
+<tr><td>D3</td><td>interactive 下用 AskUserQuestion 詢問起始步驟</td><td>❌</td><td>✅ 有</td><td>兩個都不要創造新的互動模式下，應該是呼叫config 出來問，若之前有呼叫要合成一個問就好，不要到處都要問一次</td></tr>
+</table>
+<hr>
+<h2>STEP 0-D / 0-E：輸入來源解析 + Output Directory Guard</h2>
+<table>
+<tr><th>#</th><th>項目</th><th>idea 作法</th><th>gendoc 作法</th><th>決策</th></tr>
+<tr><td>E1</td><td>7 種輸入類型偵測表（text/image/url/git/local/codebase...）</td><td>✅ Step 0-A</td><td>✅ Step 0-D-2</td><td></td></tr>
+<tr><td>E2</td><td>遠端來源（image_url/doc_url/doc_git）立即 WebFetch + 提取摘要</td><td>✅ Step 0-B</td><td>✅ Step 0-D-3</td><td></td></tr>
+<tr><td>E3</td><td>本地來源（doc_local/codebase_local）記錄路徑，稍後處理</td><td>✅ Step 0-B（待 Step 1.6）</td><td>✅ Step 0-D-3（待建立 req/）</td><td></td></tr>
+<tr><td>E4</td><td>codebase_git → mktemp clone + cp 關鍵檔 + rm tmp</td><td>✅ Step 1.6</td><td>✅ Step 0-D-3</td><td></td></tr>
+<tr><td>E5</td><td>codebase 複製清單（README.md/rst/txt、package.json、go.mod、Cargo.toml、pom.xml、build.gradle）</td><td>✅ 有 README.txt / pom.xml / build.gradle</td><td>❌ 缺 README.txt / pom.xml / build.gradle</td><td>gendoc 把缺的補上</td></tr>
+<tr><td>E6</td><td>docs/ 子目錄複製（<code>cp -r source/docs/ → req/source-docs/</code>）</td><td>✅ 有</td><td>✅ 有</td><td></td></tr>
+<tr><td>E7</td><td><code>_INPUT_TYPE</code> / <code>_INPUT_SUMMARY</code> / <code>req_dir</code> 寫入 state</td><td>✅ 有</td><td>✅ 有</td><td></td></tr>
+<tr><td>E8</td><td><strong>Output Directory Guard</strong>（docs/ 已存在時詢問 skip/overwrite/abort）</td><td>❌ 無</td><td>✅ Step 0-E</td><td>從idea, gendoc 出發都是要建新系統或新文件，因此在此之前就要決定要建在那一個目錄，而且要能標示是我們這個方法做出來的目錄，但有些情況是做一半，中斷了要接續回來做，在該新建目錄要能讀出狀態來了解之前做到那了，然後接著做，而這個保護要能判斷是全新建，那就絕對不能去建一個己經存在的目錄以及遠端REPO不能存在的才能建，而若是建一半掛的，狀態會告訴這個流程我們做到那接著做，而且檢查最後那一個STEP做的事有沒有做完，沒做完要把最後一個STEP全重做，再走下一個STEP</td></tr>
+<tr><td>E9</td><td>full-auto 下 docs/ 已存在時自動 skip</td><td>❌</td><td>✅ 有</td><td>兩個都是看狀態處理</td></tr>
+<tr><td>E10</td><td>interactive 下 docs/ 已存在時用 AskUserQuestion 詢問</td><td>❌</td><td>✅ 有（3選項：skip/overwrite/abort）</td><td>兩個都是看狀態處理</td></tr>
+</table>
+<hr>
+<h2>STEP 1：專案目錄設定</h2>
+<table>
+<tr><th>#</th><th>項目</th><th>idea 作法</th><th>gendoc 作法</th><th>決策</th></tr>
+<tr><td>F1</td><td>偵測慣用根目錄（~/projects / ~/workspace / ~/code）</td><td>✅ 有</td><td>❌ 在當前目錄執行</td><td>要跟idea一樣，但兩者都要尊守這個原則&quot;從idea, gendoc 出發都是要建新系統或新文件，因此在此之前就要決定要建在那一個目錄，而且要能標示是我們這個方法做出來的目錄，但有些情況是做一半，中斷了要接續回來做，在該新建目錄要能讀出狀態來了解之前做到那了，然後接著做，而這個保護要能判斷是全新建，那就絕對不能去建一個己經存在的目錄以及遠端REPO不能存在的才能建，而若是建一半掛的，狀態會告訴這個流程我們做到那接著做，而且檢查最後那一個STEP做的事有沒有做完，沒做完要把最後一個STEP全重做，再走下一個STEP&quot;</td></tr>
+<tr><td>F2</td><td>AskUserQuestion 選擇目錄位置（3選項）</td><td>✅ 有</td><td>❌ 無</td><td>gendoc 在互動模式下，也要有, 自動兩者都是AI選</td></tr>
+<tr><td>F3</td><td>full-auto 下使用 <code>$(pwd)/$_PROJECT_SLUG</code></td><td>✅ 有</td><td>❌ 無</td><td>gendoc要跟idea一樣</td></tr>
+<tr><td>F4</td><td><code>mkdir -p $_PROJECT_DIR/docs</code> + <code>cd</code></td><td>✅ Step 1.5</td><td>❌ 無（假設已在目錄）</td><td>gendoc 要跟idea要在最前面</td></tr>
+<tr><td>F5</td><td><code>git init</code></td><td>✅ Step 1.5</td><td>❌ 無</td><td></td></tr>
+<tr><td>F6</td><td>git user 設定含 fallback（whoami）</td><td>✅ Step 1.5</td><td>❌ 無</td><td>gendoc要跟idea一樣</td></tr>
+</table>
+<hr>
+<h2>STEP 1.5 / DOC-01 等：專案初始化 + 衝突檢查</h2>
+<table>
+<tr><th>#</th><th>項目</th><th>idea 作法</th><th>gendoc 作法</th><th>決策</th></tr>
+<tr><td>G1</td><td>PM Expert Agent 分析輸入，提取 project_name / type / features / target_users</td><td>❌ 無獨立步驟</td><td>✅ DOC-01</td><td>idea 要跟gendoc 一樣</td></tr>
+<tr><td>G2</td><td><strong>父目錄衝突檢查</strong>（<code>$_PARENT_DIR/$_PROJECT_NAME</code> 是否存在）</td><td>❌ 無</td><td>✅ DOC-01</td><td>要一致，兩者都要尊守這個原則&quot;從idea, gendoc 出發都是要建新系統或新文件，因此在此之前就要決定要建在那一個目錄，而且要能標示是我們這個方法做出來的目錄，但有些情況是做一半，中斷了要接續回來做，在該新建目錄要能讀出狀態來了解之前做到那了，然後接著做，而這個保護要能判斷是全新建，那就絕對不能去建一個己經存在的目錄以及遠端REPO不能存在的才能建，而若是建一半掛的，狀態會告訴這個流程我們做到那接著做，而且檢查最後那一個STEP做的事有沒有做完，沒做完要把最後一個STEP全重做，再走下一個STEP&quot;</td></tr>
+<tr><td>G3</td><td><strong>GitHub repo 衝突檢查</strong>（<code>gh api repos/owner/name</code>）</td><td>❌ 無</td><td>✅ DOC-01</td><td>要一致，兩者都要尊守這個原則&quot;從idea, gendoc 出發都是要建新系統或新文件，因此在此之前就要決定要建在那一個目錄，而且要能標示是我們這個方法做出來的目錄，但有些情況是做一半，中斷了要接續回來做，在該新建目錄要能讀出狀態來了解之前做到那了，然後接著做，而這個保護要能判斷是全新建，那就絕對不能去建一個己經存在的目錄以及遠端REPO不能存在的才能建，而若是建一半掛的，狀態會告訴這個流程我們做到那接著做，而且檢查最後那一個STEP做的事有沒有做完，沒做完要把最後一個STEP全重做，再走下一個STEP&quot;</td></tr>
+<tr><td>G4</td><td>衝突時 interactive：詢問加後綴/手動指定/忽略</td><td>❌</td><td>✅ 有</td><td>要一致，兩者都要尊守這個原則&quot;從idea, gendoc 出發都是要建新系統或新文件，因此在此之前就要決定要建在那一個目錄，而且要能標示是我們這個方法做出來的目錄，但有些情況是做一半，中斷了要接續回來做，在該新建目錄要能讀出狀態來了解之前做到那了，然後接著做，而這個保護要能判斷是全新建，那就絕對不能去建一個己經存在的目錄以及遠端REPO不能存在的才能建，而若是建一半掛的，狀態會告訴這個流程我們做到那接著做，而且檢查最後那一個STEP做的事有沒有做完，沒做完要把最後一個STEP全重做，再走下一個STEP&quot;</td></tr>
+<tr><td>G5</td><td>衝突時 full-auto：自動加日期後綴 <code>$NAME-$(date +%Y%m%d)</code></td><td>❌</td><td>✅ 有</td><td>要一致，兩者都要尊守這個原則&quot;從idea, gendoc 出發都是要建新系統或新文件，因此在此之前就要決定要建在那一個目錄，而且要能標示是我們這個方法做出來的目錄，但有些情況是做一半，中斷了要接續回來做，在該新建目錄要能讀出狀態來了解之前做到那了，然後接著做，而這個保護要能判斷是全新建，那就絕對不能去建一個己經存在的目錄以及遠端REPO不能存在的才能建，而若是建一半掛的，狀態會告訴這個流程我們做到那接著做，而且檢查最後那一個STEP做的事有沒有做完，沒做完要把最後一個STEP全重做，再走下一個STEP&quot;</td></tr>
+<tr><td>G6</td><td>初始化完成後輸出 <code>project_name</code> / <code>project_type</code></td><td>❌</td><td>✅ 有</td><td>要一致，兩者都要尊守這個原則&quot;從idea, gendoc 出發都是要建新系統或新文件，因此在此之前就要決定要建在那一個目錄，而且要能標示是我們這個方法做出來的目錄，但有些情況是做一半，中斷了要接續回來做，在該新建目錄要能讀出狀態來了解之前做到那了，然後接著做，而這個保護要能判斷是全新建，那就絕對不能去建一個己經存在的目錄以及遠端REPO不能存在的才能建，而若是建一半掛的，狀態會告訴這個流程我們做到那接著做，而且檢查最後那一個STEP做的事有沒有做完，沒做完要把最後一個STEP全重做，再走下一個STEP&quot;</td></tr>
+</table>
+<hr>
+<h2>STEP 1.6 / Step 0-D：素材保存至 docs/req/</h2>
+<table>
+<tr><th>#</th><th>項目</th><th>idea 作法</th><th>gendoc 作法</th><th>決策</th></tr>
+<tr><td>H1</td><td><code>mkdir -p docs/req</code></td><td>✅ <code>$_PROJECT_DIR/docs/req</code></td><td>✅ <code>$(pwd)/docs/req</code></td><td>要一致，兩者都要尊守這個原則&quot;從idea, gendoc 出發都是要建新系統或新文件，因此在此之前就要決定要建在那一個目錄，而且要能標示是我們這個方法做出來的目錄，但有些情況是做一半，中斷了要接續回來做，在該新建目錄要能讀出狀態來了解之前做到那了，然後接著做，而這個保護要能判斷是全新建，那就絕對不能去建一個己經存在的目錄以及遠端REPO不能存在的才能建，而若是建一半掛的，狀態會告訴這個流程我們做到那接著做，而且檢查最後那一個STEP做的事有沒有做完，沒做完要把最後一個STEP全重做，再走下一個STEP&quot;</td></tr>
+<tr><td>H2</td><td>READ-ONLY 原則聲明（嚴禁寫入原始來源）</td><td>✅ 有</td><td>✅ 有</td><td></td></tr>
+<tr><td>H3</td><td>text_idea → <code>docs/req/idea-input.md</code></td><td>✅ 有</td><td>✅ 有</td><td></td></tr>
+<tr><td>H4</td><td>image_url → <code>docs/req/image-analysis.md</code>（含原始 URL）</td><td>✅ 有</td><td>✅ 有</td><td></td></tr>
+<tr><td>H5</td><td>doc_url → <code>docs/req/source-url.md</code></td><td>✅ 有</td><td>✅ 有</td><td></td></tr>
+<tr><td>H6</td><td>doc_git → <code>docs/req/source-git.md</code></td><td>✅ 有</td><td>✅ 有</td><td></td></tr>
+<tr><td>H7</td><td>doc_local → <code>cp</code> 原檔到 req/ + 更新 <code>_IDEA</code> 為檔案摘要</td><td>✅ 有</td><td>✅ 有</td><td></td></tr>
+<tr><td>H8</td><td>codebase_local → tree + cp 關鍵檔 + cp docs/ + 更新 <code>_IDEA</code></td><td>✅ 有</td><td>✅ 有</td><td></td></tr>
+<tr><td>H9</td><td>codebase_git → clone + cp + rm tmp + 更新 <code>_IDEA</code></td><td>✅ 有</td><td>✅ 有</td><td></td></tr>
+<tr><td>H10</td><td>req/ 空時建立 <code>.gitkeep</code></td><td>✅ 有</td><td>✅ 有</td><td></td></tr>
+<tr><td>H11</td><td>完成後 <code>ls -la docs/req/</code></td><td>✅ 有</td><td>✅ 有</td><td></td></tr>
+</table>
+<hr>
+<h2>STEP 2：需求澄清（Q1-Q5）</h2>
+<table>
+<tr><th>#</th><th>項目</th><th>idea 作法</th><th>gendoc 作法</th><th>決策</th></tr>
+<tr><td>I1</td><td>Q1 主要使用者（AskUserQuestion，3-4 選項）</td><td>✅ 有</td><td>❌ 無（從素材推斷）</td><td>gendoc 也要有</td></tr>
+<tr><td>I2</td><td>Q2 核心痛點（AskUserQuestion，3-4 選項）</td><td>✅ 有</td><td>❌</td><td>gendoc 也要有</td></tr>
+<tr><td>I3</td><td>Q3 技術限制或偏好（AskUserQuestion，3-4 選項）</td><td>✅ 有</td><td>❌</td><td>gendoc 也要有</td></tr>
+<tr><td>I4</td><td>Q4 預期使用規模（動態追問，Q3 選無限制時觸發）</td><td>✅ 有</td><td>❌</td><td>gendoc 也要有</td></tr>
+<tr><td>I5</td><td>Q5 其他補充（動態追問，Q2 模糊時觸發）</td><td>✅ 有</td><td>❌</td><td>gendoc 也要有</td></tr>
+<tr><td>I6</td><td>full-auto 下跳過全部，AI 自動推斷所有欄位</td><td>✅ 有</td><td>❌（無此步驟）</td><td>gendoc 也要有</td></tr>
+</table>
+<hr>
+<h2>STEP 3：網路背景研究</h2>
+<table>
+<tr><th>#</th><th>項目</th><th>idea 作法</th><th>gendoc 作法</th><th>決策</th></tr>
+<tr><td>J1</td><td>3 次 WebSearch（競品+開源 / 技術最佳實踐 / 已知挑戰）</td><td>✅ 有</td><td>❌ 無</td><td>gendoc 也要有</td></tr>
+<tr><td>J2</td><td><code>_RESEARCH_SUMMARY</code>（競品/技術建議/已知風險）</td><td>✅ 有</td><td>❌</td><td>gendoc 也要有</td></tr>
+<tr><td>J3</td><td><code>_RESEARCH_COUNT</code>（找到的參考資源數）</td><td>✅ 有</td><td>❌</td><td>gendoc 也要有</td></tr>
+<tr><td>J4</td><td>研究結果進入 BRD §0 + IDEA.md Appendix A</td><td>✅ 有</td><td>❌</td><td>gendoc 也要有</td></tr>
+</table>
+<hr>
+<h2>STEP 4 / 初始 git commit</h2>
+<table>
+<tr><th>#</th><th>項目</th><th>idea 作法</th><th>gendoc 作法</th><th>決策</th></tr>
+<tr><td>K1</td><td>確認工作空間（<code>pwd</code>）</td><td>✅ Step 4</td><td>❌ 無獨立步驟</td><td>gendoc 也要有,兩者都要尊守這個原則&quot;從idea, gendoc 出發都是要建新系統或新文件，因此在此之前就要決定要建在那一個目錄，而且要能標示是我們這個方法做出來的目錄，但有些情況是做一半，中斷了要接續回來做，在該新建目錄要能讀出狀態來了解之前做到那了，然後接著做，而這個保護要能判斷是全新建，那就絕對不能去建一個己經存在的目錄以及遠端REPO不能存在的才能建，而若是建一半掛的，狀態會告訴這個流程我們做到那接著做，而且檢查最後那一個STEP做的事有沒有做完，沒做完要把最後一個STEP全重做，再走下一個STEP&quot;</td></tr>
+<tr><td>K2</td><td><code>git add .gitkeep &amp;&amp; git commit -m &quot;chore: init&quot;</code></td><td>✅ Step 4</td><td>❌</td><td>gendoc 也要有,兩者都要尊守這個原則&quot;從idea, gendoc 出發都是要建新系統或新文件，因此在此之前就要決定要建在那一個目錄，而且要能標示是我們這個方法做出來的目錄，但有些情況是做一半，中斷了要接續回來做，在該新建目錄要能讀出狀態來了解之前做到那了，然後接著做，而這個保護要能判斷是全新建，那就絕對不能去建一個己經存在的目錄以及遠端REPO不能存在的才能建，而若是建一半掛的，狀態會告訴這個流程我們做到那接著做，而且檢查最後那一個STEP做的事有沒有做完，沒做完要把最後一個STEP全重做，再走下一個STEP&quot;</td></tr>
+</table>
+<hr>
+<h2>STEP 5 / DOC-02：BRD 生成</h2>
+<table>
+<tr><th>#</th><th>項目</th><th>idea 作法</th><th>gendoc 作法</th><th>決策</th></tr>
+<tr><td>L1</td><td>讀取 MYDEVSOP template（<code>$_REPO/templates/BRD.md</code>）</td><td>✅ 有</td><td>❌ 無（直接以 Agent 生成）</td><td>gendoc 也要有</td></tr>
+<tr><td>L2</td><td>Document Control 欄（DOC-ID/版本/狀態/作者/日期/建立方式）</td><td>✅ 有</td><td>✅ 有</td><td></td></tr>
+<tr><td>L3</td><td>§0 背景研究（from <code>_RESEARCH_SUMMARY</code>）</td><td>✅ 有</td><td>❌ 無研究結果</td><td>gendoc 也要有</td></tr>
+<tr><td>L4</td><td>§1 Executive Summary（PR-FAQ 風格，假設新聞稿+FAQ）</td><td>✅ 有</td><td>✅ 有 Executive Summary</td><td></td></tr>
+<tr><td>L5</td><td>§2 Problem Statement（5 Whys + 問題規模 TAM/SAM/SOM）</td><td>✅ 有</td><td>❌ 無 5 Whys 詳細版</td><td>gendoc 也要有</td></tr>
+<tr><td>L6</td><td>§3 Business Objectives（SMART 目標，含 ROI 3情境）</td><td>✅ 有</td><td>✅ 有 Business Objectives</td><td>gendoc 要跟idea一樣</td></tr>
+<tr><td>L7</td><td>§3.4 RTM（業務目標→成功指標→REQ-ID 對應）</td><td>✅ 有</td><td>❌ 無</td><td>gendoc 也要有</td></tr>
+<tr><td>L8</td><td>§3.5 Benefits Realization Plan（3M/6M/12M 效益測量）</td><td>✅ 有</td><td>❌ 無</td><td>gendoc 也要有</td></tr>
+<tr><td>L9</td><td>§4 Stakeholders（含 Target Users / Not Our Users / RACI）</td><td>✅ 有</td><td>✅ 有 Stakeholders</td><td>gendoc 要跟idea一樣</td></tr>
+<tr><td>L10</td><td>§5 Proposed Solution（MoSCoW + Value Proposition Canvas）</td><td>✅ 有</td><td>✅ 有 Scope In/Out</td><td>gendoc 要跟idea一樣</td></tr>
+<tr><td>L11</td><td>§6 Market &amp; Competitive Analysis（來自研究）</td><td>✅ 有</td><td>❌ 無（無研究步驟）</td><td>gendoc 要跟idea一樣</td></tr>
+<tr><td>L12</td><td>§7 Success Metrics（North Star + 業務指標階層 + Go/No-Go）</td><td>✅ 有</td><td>✅ 有 Success Metrics</td><td>gendoc 要跟idea一樣</td></tr>
+<tr><td>L13</td><td>§8 Constraints &amp; Assumptions</td><td>✅ 有</td><td>✅ 有 Constraints</td><td>gendoc 要跟idea一樣</td></tr>
+<tr><td>L14</td><td>§9 Regulatory &amp; Compliance（含 DPIA/Data Governance/IP）</td><td>✅ 有</td><td>❌ 無</td><td>gendoc 要跟idea一樣</td></tr>
+<tr><td>L15</td><td>§10 Risk Assessment（≥3 項，含 Mitigation）</td><td>✅ 有</td><td>✅ 有 Risk Register</td><td>gendoc 要跟idea一樣</td></tr>
+<tr><td>L16</td><td>§11 Business Model（商業模式畫布 + Unit Economics）</td><td>✅ 有</td><td>❌ 無</td><td>gendoc 要跟idea一樣</td></tr>
+<tr><td>L17</td><td>§12 High-Level Roadmap（Mermaid timeline）</td><td>✅ 有</td><td>❌ 無</td><td>gendoc 要跟idea一樣</td></tr>
+<tr><td>L18</td><td>§13 Dependencies（含 Vendor Tier 1/2/3 退出計畫）</td><td>✅ 有</td><td>❌ 無</td><td>gendoc 要跟idea一樣</td></tr>
+<tr><td>L19</td><td>§14 Open Questions</td><td>✅ 有</td><td>❌ 無</td><td>gendoc 要跟idea一樣</td></tr>
+<tr><td>L20</td><td>§15 Decision Log</td><td>✅ 有</td><td>❌ 無</td><td>gendoc 要跟idea一樣</td></tr>
+<tr><td>L21</td><td>§16 Glossary</td><td>✅ 有</td><td>❌ 無</td><td>gendoc 要跟idea一樣</td></tr>
+<tr><td>L22</td><td>§17 References</td><td>✅ 有</td><td>❌ 無</td><td>gendoc 要跟idea一樣</td></tr>
+<tr><td>L23</td><td>§18 BRD→PRD Handoff Checklist（8 項確認清單）</td><td>✅ 有</td><td>❌ 無</td><td>gendoc 要跟idea一樣</td></tr>
+<tr><td>L24</td><td>§19 OCM（組織變革管理，含訓練計畫/抗拒緩解）</td><td>✅ 有</td><td>❌ 無</td><td>gendoc 要跟idea一樣</td></tr>
+<tr><td>L25</td><td>§20 Approval Sign-off</td><td>✅ 有</td><td>❌ 無</td><td>gendoc 要跟idea一樣</td></tr>
+<tr><td>L26</td><td>git commit BRD.md</td><td>✅ <code>git commit -m &quot;docs(devsop-idea): init BRD&quot;</code></td><td>❌ 無 git commit</td><td>gendoc 要跟idea一樣</td></tr>
+</table>
+<hr>
+<h2>STEP 5.5 / DOC-01.5-後：IDEA Quality Score</h2>
+<table>
+<tr><th>#</th><th>項目</th><th>idea 作法</th><th>gendoc 作法</th><th>決策</th></tr>
+<tr><td>M1</td><td>5 維度評分（目標清晰/使用者具體/痛點可量化/範圍邊界/可行性）</td><td>✅ 有，各 0-1 分</td><td>❌ 無</td><td>gendoc 要跟idea一樣</td></tr>
+<tr><td>M2</td><td>分數轉換為星等（0-5 星）</td><td>✅ 有</td><td>❌</td><td>gendoc 要跟idea一樣</td></tr>
+<tr><td>M3</td><td>質性評論（優質/良好/尚可/需補充/概念模糊）</td><td>✅ 有</td><td>❌</td><td>gendoc 要跟idea一樣</td></tr>
+<tr><td>M4</td><td>評分進入 Step 6 BRD 摘要 + IDEA.md §11</td><td>✅ 有</td><td>❌</td><td>gendoc 要跟idea一樣</td></tr>
+</table>
+<hr>
+<h2>STEP 5.6 / DOC-02 Review：BRD Review Loop</h2>
+<table>
+<tr><th>#</th><th>項目</th><th>idea 作法</th><th>gendoc 作法</th><th>決策</th></tr>
+<tr><td>N1</td><td>輪次上限依 review_strategy（rapid=3/standard=5/exhaustive=99）</td><td>✅ 有</td><td>✅ 有（但用 <code>_LOOP_COUNT</code> from 0-B）</td><td>idea, gendoc都不能自創，要用共用的選項，選項是從config設定的，若是互動模式就叫devsop-config出來問review 的方式，若是自動模式就看共用state去跑，若連state都沒建就如同呼叫devsop-config出來設定再往下走</td></tr>
+<tr><td>N2</td><td>Reviewer Agent 輸出 REVIEW_JSON（findings 陣列）</td><td>✅ 有，20+ 檢查點</td><td>✅ 有（較簡，8 個主要項目）</td><td>gendoc 要跟idea一樣詳細</td></tr>
+<tr><td>N3</td><td>Finding 趨勢追蹤（<code>_FINDINGS_TREND</code> 每輪記錄）</td><td>✅ 有</td><td>❌ 無</td><td>gendoc 要跟idea一樣詳細</td></tr>
+<tr><td>N4</td><td>Per-Round Summary（<code>【Round N/MAX】findings=X，已修復Y項</code>）</td><td>✅ 有</td><td>❌ 無</td><td>gendoc 要跟idea一樣詳細</td></tr>
+<tr><td>N5</td><td>findings==0 提前 break</td><td>✅ 有</td><td>✅ 有</td><td></td></tr>
+<tr><td>N6</td><td>每輪修復後 git commit</td><td>✅ <code>git commit -m &quot;docs(pdd-review): round N fixes&quot;</code></td><td>❌ 無 git commit</td><td>gendoc 要跟idea一樣</td></tr>
+<tr><td>N7</td><td>BRD Review 完成報告（策略/輪次/趨勢/最終狀態）</td><td>✅ 有</td><td>❌ 無完成報告</td><td>gendoc 要跟idea一樣詳細</td></tr>
+<tr><td>N8</td><td>BRD Review 詳細檢查點（§1-§19 逐節驗證）</td><td>✅ 有 20+ 檢查點（包含 RTM/Benefits/Data Governance/Vendor Risk/OCM）</td><td>✅ 有 8 個基礎項目（Executive Summary/Objectives/Metrics/Stakeholders/Scope/Constraints/Timeline/Risk）</td><td>gendoc 要跟idea一樣詳細詳細</td></tr>
+</table>
+<hr>
+<h2>STEP 5.7 / DOC-01.5：IDEA.md 生成</h2>
+<table>
+<tr><th>#</th><th>項目</th><th>idea 作法</th><th>gendoc 作法</th><th>決策</th></tr>
+<tr><td>O1</td><td>Document Control（DOC-ID/版本/作者/日期/建立方式/下游文件）</td><td>✅ 11 欄（含輸入類型/來源/輸入模式）</td><td>✅ 8 欄（含建立來源）</td><td>gendoc 要跟idea一樣詳細</td></tr>
+<tr><td>O2</td><td>§0 Input Source（類型/來源/素材清單/摘要）</td><td>✅ 有</td><td>✅ 有</td><td></td></tr>
+<tr><td>O3</td><td>§1 Idea Essence（Elevator Pitch + 核心假說 + 成功願景）</td><td>✅ 有</td><td>✅ 有（簡版）</td><td>gendoc 要跟idea一樣詳細</td></tr>
+<tr><td>O4</td><td>§1.4 Innovation Type Classification（Incremental/Sustaining/Adjacent/Disruptive/Radical）</td><td>✅ 有</td><td>❌ 無</td><td>gendoc 要跟idea一樣詳細</td></tr>
+<tr><td>O5</td><td>§2 Problem Statement（5 Whys + 問題規模量化）</td><td>✅ 有</td><td>❌ 無</td><td>gendoc 要跟idea一樣詳細</td></tr>
+<tr><td>O6</td><td>Key Features（≥5 項，含優先度）</td><td>❌ 在 BRD §5</td><td>✅ 獨立節</td><td>idea要跟gendoc一樣</td></tr>
+<tr><td>O7</td><td>§3 Target Users（含 JTBD + Not Our Users）</td><td>✅ 有 JTBD</td><td>✅ 有（無 JTBD）</td><td>gendoc 要跟idea一樣詳細</td></tr>
+<tr><td>O8</td><td>§4 Value Hypothesis（Value Proposition Canvas：Pain Relievers + Gain Creators）</td><td>✅ 有</td><td>❌ 無</td><td>gendoc 要跟idea一樣詳細</td></tr>
+<tr><td>O9</td><td>§4.2 差異化定位</td><td>✅ 有</td><td>❌ 無</td><td>gendoc 要跟idea一樣詳細</td></tr>
+<tr><td>O10</td><td>§5 MVP &amp; Learning Plan（MVP 邊界 + 驗證指標 + Riskiest Assumption）</td><td>✅ 有</td><td>❌ 無</td><td>gendoc 要跟idea一樣詳細</td></tr>
+<tr><td>O11</td><td>§6 Clarification Interview Record（Q1-Q5 逐題記錄 + 原始 IDEA 原文）</td><td>✅ 有</td><td>❌ 無（無 Q1-Q5 流程）</td><td>gendoc 要跟idea一樣詳細</td></tr>
+<tr><td>O12</td><td>§7 Market &amp; Competitive Intelligence（競品表 + 技術生態 + 研究來源）</td><td>✅ 有</td><td>❌ 無（無研究步驟）</td><td>gendoc 要跟idea一樣詳細</td></tr>
+<tr><td>O13</td><td>§8 Initial Risk Assessment（風險矩陣 + Kill Conditions + Pre-mortem）</td><td>✅ 有</td><td>❌ 無</td><td>gendoc 要跟idea一樣詳細</td></tr>
+<tr><td>O14</td><td>§9 Business Potential（商業模式假說 + 戰略對齊）</td><td>✅ 有</td><td>❌ 無</td><td>gendoc 要跟idea一樣詳細</td></tr>
+<tr><td>O15</td><td>§10 Executive Sponsorship &amp; Stakeholder Alignment</td><td>✅ 有</td><td>❌ 無</td><td>gendoc 要跟idea一樣詳細</td></tr>
+<tr><td>O16</td><td>§11 IDEA Quality Score（含 5 維度詳細分析）</td><td>✅ 有</td><td>❌ 無</td><td>gendoc 要跟idea一樣詳細</td></tr>
+<tr><td>O17</td><td>§12 Critical Assumptions（含驗證方式/截止日）</td><td>✅ 有</td><td>❌ 無</td><td>gendoc 要跟idea一樣詳細</td></tr>
+<tr><td>O18</td><td>§13 Open Questions</td><td>✅ 有</td><td>❌ 無</td><td>gendoc 要跟idea一樣詳細</td></tr>
+<tr><td>O19</td><td>§14 Handoff Checklist（12 項：一句話/假說/使用者/痛點/規模/競品/風險/Kill Conditions...）</td><td>✅ 有</td><td>❌ 無</td><td>gendoc 要跟idea一樣詳細</td></tr>
+<tr><td>O20</td><td>§15 Traceability Note（需求溯源說明，ECR 比對準則）</td><td>✅ 有</td><td>✅ 有 Forward Traceability</td><td>gendoc 要跟idea一樣詳細</td></tr>
+<tr><td>O21</td><td>Appendix A：Research Raw Data（搜尋詞 + 結果）</td><td>✅ 有</td><td>❌ 無</td><td>gendoc 要跟idea一樣詳細</td></tr>
+<tr><td>O22</td><td>Appendix B：Document History</td><td>✅ 有</td><td>❌ 無</td><td>gendoc 要跟idea一樣詳細</td></tr>
+<tr><td>O23</td><td>Appendix C：Attached Materials（附件清單 + 應用映射到具體文件章節）</td><td>✅ 有</td><td>✅ 有（簡版 Appendix）</td><td>gendoc 要跟idea一樣詳細</td></tr>
+<tr><td>O24</td><td>git commit IDEA.md</td><td>✅ 暗示有</td><td>❌ 無明確 git commit</td><td>gendoc 要跟idea一樣詳細</td></tr>
+<tr><td>O25</td><td>HTML 生成（<code>gen_html.py</code> → <code>idea.html</code>）</td><td>✅ Step 5.7.1</td><td>❌ 無</td><td>gendoc 要跟idea一樣詳細</td></tr>
+</table>
+<hr>
+<h2>STEP 6 / DOC-03-B：Handoff 摘要</h2>
+<table>
+<tr><th>#</th><th>項目</th><th>idea 作法</th><th>gendoc 作法</th><th>決策</th></tr>
+<tr><td>P1</td><td>結構化 BRD 摘要展示（專案/使用者/痛點/技術/功能/研究/評分）</td><td>✅ Step 6</td><td>❌ 無摘要展示，直接跳 Handoff</td><td>gendoc 要跟idea一樣詳細</td></tr>
+<tr><td>P2</td><td>Handoff Banner（表格形式：專案/輸入/文件行數/輪次）</td><td>❌ 無 Banner</td><td>✅ DOC-03-B 有完整 Banner</td><td>idea 要跟gendoc一樣詳細</td></tr>
+</table>
+<hr>
+<h2>STEP 7 / DOC-03-C：使用者確認</h2>
+<table>
+<tr><th>#</th><th>項目</th><th>idea 作法</th><th>gendoc 作法</th><th>決策</th></tr>
+<tr><td>Q1</td><td>AskUserQuestion 詢問下一步（3選項）</td><td>✅ 「開始autodev」/「查看/修改BRD」/「重新整理BRD」</td><td>✅ 「立即啟動autogen」/「先查看BRD」/「稍後手動執行」</td><td>gendoc 改成「開始autogen」/「查看/修改BRD」/「重新整理BRD」</td></tr>
+<tr><td>Q2</td><td>選「查看/修改 BRD」→ 輸出全文，修改後回到確認選單</td><td>✅ 有</td><td>✅ 有（顯示 BRD 後回選單）</td><td>gendoc 要跟idea一樣詳細</td></tr>
+<tr><td></td></tr>
+<tr><td>Q3</td><td>選「重新整理 BRD」→ 回 Step 2 重新提問（不重建目錄/不重做研究）</td><td>✅ 有</td><td>❌ 無</td><td>gendoc 要跟idea一樣詳細</td></tr>
+<tr><td></td></tr>
+<tr><td>Q4</td><td>full-auto 下直接輸出「直接啟動...」跳過詢問</td><td>✅ 有</td><td>✅ 有</td><td></td></tr>
+</table>
+<hr>
+<h2>STEP 8 / DOC-03-A+D：Handoff State + 呼叫下游 Skill</h2>
+<table>
+<tr><th>#</th><th>項目</th><th>idea 作法</th><th>gendoc 作法</th><th>決策</th></tr>
+<tr><td>R1</td><td>寫入 Handoff State（<code>handoff=true</code> / <code>brd_path</code> / <code>idea_path</code> / <code>req_dir</code> / <code>handoff_source</code>）</td><td>❌ 無寫 state</td><td>✅ DOC-03-A 完整寫入</td><td>idea 要跟 gendoc 一樣，但變數，idea吃config那邊的步數，gendoc 自己獨立</td></tr>
+<tr><td>R2</td><td>告知下游 skill 可從哪步開始（<code>brd_path</code> 已就緒，跳過前幾步）</td><td>❌</td><td>✅ 有（<code>gendoc_handoff=True</code>）</td><td>idea 要跟 gendoc 一樣，但變數，idea吃config那邊的步數，gendoc 自己獨立</td></tr>
+<tr><td>R3</td><td>用 Skill 工具呼叫下游</td><td>✅ Step 8（Skill tool → <code>devsop-autodev</code>）</td><td>✅ DOC-03-D（Skill tool → <code>devsop-autogen</code>）</td><td>維持兩邊主要就是步數獨立，下游不同</td></tr>
+<tr><td>R4</td><td>無法自動觸發時提示使用者手動執行指令</td><td>✅ 有</td><td>✅ 有</td><td></td></tr>
+</table>
+<hr>
+<h2>決策彙總（待填寫）</h2>
+<p>填寫完上方各項目後，在此彙總需要修改的項目：</p>
+<h3>gendoc 需補充的項目</h3>
+<blockquote><p>請在決策欄填完後，將「gendoc 補充」的項目條列於此</p></blockquote>
+<ul><li style="list-style:none"><input type="checkbox" disabled> （待填）</li></ul>
+<h3>idea 需補充的項目</h3>
+<blockquote><p>請在決策欄填完後，將「idea 補充」的項目條列於此</p></blockquote>
+<ul><li style="list-style:none"><input type="checkbox" disabled> （待填）</li></ul>
+<h3>保持設計不同（不需修改）</h3>
+<blockquote><p>兩者定位不同導致的合理差異</p></blockquote>
+<ul><li style="list-style:none"><input type="checkbox" disabled> （待填）</li></ul>
+<hr>
+<p><em>此文件由 MYDEVSOP 框架維護。最後更新：2026-04-22</em></p></main>
+  </div>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({startOnLoad:true,theme:'default',
+      flowchart:{curve:'basis',nodeSpacing:60,rankSpacing:80},
+      er:{layoutDirection:'TD',minEntityWidth:100,fontSize:12},
+      sequence:{actorMargin:60,messageMargin:30}});
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-yaml.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-sql.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-go.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-typescript.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-json.min.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>
